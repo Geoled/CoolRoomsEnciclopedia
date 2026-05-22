@@ -35,9 +35,7 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-    .tree {
-      flex:1; overflow-y:auto; padding:0.5rem 0;
-    }
+    .tree { flex:1; overflow-y:auto; padding:0.5rem 0; }
     .tree-item {
       padding: 0.5rem 1rem;
       cursor: pointer;
@@ -51,9 +49,7 @@
     .tree-item:hover { background:#2a2a35; color:#e8dcc8; }
     .tree-folder { font-weight:600; color:#b8974c; }
     .tree-children { display: block; }
-    .main {
-      flex:1; display:flex; flex-direction:column; overflow:hidden;
-    }
+    .main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
     .top-bar {
       background:#1a1a22; border-bottom:1px solid #2e2e3a; padding:0.8rem 1.5rem;
       display:flex; align-items:center; gap:1rem; flex-wrap:wrap;
@@ -75,25 +71,23 @@
     }
     .btn:hover { background:#262630; border-color:#c9a86c; color:#e8dcc8; }
     .btn.primary { background:#2c2a1f; border-color:#b8974c; color:#e5c97a; }
-    .content-area {
-      flex:1; overflow-y:auto; padding:1.5rem;
-    }
-    .filters-bar {
-      display:flex; gap:0.8rem; margin-bottom:1.5rem; flex-wrap:wrap;
-    }
+    .content-area { flex:1; overflow-y:auto; padding:1.5rem; }
+    .filters-bar { display:flex; gap:0.8rem; margin-bottom:1.5rem; flex-wrap:wrap; }
     .filters-bar input, .filters-bar select {
       padding:0.6rem 1rem; background:#14141b; border:1px solid #3a3a48;
       border-radius:14px; color:#d0d0d0; font-size:0.9rem; outline:none;
     }
     .filters-bar input:focus, .filters-bar select:focus { border-color:#c9a86c; }
-    .grid {
-      display:grid; grid-template-columns:repeat(auto-fill, minmax(300px,1fr)); gap:1.2rem;
-    }
+    .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px,1fr)); gap:1.2rem; }
     .card {
       background:#1c1c24; border:1px solid #2d2d3a; border-radius:16px;
-      padding:1.2rem; cursor:pointer; transition:0.2s;
+      padding:1.2rem; cursor:pointer; transition:0.2s; overflow:hidden;
     }
     .card:hover { transform:translateY(-2px); border-color:#b8974c; }
+    .card-img {
+      width:100%; height:120px; object-fit:cover; border-radius:8px; margin-bottom:0.5rem;
+      background:#2a2a35; border:1px solid #3d3d4a;
+    }
     .card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; }
     .card-id { font-weight:600; color:#c9a86c; }
     .class-icon { font-size:1.2rem; }
@@ -118,7 +112,7 @@
       width:100%; padding:0.7rem; background:#14141b; border:1px solid #3a3a48;
       border-radius:10px; color:#d0d0d0; font-size:0.9rem; outline:none;
     }
-    .gallery { display:flex; flex-wrap:wrap; gap:0.5rem; }
+    .gallery { display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.5rem; }
     .gallery img { width:80px; height:80px; object-fit:cover; border-radius:8px; cursor:pointer; border:1px solid #3a3a4a; }
     .lightbox {
       position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9);
@@ -155,7 +149,6 @@
   <div class="content-area" id="contentArea"></div>
 </div>
 
-<!-- Модальные окна -->
 <div class="modal" id="viewModal"><div class="modal-content" id="viewContent"></div></div>
 <div class="modal" id="editModal"><div class="modal-content" id="editContent"></div></div>
 <div class="modal" id="classSettingsModal"><div class="modal-content" id="classSettingsContent"></div></div>
@@ -163,7 +156,7 @@
 
 <script>
 (function() {
-  let currentSection = 'home'; // home, levels, entities, items, food
+  let currentSection = 'home';
   let levels = [], entities = [], items = [], foodItems = [];
   let classStyles = JSON.parse(localStorage.getItem('classStyles')) || {
     "0": { icon:"🟢", color:"#6a9a6a", name:"Безопасный" },
@@ -177,8 +170,6 @@
   const tree = document.getElementById('tree');
   const breadcrumbs = document.getElementById('breadcrumbs');
   const contentArea = document.getElementById('contentArea');
-  const searchInput = document.getElementById('searchInput');
-  const sortSelect = document.getElementById('sortSelect');
   const viewModal = document.getElementById('viewModal');
   const viewContent = document.getElementById('viewContent');
   const editModal = document.getElementById('editModal');
@@ -203,7 +194,7 @@
 
   async function loadAllData() {
     levels = await fetchJSON('levels.json') || [];
-    if (!levels.length) levels.push({ id:"0", title:"Тихая Прихожая", cluster:"Основные", cls:"0", desc:"Уютная анфилада комнат...", food:"Хлеб, сыр...", ent:["Кот-Проводник"], in:"...", out:"...", survival:{safety:5, stability:4, entities:1}, images:[] });
+    if (!levels.length) levels.push({ id:"0", title:"Тихая Прихожая", cluster:"Основные", cls:"0", desc:"Уютная анфилада комнат...", food:"Хлеб, сыр...", ent:["Кот-Проводник"], in:"...", out:"...", survival:{safety:5, stability:4, entities:1}, thumbnail:"", images:[] });
     entities = await fetchJSON('entities.json') || [];
     items = await fetchJSON('items.json') || [];
     foodItems = await fetchJSON('food.json') || [];
@@ -249,9 +240,9 @@
     }
 
     let data = getCurrentData();
-    const search = searchInput?.value?.toLowerCase() || '';
+    const search = document.getElementById('searchInputField')?.value?.toLowerCase() || '';
     data = data.filter(d => (d.title||d.name||'').toLowerCase().includes(search) || (d.id||'').includes(search));
-    const sort = sortSelect?.value || 'default';
+    const sort = document.getElementById('sortSelectField')?.value || 'default';
     data = sortData(data, sort);
 
     contentArea.innerHTML = `
@@ -278,18 +269,18 @@
     attachCardListeners();
 
     document.getElementById('searchInputField').addEventListener('input', (e) => {
-      searchInput.value = e.target.value;
       renderContent();
     });
     document.getElementById('sortSelectField').addEventListener('change', (e) => {
-      sortSelect.value = e.target.value;
       renderContent();
     });
   }
 
   function renderLevelCard(l) {
     const survival = l.survival || {safety:3, stability:3, entities:3};
+    const thumb = l.thumbnail ? `<img class="card-img" src="${l.thumbnail}" onerror="this.style.display='none'">` : '';
     return `<div class="card" data-type="level" data-id="${l.id}">
+      ${thumb}
       <div class="card-header"><span class="card-id">${l.id}</span><span class="class-icon">${getClassIcon(l.cls)}</span></div>
       <div style="font-weight:500;">${l.title}</div>
       <div class="survival-bar">
@@ -301,21 +292,27 @@
     </div>`;
   }
   function renderEntityCard(e) {
+    const thumb = e.thumbnail ? `<img class="card-img" src="${e.thumbnail}" onerror="this.style.display='none'">` : '';
     return `<div class="card" data-type="entity" data-id="${e.id}">
+      ${thumb}
       <div class="card-header"><span class="card-id">Entity ${e.id}</span></div>
       <div style="font-weight:500;">${e.name}</div>
       <div>Класс: ${e.cls||'?'}</div>
     </div>`;
   }
   function renderItemCard(i) {
+    const thumb = i.thumbnail ? `<img class="card-img" src="${i.thumbnail}" onerror="this.style.display='none'">` : '';
     return `<div class="card" data-type="item" data-id="${i.id}">
+      ${thumb}
       <div class="card-header"><span class="card-id">Item ${i.id}</span></div>
       <div style="font-weight:500;">${i.name}</div>
       <div>${i.desc?.substring(0,60)||''}</div>
     </div>`;
   }
   function renderFoodCard(f) {
+    const thumb = f.thumbnail ? `<img class="card-img" src="${f.thumbnail}" onerror="this.style.display='none'">` : '';
     return `<div class="card" data-type="food" data-id="${f.id}">
+      ${thumb}
       <div class="card-header"><span class="card-id">Food ${f.id}</span></div>
       <div style="font-weight:500;">${f.name}</div>
       <div>${f.desc?.substring(0,60)||''}</div>
@@ -364,10 +361,12 @@
   }
 
   function generateViewHTML(type, obj) {
+    const thumb = obj.thumbnail ? `<img src="${obj.thumbnail}" style="max-width:300px; border-radius:12px; margin-bottom:1rem;" onerror="this.style.display='none'">` : '';
+    const gallery = (obj.images||[]).map(img => `<img src="${img.url}" alt="${img.description||''}">`).join('');
     if (type === 'level') {
       const survival = obj.survival || {safety:3, stability:3, entities:3};
-      const imgs = (obj.images||[]).map(img => `<img src="${img.url}" alt="${img.description||''}">`).join('');
       return `<h2>Уровень ${obj.id} — «${obj.title}»</h2>
+        ${thumb}
         <p><strong>Класс:</strong> ${obj.cls} ${getClassIcon(obj.cls)}</p>
         <div class="survival-bar">
           <div class="survival-segment segment-safe" style="flex:${survival.safety}"></div>
@@ -379,22 +378,28 @@
         <p><strong>Сущности:</strong> ${(obj.ent||[]).map(e => `<span class="entity-link" data-entity="${e}">${e}</span>`).join(', ') || '—'}</p>
         <p><strong>Входы:</strong> ${obj.in}</p>
         <p><strong>Выходы:</strong> ${obj.out}</p>
-        <div class="gallery">${imgs}</div>`;
+        <div class="gallery">${gallery}</div>`;
     } else if (type === 'entity') {
       return `<h2>Сущность ${obj.id} — «${obj.name}»</h2>
+        ${thumb}
         <p><strong>Класс:</strong> ${obj.cls}</p>
         <p><strong>Среда:</strong> ${obj.habitat}</p>
         <p>${obj.desc}</p>
         ${obj.behavior ? `<p><strong>Поведение:</strong> ${obj.behavior}</p>` : ''}
-        ${obj.survival ? `<p><strong>Выживание:</strong> ${obj.survival}</p>` : ''}`;
+        ${obj.survival ? `<p><strong>Выживание:</strong> ${obj.survival}</p>` : ''}
+        <div class="gallery">${gallery}</div>`;
     } else if (type === 'item') {
       return `<h2>Предмет ${obj.id} — «${obj.name}»</h2>
+        ${thumb}
         <p>${obj.desc}</p>
-        ${obj.props ? `<p><strong>Свойства:</strong> ${obj.props}</p>` : ''}`;
+        ${obj.props ? `<p><strong>Свойства:</strong> ${obj.props}</p>` : ''}
+        <div class="gallery">${gallery}</div>`;
     } else if (type === 'food') {
       return `<h2>Еда ${obj.id} — «${obj.name}»</h2>
+        ${thumb}
         <p>${obj.desc}</p>
-        ${obj.effect ? `<p><strong>Эффект:</strong> ${obj.effect}</p>` : ''}`;
+        ${obj.effect ? `<p><strong>Эффект:</strong> ${obj.effect}</p>` : ''}
+        <div class="gallery">${gallery}</div>`;
     }
   }
 
@@ -402,7 +407,6 @@
     breadcrumbs.innerHTML = `<span onclick="switchSection('home')">Главная</span> > ${text}`;
   }
 
-  // Открытие формы создания/редактирования
   function openCreateForm() {
     if (currentSection === 'levels') openEditLevelModal();
     else if (currentSection === 'entities') openEditEntityModal();
@@ -411,7 +415,7 @@
   }
 
   function openEditLevelModal(level=null) {
-    const lvl = level || { id:'', title:'', cluster:'', cls:'0', desc:'', food:'', ent:[], in:'', out:'', survival:{safety:3,stability:3,entities:3}, images:[] };
+    const lvl = level || { id:'', title:'', cluster:'', cls:'0', desc:'', food:'', ent:[], in:'', out:'', survival:{safety:3,stability:3,entities:3}, thumbnail:'', images:[] };
     const classOptions = [0,1,2,3,4,5].map(i => `<option value="${i}" ${lvl.cls == i ? 'selected' : ''}>${i} - ${classStyles[i]?.name || 'Класс '+i}</option>`).join('');
     editContent.innerHTML = `
       <h3>${level?'Редактировать':'Новый'} уровень</h3>
@@ -427,10 +431,24 @@
       <div class="form-group"><label>Сущности (через запятую)</label><input id="editEnt" value="${(lvl.ent||[]).join(', ')}"></div>
       <div class="form-group"><label>Входы</label><input id="editIn" value="${lvl.in}"></div>
       <div class="form-group"><label>Выходы</label><input id="editOut" value="${lvl.out}"></div>
-      <button class="btn primary" id="saveLevelBtn">Сохранить</button>
-      <button class="btn" onclick="editModal.classList.remove('active')">Отмена</button>`;
+      <div class="form-group"><label>Главное изображение (URL)</label><input id="editThumbnail" value="${lvl.thumbnail||''}"></div>
+      <div id="imagesContainer">
+        <label style="color:#b0b0be; font-size:0.85rem;">Дополнительные изображения</label>
+        ${(lvl.images||[]).map(img => `<div class="image-entry"><input class="image-url" value="${img.url}" placeholder="URL"><input class="image-desc" value="${img.description||''}" placeholder="Описание"><button class="btn remove-image">✕</button></div>`).join('')}
+      </div>
+      <button class="btn" id="addImageBtn">+ Добавить изображение</button>
+      <div style="margin-top:1rem;">
+        <button class="btn primary" id="saveLevelBtn">Сохранить</button>
+        <button class="btn" onclick="editModal.classList.remove('active')">Отмена</button>
+      </div>`;
     editModal.classList.add('active');
     document.getElementById('saveLevelBtn').addEventListener('click', async () => {
+      const images = [];
+      document.querySelectorAll('#imagesContainer .image-entry').forEach(entry => {
+        const url = entry.querySelector('.image-url').value.trim();
+        const desc = entry.querySelector('.image-desc').value.trim();
+        if (url) images.push({ url, description: desc });
+      });
       const newLevel = {
         id: document.getElementById('editId').value,
         title: document.getElementById('editTitle').value,
@@ -446,7 +464,8 @@
         ent: document.getElementById('editEnt').value.split(',').map(s=>s.trim()).filter(Boolean),
         in: document.getElementById('editIn').value,
         out: document.getElementById('editOut').value,
-        images: lvl.images || []
+        thumbnail: document.getElementById('editThumbnail').value,
+        images
       };
       if (level) { const idx = levels.findIndex(l => l.id === level.id); if (idx !== -1) levels[idx] = newLevel; }
       else levels.push(newLevel);
@@ -455,10 +474,11 @@
       renderContent();
       renderTree();
     });
+    addImageListeners();
   }
 
   function openEditEntityModal(entity=null) {
-    const e = entity || { id:'', name:'', cls:'', habitat:'', desc:'', behavior:'', survival:'' };
+    const e = entity || { id:'', name:'', cls:'', habitat:'', desc:'', behavior:'', survival:'', thumbnail:'', images:[] };
     editContent.innerHTML = `
       <h3>${entity?'Редактировать':'Новая'} сущность</h3>
       <div class="form-group"><label>ID</label><input id="editId" value="${e.id}"></div>
@@ -468,10 +488,24 @@
       <div class="form-group"><label>Описание</label><textarea id="editDesc">${e.desc||''}</textarea></div>
       <div class="form-group"><label>Поведение</label><textarea id="editBehavior">${e.behavior||''}</textarea></div>
       <div class="form-group"><label>Выживание</label><textarea id="editSurvival">${e.survival||''}</textarea></div>
-      <button class="btn primary" id="saveEntityBtn">Сохранить</button>
-      <button class="btn" onclick="editModal.classList.remove('active')">Отмена</button>`;
+      <div class="form-group"><label>Главное изображение (URL)</label><input id="editThumbnail" value="${e.thumbnail||''}"></div>
+      <div id="imagesContainer">
+        <label style="color:#b0b0be; font-size:0.85rem;">Дополнительные изображения</label>
+        ${(e.images||[]).map(img => `<div class="image-entry"><input class="image-url" value="${img.url}" placeholder="URL"><input class="image-desc" value="${img.description||''}" placeholder="Описание"><button class="btn remove-image">✕</button></div>`).join('')}
+      </div>
+      <button class="btn" id="addImageBtn">+ Добавить изображение</button>
+      <div style="margin-top:1rem;">
+        <button class="btn primary" id="saveEntityBtn">Сохранить</button>
+        <button class="btn" onclick="editModal.classList.remove('active')">Отмена</button>
+      </div>`;
     editModal.classList.add('active');
     document.getElementById('saveEntityBtn').addEventListener('click', async () => {
+      const images = [];
+      document.querySelectorAll('#imagesContainer .image-entry').forEach(entry => {
+        const url = entry.querySelector('.image-url').value.trim();
+        const desc = entry.querySelector('.image-desc').value.trim();
+        if (url) images.push({ url, description: desc });
+      });
       const newEntity = {
         id: document.getElementById('editId').value,
         name: document.getElementById('editName').value,
@@ -479,7 +513,9 @@
         habitat: document.getElementById('editHabitat').value,
         desc: document.getElementById('editDesc').value,
         behavior: document.getElementById('editBehavior').value,
-        survival: document.getElementById('editSurvival').value
+        survival: document.getElementById('editSurvival').value,
+        thumbnail: document.getElementById('editThumbnail').value,
+        images
       };
       if (entity) { const idx = entities.findIndex(en => en.id === entity.id); if (idx !== -1) entities[idx] = newEntity; }
       else entities.push(newEntity);
@@ -488,25 +524,42 @@
       renderContent();
       renderTree();
     });
+    addImageListeners();
   }
 
   function openEditItemModal(item=null) {
-    const i = item || { id:'', name:'', desc:'', props:'' };
+    const i = item || { id:'', name:'', desc:'', props:'', thumbnail:'', images:[] };
     editContent.innerHTML = `
       <h3>${item?'Редактировать':'Новый'} предмет</h3>
       <div class="form-group"><label>ID</label><input id="editId" value="${i.id}"></div>
       <div class="form-group"><label>Название</label><input id="editName" value="${i.name}"></div>
       <div class="form-group"><label>Описание</label><textarea id="editDesc">${i.desc||''}</textarea></div>
       <div class="form-group"><label>Свойства</label><textarea id="editProps">${i.props||''}</textarea></div>
-      <button class="btn primary" id="saveItemBtn">Сохранить</button>
-      <button class="btn" onclick="editModal.classList.remove('active')">Отмена</button>`;
+      <div class="form-group"><label>Главное изображение (URL)</label><input id="editThumbnail" value="${i.thumbnail||''}"></div>
+      <div id="imagesContainer">
+        <label style="color:#b0b0be; font-size:0.85rem;">Дополнительные изображения</label>
+        ${(i.images||[]).map(img => `<div class="image-entry"><input class="image-url" value="${img.url}" placeholder="URL"><input class="image-desc" value="${img.description||''}" placeholder="Описание"><button class="btn remove-image">✕</button></div>`).join('')}
+      </div>
+      <button class="btn" id="addImageBtn">+ Добавить изображение</button>
+      <div style="margin-top:1rem;">
+        <button class="btn primary" id="saveItemBtn">Сохранить</button>
+        <button class="btn" onclick="editModal.classList.remove('active')">Отмена</button>
+      </div>`;
     editModal.classList.add('active');
     document.getElementById('saveItemBtn').addEventListener('click', async () => {
+      const images = [];
+      document.querySelectorAll('#imagesContainer .image-entry').forEach(entry => {
+        const url = entry.querySelector('.image-url').value.trim();
+        const desc = entry.querySelector('.image-desc').value.trim();
+        if (url) images.push({ url, description: desc });
+      });
       const newItem = {
         id: document.getElementById('editId').value,
         name: document.getElementById('editName').value,
         desc: document.getElementById('editDesc').value,
-        props: document.getElementById('editProps').value
+        props: document.getElementById('editProps').value,
+        thumbnail: document.getElementById('editThumbnail').value,
+        images
       };
       if (item) { const idx = items.findIndex(it => it.id === item.id); if (idx !== -1) items[idx] = newItem; }
       else items.push(newItem);
@@ -515,25 +568,42 @@
       renderContent();
       renderTree();
     });
+    addImageListeners();
   }
 
   function openEditFoodModal(food=null) {
-    const f = food || { id:'', name:'', desc:'', effect:'' };
+    const f = food || { id:'', name:'', desc:'', effect:'', thumbnail:'', images:[] };
     editContent.innerHTML = `
       <h3>${food?'Редактировать':'Новая'} еда</h3>
       <div class="form-group"><label>ID</label><input id="editId" value="${f.id}"></div>
       <div class="form-group"><label>Название</label><input id="editName" value="${f.name}"></div>
       <div class="form-group"><label>Описание</label><textarea id="editDesc">${f.desc||''}</textarea></div>
       <div class="form-group"><label>Эффект</label><textarea id="editEffect">${f.effect||''}</textarea></div>
-      <button class="btn primary" id="saveFoodBtn">Сохранить</button>
-      <button class="btn" onclick="editModal.classList.remove('active')">Отмена</button>`;
+      <div class="form-group"><label>Главное изображение (URL)</label><input id="editThumbnail" value="${f.thumbnail||''}"></div>
+      <div id="imagesContainer">
+        <label style="color:#b0b0be; font-size:0.85rem;">Дополнительные изображения</label>
+        ${(f.images||[]).map(img => `<div class="image-entry"><input class="image-url" value="${img.url}" placeholder="URL"><input class="image-desc" value="${img.description||''}" placeholder="Описание"><button class="btn remove-image">✕</button></div>`).join('')}
+      </div>
+      <button class="btn" id="addImageBtn">+ Добавить изображение</button>
+      <div style="margin-top:1rem;">
+        <button class="btn primary" id="saveFoodBtn">Сохранить</button>
+        <button class="btn" onclick="editModal.classList.remove('active')">Отмена</button>
+      </div>`;
     editModal.classList.add('active');
     document.getElementById('saveFoodBtn').addEventListener('click', async () => {
+      const images = [];
+      document.querySelectorAll('#imagesContainer .image-entry').forEach(entry => {
+        const url = entry.querySelector('.image-url').value.trim();
+        const desc = entry.querySelector('.image-desc').value.trim();
+        if (url) images.push({ url, description: desc });
+      });
       const newFood = {
         id: document.getElementById('editId').value,
         name: document.getElementById('editName').value,
         desc: document.getElementById('editDesc').value,
-        effect: document.getElementById('editEffect').value
+        effect: document.getElementById('editEffect').value,
+        thumbnail: document.getElementById('editThumbnail').value,
+        images
       };
       if (food) { const idx = foodItems.findIndex(fd => fd.id === food.id); if (idx !== -1) foodItems[idx] = newFood; }
       else foodItems.push(newFood);
@@ -541,6 +611,26 @@
       editModal.classList.remove('active');
       renderContent();
       renderTree();
+    });
+    addImageListeners();
+  }
+
+  function addImageListeners() {
+    const addBtn = document.getElementById('addImageBtn');
+    if (addBtn) {
+      addBtn.addEventListener('click', () => {
+        const container = document.getElementById('imagesContainer');
+        const entry = document.createElement('div');
+        entry.className = 'image-entry';
+        entry.innerHTML = `<input class="image-url" placeholder="URL"><input class="image-desc" placeholder="Описание"><button class="btn remove-image">✕</button>`;
+        container.appendChild(entry);
+        entry.querySelector('.remove-image').addEventListener('click', () => entry.remove());
+      });
+    }
+    document.querySelectorAll('#imagesContainer .remove-image').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.target.closest('.image-entry').remove();
+      });
     });
   }
 
@@ -581,7 +671,7 @@
       data.forEach(d => {
         const item = document.createElement('div'); item.className = 'tree-item';
         item.textContent = (d.name || d.title || d.id);
-        item.addEventListener('click', () => openView(currentSection.slice(0, -1), d.id)); // 'entities' -> 'entity', 'items'->'item','food'->'food'
+        item.addEventListener('click', () => openView(currentSection.slice(0, -1), d.id));
         tree.appendChild(item);
       });
     }
@@ -596,7 +686,6 @@
     renderContent();
   }
 
-  // Привязки событий
   document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => switchSection(b.dataset.tab)));
   document.getElementById('settingsBtn').addEventListener('click', () => {
     let html = '<h3>Настройка иконок классов</h3>';
@@ -626,7 +715,6 @@
   editModal.addEventListener('click', e => { if (e.target === editModal) editModal.classList.remove('active'); });
   classSettingsModal.addEventListener('click', e => { if (e.target === classSettingsModal) classSettingsModal.classList.remove('active'); });
 
-  // Инициализация
   (async () => {
     await loadAllData();
     switchSection('home');
