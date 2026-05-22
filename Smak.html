@@ -49,7 +49,6 @@
       transition: 0.15s;
     }
     .tree-item:hover { background:#2a2a35; color:#e8dcc8; }
-    .tree-item.active { background:#2c2c38; color:#c9a86c; font-weight:500; }
     .tree-folder { font-weight:600; color:#b8974c; }
     .tree-children { display: block; }
     .main {
@@ -59,10 +58,16 @@
       background:#1a1a22; border-bottom:1px solid #2e2e3a; padding:0.8rem 1.5rem;
       display:flex; align-items:center; gap:1rem; flex-wrap:wrap;
     }
+    .tabs { display:flex; gap:0.5rem; margin-right:auto; }
+    .tab-btn {
+      background:transparent; border:1px solid transparent; color:#8c8c9a;
+      padding:0.4rem 0.8rem; border-radius:16px; font-size:0.85rem; cursor:pointer; transition:0.2s;
+    }
+    .tab-btn.active { background:#2c2c38; border-color:#c9a86c; color:#c9a86c; }
     .breadcrumbs { font-size:0.85rem; color:#8c8c9a; }
     .breadcrumbs span { color:#bca07c; cursor:pointer; }
     .breadcrumbs span:hover { text-decoration:underline; }
-    .actions { margin-left:auto; display:flex; gap:0.5rem; }
+    .actions { display:flex; gap:0.5rem; }
     .btn {
       background:#1e1e26; border:1px solid #3d3d4a; color:#cacaca;
       padding:0.5rem 1rem; border-radius:20px; font-size:0.85rem; cursor:pointer;
@@ -96,6 +101,7 @@
     .survival-segment { height:6px; border-radius:3px; flex:1; }
     .segment-safe { background:#6a9a6a; } .segment-stable { background:#5a7a9a; } .segment-entity { background:#b9774a; }
     .card-desc { font-size:0.85rem; color:#a0a0b0; margin-top:0.3rem; }
+    .home-content { max-width:700px; margin:0 auto; line-height:1.6; }
     .modal {
       display:none; position:fixed; top:0; left:0; width:100%; height:100%;
       background:rgba(0,0,0,0.7); backdrop-filter:blur(6px); align-items:center;
@@ -132,39 +138,33 @@
 </div>
 <div class="main">
   <div class="top-bar" id="topBar">
+    <div class="tabs">
+      <span class="tab-btn active" data-tab="home">🏠 Главная</span>
+      <span class="tab-btn" data-tab="levels">📊 Уровни</span>
+      <span class="tab-btn" data-tab="entities">👾 Сущности</span>
+      <span class="tab-btn" data-tab="items">📦 Предметы</span>
+      <span class="tab-btn" data-tab="food">🍎 Еда</span>
+    </div>
     <div class="breadcrumbs" id="breadcrumbs">Главная</div>
     <div class="actions">
       <button class="btn" id="refreshBtn">🔄 Обновить</button>
       <button class="btn" id="settingsBtn">⚙️ Классы</button>
-      <button class="btn primary" id="addBtn">➕ Новый уровень</button>
+      <button class="btn primary" id="addBtn">➕ Создать</button>
     </div>
   </div>
-  <div class="content-area" id="contentArea">
-    <div class="filters-bar">
-      <input type="text" id="searchInput" placeholder="Поиск...">
-      <select id="sortSelect">
-        <option value="default">По умолчанию</option><option value="id_asc">ID возр.</option><option value="id_desc">ID убыв.</option>
-        <option value="name_asc">Название А-Я</option><option value="name_desc">Название Я-А</option>
-      </select>
-    </div>
-    <div class="grid" id="grid"></div>
-  </div>
+  <div class="content-area" id="contentArea"></div>
 </div>
 
-<!-- Модальное окно просмотра -->
+<!-- Модальные окна -->
 <div class="modal" id="viewModal"><div class="modal-content" id="viewContent"></div></div>
-<!-- Модальное окно редактирования -->
 <div class="modal" id="editModal"><div class="modal-content" id="editContent"></div></div>
-<!-- Настройки классов -->
 <div class="modal" id="classSettingsModal"><div class="modal-content" id="classSettingsContent"></div></div>
-<!-- Лайтбокс -->
 <div class="lightbox" id="lightbox" onclick="this.style.display='none'"><img id="lightboxImg" src=""></div>
 
 <script>
 (function() {
-  // Состояние
-  let currentTab = 'levels';
-  let levels = [], entities = [], items = [];
+  let currentSection = 'home'; // home, levels, entities, items, food
+  let levels = [], entities = [], items = [], foodItems = [];
   let classStyles = JSON.parse(localStorage.getItem('classStyles')) || {
     "0": { icon:"🟢", color:"#6a9a6a", name:"Безопасный" },
     "1": { icon:"🟡", color:"#c9a64a", name:"Почти безопасный" },
@@ -174,10 +174,9 @@
     "5": { icon:"⛔", color:"#8b0000", name:"Смертельный" }
   };
 
-  // DOM элементы
   const tree = document.getElementById('tree');
   const breadcrumbs = document.getElementById('breadcrumbs');
-  const grid = document.getElementById('grid');
+  const contentArea = document.getElementById('contentArea');
   const searchInput = document.getElementById('searchInput');
   const sortSelect = document.getElementById('sortSelect');
   const viewModal = document.getElementById('viewModal');
@@ -188,8 +187,8 @@
   const classSettingsContent = document.getElementById('classSettingsContent');
   const lightbox = document.getElementById('lightbox');
   const lightboxImg = document.getElementById('lightboxImg');
+  const addBtn = document.getElementById('addBtn');
 
-  // Загрузка данных
   async function fetchJSON(file) {
     const owner = localStorage.getItem('gh_owner');
     const repo = localStorage.getItem('gh_repo');
@@ -202,133 +201,124 @@
     } catch(e) { return []; }
   }
 
-  async function loadData() {
-    levels = await fetchJSON('levels.json');
-    if (!levels.length) levels = [{ id:"0", title:"Тихая Прихожая", cluster:"Основные", cls:"0", desc:"Уютная анфилада комнат...", food:"Хлеб, сыр...", ent:["Кот-Проводник"], in:"...", out:"...", survival:{safety:5, stability:4, entities:1}, images:[] }];
-    entities = await fetchJSON('entities.json');
-    items = await fetchJSON('items.json');
-    renderTree();
-    renderContent();
+  async function loadAllData() {
+    levels = await fetchJSON('levels.json') || [];
+    if (!levels.length) levels.push({ id:"0", title:"Тихая Прихожая", cluster:"Основные", cls:"0", desc:"Уютная анфилада комнат...", food:"Хлеб, сыр...", ent:["Кот-Проводник"], in:"...", out:"...", survival:{safety:5, stability:4, entities:1}, images:[] });
+    entities = await fetchJSON('entities.json') || [];
+    items = await fetchJSON('items.json') || [];
+    foodItems = await fetchJSON('food.json') || [];
   }
 
-  // Древовидная навигация (исправлено)
-  function buildTree() {
-    if (currentTab === 'levels') {
-      const clusters = {};
-      levels.forEach(l => {
-        const c = l.cluster || 'Без кластера';
-        if (!clusters[c]) clusters[c] = [];
-        clusters[c].push(l);
-      });
-      return Object.entries(clusters).map(([name, items]) => ({
-        type:'folder', name, children: items.map(l => ({ type:'level', id:l.id, title:l.title }))
-      }));
-    } else if (currentTab === 'entities') {
-      return [{ type:'folder', name:'Все сущности', children: entities.map(e => ({ type:'entity', id:e.id, title:e.name })) }];
-    } else {
-      return [{ type:'folder', name:'Предметы', children: items.map(i => ({ type:'item', id:i.id, title:i.name })) }];
+  function getCurrentData() {
+    if (currentSection === 'levels') return levels;
+    if (currentSection === 'entities') return entities;
+    if (currentSection === 'items') return items;
+    if (currentSection === 'food') return foodItems;
+    return [];
+  }
+
+  function getClassNumber(cls) {
+    const m = cls?.toString().match(/^(\d+)/);
+    return m ? parseInt(m[1]) : 999;
+  }
+
+  function sortData(data, key) {
+    const a = [...data];
+    switch(key) {
+      case 'id_asc': return a.sort((x,y) => (x.id||'').localeCompare(y.id||'', undefined, {numeric:true}));
+      case 'id_desc': return a.sort((x,y) => (y.id||'').localeCompare(x.id||'', undefined, {numeric:true}));
+      case 'name_asc': return a.sort((x,y) => (x.title||x.name||'').localeCompare(y.title||y.name||''));
+      case 'name_desc': return a.sort((x,y) => (y.title||y.name||'').localeCompare(x.title||x.name||''));
+      case 'class_asc': return a.sort((x,y) => getClassNumber(x.cls) - getClassNumber(y.cls));
+      case 'class_desc': return a.sort((x,y) => getClassNumber(y.cls) - getClassNumber(x.cls));
+      default: return a;
     }
   }
 
-  function renderTree() {
-    tree.innerHTML = '';
-    const data = buildTree();
-    data.forEach(node => renderTreeNode(node, tree, 0));
-  }
-
-  function renderTreeNode(node, parentContainer, depth) {
-    const div = document.createElement('div');
-    div.className = 'tree-item';
-    div.style.paddingLeft = (depth * 1.2 + 1) + 'rem';
-    if (node.type === 'folder') {
-      div.classList.add('tree-folder');
-      div.textContent = '📁 ' + node.name;
-      const childContainer = document.createElement('div');
-      childContainer.className = 'tree-children';
-      childContainer.style.display = 'block'; // изначально открыты
-      // Добавляем папку и затем контейнер для детей
-      parentContainer.appendChild(div);
-      parentContainer.appendChild(childContainer);
-      // Обработчик клика для сворачивания/разворачивания
-      div.addEventListener('click', (e) => {
-        e.stopPropagation();
-        childContainer.style.display = childContainer.style.display === 'none' ? 'block' : 'none';
-      });
-      // Рекурсивно добавляем детей в childContainer
-      node.children.forEach(child => renderTreeNode(child, childContainer, depth + 1));
-    } else {
-      // Лист (уровень/сущность/предмет)
-      div.innerHTML = `<span class="class-icon">${getClassIcon(node.type==='level' ? levels.find(l=>l.id===node.id)?.cls : '')}</span> ${node.title || node.id}`;
-      div.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (node.type === 'level') openView('level', node.id);
-        else if (node.type === 'entity') openView('entity', node.id);
-        else if (node.type === 'item') openView('item', node.id);
-      });
-      parentContainer.appendChild(div);
-    }
-  }
-
-  function getClassIcon(cls) {
-    const num = cls ? cls.toString().match(/^(\d+)/)?.[1] : '?';
-    return classStyles[num]?.icon || '⬜';
-  }
-
-  // Хлебные крошки
-  function updateBreadcrumbs(text) {
-    breadcrumbs.innerHTML = `<span onclick="switchTab('${currentTab}')">Главная</span> > ${text}`;
-  }
-
-  // Отображение контента
   function renderContent() {
-    let data = currentTab === 'levels' ? levels : currentTab === 'entities' ? entities : items;
-    const search = searchInput.value.toLowerCase();
+    if (currentSection === 'home') {
+      contentArea.innerHTML = `<div class="home-content">
+        <h2 style="color:#c9b896;">Добро пожаловать в Tihie Rooms Enciclopedia</h2>
+        <p style="margin-top:1rem;">Это сообщество исследователей Закулисья. Здесь вы найдёте описания уровней, существ, предметов и пищи, с которыми сталкиваются странники в бесконечных комнатах.</p>
+        <p>Используйте вкладки выше для навигации по разделам, а боковую панель — для быстрого перехода к конкретным записям.</p>
+        <p style="margin-top:1rem;"><strong>Последние добавленные уровни:</strong></p>
+        <ul>${levels.slice(-3).map(l => `<li>Уровень ${l.id} – ${l.title}</li>`).join('')}</ul>
+      </div>`;
+      tree.innerHTML = '<div style="padding:1rem; color:#8c8c9a;">Выберите раздел</div>';
+      return;
+    }
+
+    let data = getCurrentData();
+    const search = searchInput?.value?.toLowerCase() || '';
     data = data.filter(d => (d.title||d.name||'').toLowerCase().includes(search) || (d.id||'').includes(search));
-    const sort = sortSelect.value;
-    if (sort === 'id_asc') data.sort((a,b) => (a.id||'').localeCompare(b.id||'', undefined, {numeric:true}));
-    else if (sort === 'id_desc') data.sort((a,b) => (b.id||'').localeCompare(a.id||'', undefined, {numeric:true}));
-    else if (sort === 'name_asc') data.sort((a,b) => (a.title||a.name||'').localeCompare(b.title||b.name||''));
-    else if (sort === 'name_desc') data.sort((a,b) => (b.title||b.name||'').localeCompare(a.title||a.name||''));
-    
+    const sort = sortSelect?.value || 'default';
+    data = sortData(data, sort);
+
+    contentArea.innerHTML = `
+      <div class="filters-bar">
+        <input type="text" id="searchInputField" placeholder="Поиск..." value="${search}">
+        <select id="sortSelectField">
+          <option value="default" ${sort==='default'?'selected':''}>По умолчанию</option>
+          <option value="id_asc" ${sort==='id_asc'?'selected':''}>ID возр.</option>
+          <option value="id_desc" ${sort==='id_desc'?'selected':''}>ID убыв.</option>
+          <option value="name_asc" ${sort==='name_asc'?'selected':''}>Название А-Я</option>
+          <option value="name_desc" ${sort==='name_desc'?'selected':''}>Название Я-А</option>
+          <option value="class_asc" ${sort==='class_asc'?'selected':''}>Класс (0→5)</option>
+          <option value="class_desc" ${sort==='class_desc'?'selected':''}>Класс (5→0)</option>
+        </select>
+      </div>
+      <div class="grid" id="grid"></div>`;
+    const grid = document.getElementById('grid');
     grid.innerHTML = data.map(d => {
-      if (currentTab === 'levels') return renderLevelCard(d);
-      else if (currentTab === 'entities') return renderEntityCard(d);
-      else return renderItemCard(d);
+      if (currentSection === 'levels') return renderLevelCard(d);
+      if (currentSection === 'entities') return renderEntityCard(d);
+      if (currentSection === 'items') return renderItemCard(d);
+      if (currentSection === 'food') return renderFoodCard(d);
     }).join('');
     attachCardListeners();
+
+    document.getElementById('searchInputField').addEventListener('input', (e) => {
+      searchInput.value = e.target.value;
+      renderContent();
+    });
+    document.getElementById('sortSelectField').addEventListener('change', (e) => {
+      sortSelect.value = e.target.value;
+      renderContent();
+    });
   }
 
   function renderLevelCard(l) {
     const survival = l.survival || {safety:3, stability:3, entities:3};
     return `<div class="card" data-type="level" data-id="${l.id}">
-      <div class="card-header">
-        <span class="card-id">${l.id}</span>
-        <span class="class-icon" title="${classStyles[l.cls]?.name || 'Класс '+l.cls}">${getClassIcon(l.cls)}</span>
-      </div>
-      <div class="card-title" style="font-weight:500; margin-bottom:0.3rem;">${l.title}</div>
+      <div class="card-header"><span class="card-id">${l.id}</span><span class="class-icon">${getClassIcon(l.cls)}</span></div>
+      <div style="font-weight:500;">${l.title}</div>
       <div class="survival-bar">
-        <div class="survival-segment segment-safe" style="flex:${survival.safety}" title="Безопасность: ${survival.safety}"></div>
-        <div class="survival-segment segment-stable" style="flex:${survival.stability}" title="Стабильность: ${survival.stability}"></div>
-        <div class="survival-segment segment-entity" style="flex:${survival.entities}" title="Заселённость: ${survival.entities}"></div>
+        <div class="survival-segment segment-safe" style="flex:${survival.safety}"></div>
+        <div class="survival-segment segment-stable" style="flex:${survival.stability}"></div>
+        <div class="survival-segment segment-entity" style="flex:${survival.entities}"></div>
       </div>
-      <div class="card-desc">${l.desc?.substring(0,80) || 'Описание отсутствует'}...</div>
-      <div style="font-size:0.75rem; color:#7a7a8a; margin-top:0.5rem;">Кластер: ${l.cluster || '—'}</div>
+      <div class="card-desc">${l.desc?.substring(0,80)||''}...</div>
     </div>`;
   }
-
   function renderEntityCard(e) {
     return `<div class="card" data-type="entity" data-id="${e.id}">
       <div class="card-header"><span class="card-id">Entity ${e.id}</span></div>
-      <div class="card-title" style="font-weight:500;">${e.name}</div>
+      <div style="font-weight:500;">${e.name}</div>
       <div>Класс: ${e.cls||'?'}</div>
     </div>`;
   }
-
   function renderItemCard(i) {
     return `<div class="card" data-type="item" data-id="${i.id}">
       <div class="card-header"><span class="card-id">Item ${i.id}</span></div>
-      <div class="card-title" style="font-weight:500;">${i.name}</div>
-      <div>${i.desc?.substring(0,60) || ''}</div>
+      <div style="font-weight:500;">${i.name}</div>
+      <div>${i.desc?.substring(0,60)||''}</div>
+    </div>`;
+  }
+  function renderFoodCard(f) {
+    return `<div class="card" data-type="food" data-id="${f.id}">
+      <div class="card-header"><span class="card-id">Food ${f.id}</span></div>
+      <div style="font-weight:500;">${f.name}</div>
+      <div>${f.desc?.substring(0,60)||''}</div>
     </div>`;
   }
 
@@ -342,24 +332,27 @@
     });
   }
 
-  // Просмотр деталей
+  function getClassIcon(cls) {
+    const num = cls ? cls.toString().match(/^(\d+)/)?.[1] : '?';
+    return classStyles[num]?.icon || '⬜';
+  }
+
   function openView(type, id) {
     let obj;
     if (type === 'level') obj = levels.find(l => l.id === id);
     else if (type === 'entity') obj = entities.find(e => e.id === id);
-    else obj = items.find(i => i.id === id);
+    else if (type === 'item') obj = items.find(i => i.id === id);
+    else if (type === 'food') obj = foodItems.find(f => f.id === id);
     if (!obj) return;
-    updateBreadcrumbs(`${type==='level'?'Уровень':type==='entity'?'Сущность':'Предмет'} ${obj.id}`);
+    updateBreadcrumbs(`${type==='level'?'Уровень':type==='entity'?'Сущность':type==='item'?'Предмет':'Еда'} ${obj.id}`);
     viewContent.innerHTML = generateViewHTML(type, obj);
     viewModal.classList.add('active');
-    // Галерея
     viewContent.querySelectorAll('.gallery img').forEach(img => {
       img.addEventListener('click', (e) => {
         lightboxImg.src = e.target.src;
         lightbox.style.display = 'flex';
       });
     });
-    // Кликабельные сущности
     viewContent.querySelectorAll('.entity-link').forEach(link => {
       link.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -391,17 +384,33 @@
       return `<h2>Сущность ${obj.id} — «${obj.name}»</h2>
         <p><strong>Класс:</strong> ${obj.cls}</p>
         <p><strong>Среда:</strong> ${obj.habitat}</p>
-        <p>${obj.desc}</p>`;
-    } else {
+        <p>${obj.desc}</p>
+        ${obj.behavior ? `<p><strong>Поведение:</strong> ${obj.behavior}</p>` : ''}
+        ${obj.survival ? `<p><strong>Выживание:</strong> ${obj.survival}</p>` : ''}`;
+    } else if (type === 'item') {
       return `<h2>Предмет ${obj.id} — «${obj.name}»</h2>
-        <p>${obj.desc}</p>`;
+        <p>${obj.desc}</p>
+        ${obj.props ? `<p><strong>Свойства:</strong> ${obj.props}</p>` : ''}`;
+    } else if (type === 'food') {
+      return `<h2>Еда ${obj.id} — «${obj.name}»</h2>
+        <p>${obj.desc}</p>
+        ${obj.effect ? `<p><strong>Эффект:</strong> ${obj.effect}</p>` : ''}`;
     }
   }
 
-  viewModal.addEventListener('click', e => { if (e.target === viewModal) viewModal.classList.remove('active'); });
+  function updateBreadcrumbs(text) {
+    breadcrumbs.innerHTML = `<span onclick="switchSection('home')">Главная</span> > ${text}`;
+  }
 
-  // Редактирование уровня (с dropdown для класса)
-  function openEditModal(level=null) {
+  // Открытие формы создания/редактирования
+  function openCreateForm() {
+    if (currentSection === 'levels') openEditLevelModal();
+    else if (currentSection === 'entities') openEditEntityModal();
+    else if (currentSection === 'items') openEditItemModal();
+    else if (currentSection === 'food') openEditFoodModal();
+  }
+
+  function openEditLevelModal(level=null) {
     const lvl = level || { id:'', title:'', cluster:'', cls:'0', desc:'', food:'', ent:[], in:'', out:'', survival:{safety:3,stability:3,entities:3}, images:[] };
     const classOptions = [0,1,2,3,4,5].map(i => `<option value="${i}" ${lvl.cls == i ? 'selected' : ''}>${i} - ${classStyles[i]?.name || 'Класс '+i}</option>`).join('');
     editContent.innerHTML = `
@@ -409,9 +418,7 @@
       <div class="form-group"><label>ID</label><input id="editId" value="${lvl.id}"></div>
       <div class="form-group"><label>Название</label><input id="editTitle" value="${lvl.title}"></div>
       <div class="form-group"><label>Кластер</label><input id="editCluster" value="${lvl.cluster||''}"></div>
-      <div class="form-group"><label>Класс</label>
-        <select id="editClass">${classOptions}</select>
-      </div>
+      <div class="form-group"><label>Класс</label><select id="editClass">${classOptions}</select></div>
       <div class="form-group"><label>Безопасность (1-5)</label><input type="number" id="editSafety" value="${lvl.survival?.safety||3}" min="1" max="5"></div>
       <div class="form-group"><label>Стабильность (1-5)</label><input type="number" id="editStability" value="${lvl.survival?.stability||3}" min="1" max="5"></div>
       <div class="form-group"><label>Заселённость (1-5)</label><input type="number" id="editEntities" value="${lvl.survival?.entities||3}" min="1" max="5"></div>
@@ -420,11 +427,10 @@
       <div class="form-group"><label>Сущности (через запятую)</label><input id="editEnt" value="${(lvl.ent||[]).join(', ')}"></div>
       <div class="form-group"><label>Входы</label><input id="editIn" value="${lvl.in}"></div>
       <div class="form-group"><label>Выходы</label><input id="editOut" value="${lvl.out}"></div>
-      <button class="btn primary" id="saveEditBtn">Сохранить</button>
-      <button class="btn" onclick="editModal.classList.remove('active')">Отмена</button>
-    `;
+      <button class="btn primary" id="saveLevelBtn">Сохранить</button>
+      <button class="btn" onclick="editModal.classList.remove('active')">Отмена</button>`;
     editModal.classList.add('active');
-    document.getElementById('saveEditBtn').addEventListener('click', async () => {
+    document.getElementById('saveLevelBtn').addEventListener('click', async () => {
       const newLevel = {
         id: document.getElementById('editId').value,
         title: document.getElementById('editTitle').value,
@@ -442,38 +448,157 @@
         out: document.getElementById('editOut').value,
         images: lvl.images || []
       };
-      if (level) {
-        const idx = levels.findIndex(l => l.id === level.id);
-        if (idx !== -1) levels[idx] = newLevel;
-      } else {
-        levels.push(newLevel);
-      }
-      await commitLevels();
+      if (level) { const idx = levels.findIndex(l => l.id === level.id); if (idx !== -1) levels[idx] = newLevel; }
+      else levels.push(newLevel);
+      await commitJSON('levels.json', levels);
       editModal.classList.remove('active');
-      renderTree();
       renderContent();
+      renderTree();
     });
   }
 
-  async function commitLevels() {
-    const owner = localStorage.getItem('gh_owner');
-    const repo = localStorage.getItem('gh_repo');
-    const path = 'levels.json';
-    const token = localStorage.getItem('gh_token');
-    if (!owner || !repo || !token) return alert('Настройте GitHub.');
-    const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify(levels, null, 2))));
-    let sha = null;
-    try {
-      const resp = await fetch(url, { headers: { Authorization: `token ${token}` }, cache:'no-store' });
-      if (resp.ok) sha = (await resp.json()).sha;
-    } catch(e) {}
-    const body = { message:'Update levels', content, branch:'main', ...(sha?{sha}:{}) };
-    await fetch(url, { method:'PUT', headers: { Authorization: `token ${token}`, 'Content-Type':'application/json' }, body: JSON.stringify(body) });
+  function openEditEntityModal(entity=null) {
+    const e = entity || { id:'', name:'', cls:'', habitat:'', desc:'', behavior:'', survival:'' };
+    editContent.innerHTML = `
+      <h3>${entity?'Редактировать':'Новая'} сущность</h3>
+      <div class="form-group"><label>ID</label><input id="editId" value="${e.id}"></div>
+      <div class="form-group"><label>Название</label><input id="editName" value="${e.name}"></div>
+      <div class="form-group"><label>Класс</label><input id="editClass" value="${e.cls||''}"></div>
+      <div class="form-group"><label>Среда обитания</label><input id="editHabitat" value="${e.habitat||''}"></div>
+      <div class="form-group"><label>Описание</label><textarea id="editDesc">${e.desc||''}</textarea></div>
+      <div class="form-group"><label>Поведение</label><textarea id="editBehavior">${e.behavior||''}</textarea></div>
+      <div class="form-group"><label>Выживание</label><textarea id="editSurvival">${e.survival||''}</textarea></div>
+      <button class="btn primary" id="saveEntityBtn">Сохранить</button>
+      <button class="btn" onclick="editModal.classList.remove('active')">Отмена</button>`;
+    editModal.classList.add('active');
+    document.getElementById('saveEntityBtn').addEventListener('click', async () => {
+      const newEntity = {
+        id: document.getElementById('editId').value,
+        name: document.getElementById('editName').value,
+        cls: document.getElementById('editClass').value,
+        habitat: document.getElementById('editHabitat').value,
+        desc: document.getElementById('editDesc').value,
+        behavior: document.getElementById('editBehavior').value,
+        survival: document.getElementById('editSurvival').value
+      };
+      if (entity) { const idx = entities.findIndex(en => en.id === entity.id); if (idx !== -1) entities[idx] = newEntity; }
+      else entities.push(newEntity);
+      await commitJSON('entities.json', entities);
+      editModal.classList.remove('active');
+      renderContent();
+      renderTree();
+    });
   }
 
-  // Настройки классов
-  function openClassSettings() {
+  function openEditItemModal(item=null) {
+    const i = item || { id:'', name:'', desc:'', props:'' };
+    editContent.innerHTML = `
+      <h3>${item?'Редактировать':'Новый'} предмет</h3>
+      <div class="form-group"><label>ID</label><input id="editId" value="${i.id}"></div>
+      <div class="form-group"><label>Название</label><input id="editName" value="${i.name}"></div>
+      <div class="form-group"><label>Описание</label><textarea id="editDesc">${i.desc||''}</textarea></div>
+      <div class="form-group"><label>Свойства</label><textarea id="editProps">${i.props||''}</textarea></div>
+      <button class="btn primary" id="saveItemBtn">Сохранить</button>
+      <button class="btn" onclick="editModal.classList.remove('active')">Отмена</button>`;
+    editModal.classList.add('active');
+    document.getElementById('saveItemBtn').addEventListener('click', async () => {
+      const newItem = {
+        id: document.getElementById('editId').value,
+        name: document.getElementById('editName').value,
+        desc: document.getElementById('editDesc').value,
+        props: document.getElementById('editProps').value
+      };
+      if (item) { const idx = items.findIndex(it => it.id === item.id); if (idx !== -1) items[idx] = newItem; }
+      else items.push(newItem);
+      await commitJSON('items.json', items);
+      editModal.classList.remove('active');
+      renderContent();
+      renderTree();
+    });
+  }
+
+  function openEditFoodModal(food=null) {
+    const f = food || { id:'', name:'', desc:'', effect:'' };
+    editContent.innerHTML = `
+      <h3>${food?'Редактировать':'Новая'} еда</h3>
+      <div class="form-group"><label>ID</label><input id="editId" value="${f.id}"></div>
+      <div class="form-group"><label>Название</label><input id="editName" value="${f.name}"></div>
+      <div class="form-group"><label>Описание</label><textarea id="editDesc">${f.desc||''}</textarea></div>
+      <div class="form-group"><label>Эффект</label><textarea id="editEffect">${f.effect||''}</textarea></div>
+      <button class="btn primary" id="saveFoodBtn">Сохранить</button>
+      <button class="btn" onclick="editModal.classList.remove('active')">Отмена</button>`;
+    editModal.classList.add('active');
+    document.getElementById('saveFoodBtn').addEventListener('click', async () => {
+      const newFood = {
+        id: document.getElementById('editId').value,
+        name: document.getElementById('editName').value,
+        desc: document.getElementById('editDesc').value,
+        effect: document.getElementById('editEffect').value
+      };
+      if (food) { const idx = foodItems.findIndex(fd => fd.id === food.id); if (idx !== -1) foodItems[idx] = newFood; }
+      else foodItems.push(newFood);
+      await commitJSON('food.json', foodItems);
+      editModal.classList.remove('active');
+      renderContent();
+      renderTree();
+    });
+  }
+
+  async function commitJSON(filename, data) {
+    const owner = localStorage.getItem('gh_owner');
+    const repo = localStorage.getItem('gh_repo');
+    const token = localStorage.getItem('gh_token');
+    if (!owner || !repo || !token) return alert('Настройте GitHub.');
+    const url = `https://api.github.com/repos/${owner}/${repo}/contents/${filename}`;
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+    let sha = null;
+    try { const resp = await fetch(url, { headers: { Authorization: `token ${token}` }, cache:'no-store' }); if (resp.ok) sha = (await resp.json()).sha; } catch(e) {}
+    await fetch(url, { method:'PUT', headers: { Authorization: `token ${token}`, 'Content-Type':'application/json' }, body: JSON.stringify({ message:`Update ${filename}`, content, branch:'main', ...(sha?{sha}:{}) }) });
+  }
+
+  function renderTree() {
+    if (currentSection === 'home') { tree.innerHTML = '<div style="padding:1rem; color:#8c8c9a;">Выберите раздел</div>'; return; }
+    const data = getCurrentData();
+    if (currentSection === 'levels') {
+      const clusters = {};
+      data.forEach(l => { const c = l.cluster || 'Без кластера'; if (!clusters[c]) clusters[c] = []; clusters[c].push(l); });
+      tree.innerHTML = '';
+      Object.entries(clusters).forEach(([name, items]) => {
+        const folder = document.createElement('div'); folder.className = 'tree-item tree-folder'; folder.textContent = '📁 ' + name;
+        const childContainer = document.createElement('div'); childContainer.className = 'tree-children'; childContainer.style.display = 'block';
+        folder.addEventListener('click', (e) => { e.stopPropagation(); childContainer.style.display = childContainer.style.display === 'none' ? 'block' : 'none'; });
+        tree.appendChild(folder);
+        tree.appendChild(childContainer);
+        items.forEach(l => {
+          const item = document.createElement('div'); item.className = 'tree-item'; item.style.paddingLeft = '2rem';
+          item.innerHTML = `<span class="class-icon">${getClassIcon(l.cls)}</span> ${l.title}`;
+          item.addEventListener('click', (e) => { e.stopPropagation(); openView('level', l.id); });
+          childContainer.appendChild(item);
+        });
+      });
+    } else {
+      tree.innerHTML = '';
+      data.forEach(d => {
+        const item = document.createElement('div'); item.className = 'tree-item';
+        item.textContent = (d.name || d.title || d.id);
+        item.addEventListener('click', () => openView(currentSection.slice(0, -1), d.id)); // 'entities' -> 'entity', 'items'->'item','food'->'food'
+        tree.appendChild(item);
+      });
+    }
+  }
+
+  function switchSection(section) {
+    currentSection = section;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === section));
+    if (section === 'home') breadcrumbs.innerHTML = 'Главная';
+    else breadcrumbs.innerHTML = `<span onclick="switchSection('home')">Главная</span> > ${section==='levels'?'Уровни':section==='entities'?'Сущности':section==='items'?'Предметы':'Еда'}`;
+    renderTree();
+    renderContent();
+  }
+
+  // Привязки событий
+  document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => switchSection(b.dataset.tab)));
+  document.getElementById('settingsBtn').addEventListener('click', () => {
     let html = '<h3>Настройка иконок классов</h3>';
     for (let i=0; i<=5; i++) {
       const style = classStyles[i] || { icon:'⬜', color:'#777', name:`Класс ${i}` };
@@ -485,40 +610,27 @@
     html += '<button class="btn primary" id="saveClassBtn">Сохранить</button>';
     classSettingsContent.innerHTML = html;
     classSettingsModal.classList.add('active');
-    document.getElementById('saveClassBtn').addEventListener('click', () => {
+    document.getElementById('saveClassBtn').onclick = () => {
       for (let i=0; i<=5; i++) {
-        classStyles[i] = {
-          icon: document.getElementById(`icon${i}`).value,
-          color: document.getElementById(`color${i}`).value,
-          name: document.getElementById(`name${i}`).value
-        };
+        classStyles[i] = { icon: document.getElementById(`icon${i}`).value, color: document.getElementById(`color${i}`).value, name: document.getElementById(`name${i}`).value };
       }
       localStorage.setItem('classStyles', JSON.stringify(classStyles));
       classSettingsModal.classList.remove('active');
-      renderTree();
       renderContent();
-    });
-  }
-
-  // Переключение вкладок
-  window.switchTab = function(tab) {
-    currentTab = tab;
-    document.getElementById('breadcrumbs').innerHTML = 'Главная';
-    searchInput.value = '';
-    renderTree();
-    renderContent();
-  };
+      renderTree();
+    };
+  });
+  addBtn.addEventListener('click', openCreateForm);
+  document.getElementById('refreshBtn').addEventListener('click', async () => { await loadAllData(); renderTree(); renderContent(); });
+  viewModal.addEventListener('click', e => { if (e.target === viewModal) viewModal.classList.remove('active'); });
+  editModal.addEventListener('click', e => { if (e.target === editModal) editModal.classList.remove('active'); });
+  classSettingsModal.addEventListener('click', e => { if (e.target === classSettingsModal) classSettingsModal.classList.remove('active'); });
 
   // Инициализация
-  document.getElementById('settingsBtn').addEventListener('click', openClassSettings);
-  document.getElementById('addBtn').addEventListener('click', () => openEditModal());
-  document.getElementById('refreshBtn').addEventListener('click', loadData);
-  searchInput.addEventListener('input', renderContent);
-  sortSelect.addEventListener('change', renderContent);
-  classSettingsModal.addEventListener('click', e => { if (e.target===classSettingsModal) classSettingsModal.classList.remove('active'); });
-  editModal.addEventListener('click', e => { if (e.target===editModal) editModal.classList.remove('active'); });
-
-  loadData();
+  (async () => {
+    await loadAllData();
+    switchSection('home');
+  })();
 })();
 </script>
 </body>
