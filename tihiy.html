@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Backrooms · Архив Уровней</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(145deg, #0b0c14 0%, #141828 40%, #1a1f32 100%);
+      color: #e1e1e1;
+      padding: 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      max-width: 1300px;
+      width: 100%;
+    }
+
+    /* Заголовок и настройки */
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      gap: 1rem;
+    }
+
+    .logo h1 {
+      font-size: 2.4rem;
+      font-weight: 500;
+      letter-spacing: 1px;
+      background: linear-gradient(135deg, #cfb991, #a6845c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #ddd;
+      padding: 0.7rem 1.4rem;
+      border-radius: 40px;
+      font-weight: 500;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.25s;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      letter-spacing: 0.3px;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(200, 170, 100, 0.5);
+      color: #f0e2c5;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    }
+
+    .btn.primary {
+      background: rgba(180, 150, 90, 0.2);
+      border-color: #b8974c;
+      color: #f2d78a;
+    }
+
+    /* Карточки уровней */
+    .levels-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .level-card {
+      background: rgba(20, 22, 34, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 24px;
+      padding: 1.6rem;
+      transition: all 0.3s;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.5);
+    }
+
+    .level-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(200, 160, 80, 0.25);
+      box-shadow: 0 20px 32px rgba(0,0,0,0.6);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 0.8rem;
+    }
+
+    .level-id {
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: #c8b07c;
+    }
+
+    .class-badge {
+      background: rgba(255,255,255,0.08);
+      padding: 0.25rem 1rem;
+      border-radius: 16px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #bcaa7c;
+    }
+
+    .level-title {
+      font-size: 1.3rem;
+      font-weight: 500;
+      margin-bottom: 0.8rem;
+      color: #f0e3c9;
+    }
+
+    .level-desc {
+      font-size: 0.9rem;
+      color: #b0b0c0;
+      line-height: 1.5;
+      margin-bottom: 1rem;
+    }
+
+    .card-images {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin: 0.8rem 0;
+    }
+
+    .card-images img {
+      width: 70px;
+      height: 70px;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.2);
+      transition: transform 0.2s;
+    }
+
+    .card-images img:hover {
+      transform: scale(1.06);
+    }
+
+    .image-caption {
+      font-size: 0.75rem;
+      color: #888;
+      margin-top: 0.2rem;
+      text-align: center;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
+      color: #7a7a8a;
+    }
+
+    /* Модальное окно */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(6px);
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 1rem;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #1a1d2e;
+      border: 1px solid #2f354a;
+      border-radius: 28px;
+      padding: 2rem;
+      max-width: 640px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 48px rgba(0,0,0,0.7);
+    }
+
+    .modal-content h2 {
+      color: #cfb991;
+      margin-bottom: 1.2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      margin-bottom: 0.3rem;
+      color: #b0b0c0;
+    }
+
+    .form-group input, .form-group textarea {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: #0f1119;
+      border: 1px solid #2e3345;
+      border-radius: 14px;
+      color: #e0e0e0;
+      font-size: 0.9rem;
+      outline: none;
+      transition: 0.2s;
+    }
+
+    .form-group input:focus, .form-group textarea:focus {
+      border-color: #b8974c;
+    }
+
+    .image-entry {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      align-items: center;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      margin-top: 1.2rem;
+    }
+
+    /* Настройки GitHub */
+    .settings-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      margin: 1rem 0 1.5rem;
+    }
+
+    .settings-bar input {
+      padding: 0.5rem 0.8rem;
+      background: #0f1119;
+      border: 1px solid #2e3345;
+      border-radius: 10px;
+      color: #ddd;
+      font-size: 0.85rem;
+      outline: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">
+        <h1>🏛️ Backrooms · Archive</h1>
+      </div>
+      <div class="actions">
+        <button class="btn" id="settingsBtn">⚙️ Настройки GitHub</button>
+        <button class="btn primary" id="addLevelBtn">➕ Новый уровень</button>
+      </div>
+    </div>
+
+    <!-- Настройки GitHub (скрыты по умолчанию) -->
+    <div id="settingsPanel" style="display: none;" class="settings-bar">
+      <input type="text" id="ownerInput" placeholder="Username репозитория" />
+      <input type="text" id="repoInput" placeholder="Название репозитория" />
+      <input type="text" id="pathInput" placeholder="Путь к JSON (напр. levels.json)" value="levels.json" />
+      <input type="password" id="tokenInput" placeholder="GitHub Token (classic)" />
+      <button class="btn" id="saveSettingsBtn">💾 Сохранить</button>
+    </div>
+
+    <div class="levels-grid" id="levelsGrid"></div>
+  </div>
+
+  <!-- Модальное окно добавления/редактирования -->
+  <div class="modal" id="levelModal">
+    <div class="modal-content">
+      <h2 id="modalTitle">Новый уровень</h2>
+      <div class="form-group">
+        <label>ID уровня</label>
+        <input type="text" id="levelId" placeholder="например, 222">
+      </div>
+      <div class="form-group">
+        <label>Название</label>
+        <input type="text" id="levelName" placeholder="Название уровня">
+      </div>
+      <div class="form-group">
+        <label>Класс</label>
+        <input type="text" id="levelClass" placeholder="0 (Безопасный)">
+      </div>
+      <div class="form-group">
+        <label>Описание</label>
+        <textarea id="levelDesc" rows="3" placeholder="Краткое описание..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Пища и вода</label>
+        <input type="text" id="levelFood" placeholder="хлеб, вода...">
+      </div>
+      <div class="form-group">
+        <label>Сущности</label>
+        <input type="text" id="levelEntities" placeholder="Кот-Проводник (0), Тени (0)">
+      </div>
+      <div class="form-group">
+        <label>Входы</label>
+        <input type="text" id="levelIn" placeholder="из Уровня 0...">
+      </div>
+      <div class="form-group">
+        <label>Выходы</label>
+        <input type="text" id="levelOut" placeholder="Уровни 1, 11...">
+      </div>
+
+      <div id="imagesContainer">
+        <label style="color:#b0b0c0; font-size:0.85rem;">Изображения (URL + описание)</label>
+        <div class="image-entry">
+          <input type="text" class="image-url" placeholder="https://... image.jpg" style="flex:2;">
+          <input type="text" class="image-desc" placeholder="Описание" style="flex:1;">
+        </div>
+      </div>
+      <button class="btn" id="addImageField" style="margin-top:0.3rem;">➕ Добавить изображение</button>
+
+      <div class="modal-actions">
+        <button class="btn" id="cancelModalBtn">Отмена</button>
+        <button class="btn primary" id="saveLevelBtn">Сохранить и закоммитить</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // Элементы DOM
+      const grid = document.getElementById('levelsGrid');
+      const addBtn = document.getElementById('addLevelBtn');
+      const settingsBtn = document.getElementById('settingsBtn');
+      const settingsPanel = document.getElementById('settingsPanel');
+      const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+      const modal = document.getElementById('levelModal');
+      const cancelBtn = document.getElementById('cancelModalBtn');
+      const saveLevelBtn = document.getElementById('saveLevelBtn');
+      const addImageBtn = document.getElementById('addImageField');
+      const imagesContainer = document.getElementById('imagesContainer');
+
+      // Поля ввода
+      const ownerInput = document.getElementById('ownerInput');
+      const repoInput = document.getElementById('repoInput');
+      const pathInput = document.getElementById('pathInput');
+      const tokenInput = document.getElementById('tokenInput');
+      const levelId = document.getElementById('levelId');
+      const levelName = document.getElementById('levelName');
+      const levelClass = document.getElementById('levelClass');
+      const levelDesc = document.getElementById('levelDesc');
+      const levelFood = document.getElementById('levelFood');
+      const levelEntities = document.getElementById('levelEntities');
+      const levelIn = document.getElementById('levelIn');
+      const levelOut = document.getElementById('levelOut');
+
+      // Состояние
+      let levels = [];
+      let editingId = null;
+
+      // Загрузка настроек из localStorage
+      function loadSettings() {
+        ownerInput.value = localStorage.getItem('gh_owner') || '';
+        repoInput.value = localStorage.getItem('gh_repo') || '';
+        pathInput.value = localStorage.getItem('gh_path') || 'levels.json';
+        tokenInput.value = localStorage.getItem('gh_token') || '';
+      }
+      loadSettings();
+
+      // Сохранение настроек
+      saveSettingsBtn.addEventListener('click', () => {
+        localStorage.setItem('gh_owner', ownerInput.value.trim());
+        localStorage.setItem('gh_repo', repoInput.value.trim());
+        localStorage.setItem('gh_path', pathInput.value.trim() || 'levels.json');
+        localStorage.setItem('gh_token', tokenInput.value.trim());
+        alert('Настройки сохранены.');
+        settingsPanel.style.display = 'none';
+      });
+
+      settingsBtn.addEventListener('click', () => {
+        settingsPanel.style.display = settingsPanel.style.display === 'none' ? 'flex' : 'none';
+      });
+
+      // Загрузка уровней из GitHub (Raw)
+      async function fetchLevels() {
+        const owner = localStorage.getItem('gh_owner');
+        const repo = localStorage.getItem('gh_repo');
+        const path = localStorage.getItem('gh_path') || 'levels.json';
+        if (!owner || !repo) {
+          console.warn('Настройки репозитория не заданы. Работаем с локальным массивом.');
+          return [];
+        }
+        try {
+          const url = `https://raw.githubusercontent.com/${owner}/${repo}/main/${path}`;
+          const resp = await fetch(url);
+          if (!resp.ok) throw new Error('Файл не найден');
+          const data = await resp.json();
+          return Array.isArray(data) ? data : [];
+        } catch (e) {
+          console.log('Не удалось загрузить уровни, начинаем с пустого массива', e);
+          return [];
+        }
+      }
+
+      // Отображение карточек
+      function renderCards() {
+        if (!levels.length) {
+          grid.innerHTML = '<div style="color:#777; padding:2rem;">Пока нет уровней. Добавьте первый!</div>';
+          return;
+        }
+        grid.innerHTML = levels.map(l => {
+          const imagesHtml = (l.images && l.images.length) 
+            ? l.images.map(img => `
+                <div style="text-align:center;">
+                  <img src="${img.url}" alt="image" onerror="this.style.display='none'">
+                  <div class="image-caption">${img.description || ''}</div>
+                </div>`).join('') 
+            : '';
+          return `
+            <div class="level-card" data-id="${l.id}">
+              <div class="card-header">
+                <span class="level-id">${l.id}</span>
+                <span class="class-badge">${l.cls || '?'}</span>
+              </div>
+              <div class="level-title">${l.title}</div>
+              <div class="level-desc">${l.desc || ''}</div>
+              <div class="card-images">${imagesHtml}</div>
+              <div class="card-footer">
+                <span>🍞 ${l.food || '—'}</span>
+                <span>👥 ${l.ent ? l.ent.join(', ') : '—'}</span>
+              </div>
+            </div>`;
+        }).join('');
+
+        // Клик по карточке — редактирование
+        document.querySelectorAll('.level-card').forEach(card => {
+          card.addEventListener('click', (e) => {
+            const id = card.dataset.id;
+            const level = levels.find(l => l.id === id);
+            if (level) openModal(level);
+          });
+        });
+      }
+
+      // Открытие модального окна
+      function openModal(level = null) {
+        editingId = level ? level.id : null;
+        document.getElementById('modalTitle').textContent = level ? 'Редактировать уровень' : 'Новый уровень';
+        levelId.value = level ? level.id : '';
+        levelName.value = level ? level.title : '';
+        levelClass.value = level ? level.cls : '';
+        levelDesc.value = level ? level.desc : '';
+        levelFood.value = level ? level.food : '';
+        levelEntities.value = level ? (level.ent ? level.ent.join(', ') : '') : '';
+        levelIn.value = level ? level.in : '';
+        levelOut.value = level ? level.out : '';
+
+        // Очистка полей изображений
+        imagesContainer.querySelectorAll('.image-entry').forEach(el => el.remove());
+        if (level && level.images) {
+          level.images.forEach(img => addImageField(img.url, img.description));
+        } else {
+          addImageField('', '');
+        }
+        modal.classList.add('active');
+      }
+
+      function closeModal() {
+        modal.classList.remove('active');
+        editingId = null;
+      }
+
+      cancelBtn.addEventListener('click', closeModal);
+      modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+      // Добавление поля изображения
+      function addImageField(url = '', desc = '') {
+        const div = document.createElement('div');
+        div.className = 'image-entry';
+        div.innerHTML = `
+          <input type="text" class="image-url" placeholder="URL изображения" value="${url}" style="flex:2;">
+          <input type="text" class="image-desc" placeholder="Описание" value="${desc}" style="flex:1;">
+          <button type="button" class="btn remove-image" style="padding:0.3rem 0.7rem;">✕</button>`;
+        div.querySelector('.remove-image').addEventListener('click', () => div.remove());
+        imagesContainer.appendChild(div);
+      }
+
+      addImageBtn.addEventListener('click', () => addImageField('', ''));
+
+      // Сбор данных формы
+      function gatherFormData() {
+        const images = [];
+        document.querySelectorAll('.image-entry').forEach(entry => {
+          const url = entry.querySelector('.image-url').value.trim();
+          const desc = entry.querySelector('.image-desc').value.trim();
+          if (url) images.push({ url, description: desc });
+        });
+        const entitiesRaw = levelEntities.value.trim();
+        const entArray = entitiesRaw ? entitiesRaw.split(',').map(s => s.trim()).filter(Boolean) : [];
+        return {
+          id: levelId.value.trim(),
+          title: levelName.value.trim(),
+          cls: levelClass.value.trim(),
+          desc: levelDesc.value.trim(),
+          food: levelFood.value.trim(),
+          ent: entArray,
+          in: levelIn.value.trim(),
+          out: levelOut.value.trim(),
+          images: images
+        };
+      }
+
+      // Отправка коммита через GitHub API
+      async function commitToGitHub(newLevels) {
+        const owner = localStorage.getItem('gh_owner');
+        const repo = localStorage.getItem('gh_repo');
+        const path = localStorage.getItem('gh_path') || 'levels.json';
+        const token = localStorage.getItem('gh_token');
+        if (!owner || !repo || !token) {
+          alert('Заполните настройки GitHub (owner, repo, token).');
+          return false;
+        }
+        const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+        const content = JSON.stringify(newLevels, null, 2);
+        const base64Content = btoa(unescape(encodeURIComponent(content)));
+
+        // Получаем SHA текущего файла (если есть)
+        let sha = null;
+        try {
+          const getResp = await fetch(url, { headers: { Authorization: `token ${token}` } });
+          if (getResp.ok) {
+            const data = await getResp.json();
+            sha = data.sha;
+          }
+        } catch (e) {}
+
+        const body = {
+          message: `Обновление уровней (${new Date().toISOString()})`,
+          content: base64Content,
+          branch: 'main'
+        };
+        if (sha) body.sha = sha;
+
+        const resp = await fetch(url, {
+          method: 'PUT',
+          headers: {
+            Authorization: `token ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(body)
+        });
+        if (!resp.ok) {
+          const err = await resp.json();
+          alert('Ошибка GitHub: ' + (err.message || 'Неизвестная ошибка'));
+          return false;
+        }
+        return true;
+      }
+
+      // Сохранение уровня
+      saveLevelBtn.addEventListener('click', async () => {
+        const formData = gatherFormData();
+        if (!formData.id || !formData.title) {
+          alert('ID и Название обязательны.');
+          return;
+        }
+        if (editingId) {
+          const index = levels.findIndex(l => l.id === editingId);
+          if (index !== -1) levels[index] = formData;
+        } else {
+          levels.push(formData);
+        }
+        const success = await commitToGitHub(levels);
+        if (success) {
+          alert('Изменения отправлены в репозиторий. GitHub Pages пересоберёт сайт в течение минуты.');
+          closeModal();
+          renderCards();
+        } else {
+          // Откат локальных изменений при неудаче
+          levels = await fetchLevels();
+          renderCards();
+        }
+      });
+
+      addBtn.addEventListener('click', () => openModal(null));
+
+      // Инициализация
+      (async function init() {
+        levels = await fetchLevels();
+        renderCards();
+      })();
+    })();
+  </script>
+</body>
+</html>
