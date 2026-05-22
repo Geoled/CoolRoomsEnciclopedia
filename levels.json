@@ -42,5 +42,24 @@
         "description": "ларри"
       }
     ]
+  },
+  {
+    "id": "51244",
+    "title": "FIA",
+    "cluster": "Основной",
+    "cls": "5",
+    "desc": "если ты попал сюда - ты труп",
+    "food": "шерсть фii",
+    "ent": [
+      "фiя"
+    ],
+    "in": "уровень 0 - пройти через стену из шерсти",
+    "out": "НИКАК",
+    "images": [
+      {
+        "url": "https://cdn.discordapp.com/attachments/1456044999232847902/1507430779070972065/image.png?ex=6a11dfd0&is=6a108e50&hm=52c54880545e3c1c6917bdf862be515382671bcce4ac9fcf48b9c4d5809c9f8f&",
+        "description": "ФIЯ"
+      }
+    ]
   }
 ]
