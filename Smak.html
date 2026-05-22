@@ -180,7 +180,6 @@
     } catch(e) { return []; }
   }
 
-  // Загрузка списка файлов из папки files/
   async function fetchFilesList() {
     const owner = localStorage.getItem('gh_owner');
     const repo = localStorage.getItem('gh_repo');
@@ -203,7 +202,7 @@
         const resp = await fetch(file.download_url, { cache:'no-store' });
         if (!resp.ok) return null;
         const obj = await resp.json();
-        return { ...obj, _sha: file.sha }; // сохраняем sha для удаления
+        return { ...obj, _sha: file.sha };
       } catch(e) { return null; }
     });
     const results = await Promise.all(downloadPromises);
@@ -214,11 +213,7 @@
       else if (obj.type === 'item' || file.name.startsWith('item_')) items.push(obj);
       else if (obj.type === 'food' || file.name.startsWith('food_')) foodItems.push(obj);
     });
-    // если совсем нет уровней, добавляем стандартный
-    if (!levels.length) {
-      const defaultLevel = { id:"0", title:"Тихая Прихожая", cluster:"Основные", cls:"0", desc:"...", food:"...", ent:["Кот-Проводник"], in:"...", out:"...", stats:{safety:5,stability:4,entities:1,resources:4,mental:1,navigation:1}, tags:[], thumbnail:"", images:[], type:"level" };
-      levels.push(defaultLevel);
-    }
+    // убираем дефолтный уровень 0
     levels.forEach(l => ensureStats(l, {safety:3,stability:3,entities:3,resources:3,mental:3,navigation:3}));
     entities.forEach(e => ensureStats(e, {danger:3, frequency:3, intelligence:3, aggression:3}));
     items.forEach(i => ensureStats(i, {weight:3, rarity:3, usefulness:3, durability:3}));
@@ -290,7 +285,7 @@
             <div class="quick-link-card" onclick="switchSection('food')"><div class="quick-link-icon">🍎</div><div class="quick-link-title">Еда</div></div>
           </div>
           <div class="section-title">Последние уровни</div>
-          <div class="recent-list">${levels.slice(-4).reverse().map(l => `<div class="recent-item" onclick="switchSection('levels');setTimeout(()=>openView('level','${l.id}'),100)">${l.id} – ${l.title}</div>`).join('')}</div>
+          <div class="recent-list">${levels.slice(-4).reverse().map(l => `<div class="recent-item" onclick="switchSection('levels');setTimeout(()=>openView('level','${l.id}'),100)">${l.id} – ${l.title}</div>`).join('') || '<div style="color:#8c8c9a;">Пока нет уровней</div>'}</div>
         </div>`;
       tree.innerHTML = '<div style="padding:1rem;color:#8c8c9a;">Выберите раздел</div>';
       return;
@@ -346,7 +341,7 @@
   function renderEntityCard(e) {
     const thumb = e.thumbnail ? `<img class="card-img" src="${e.thumbnail}" onerror="this.style.display='none'">` : '';
     return `<div class="card" data-type="entity" data-id="${e.id}">${thumb}
-      <div class="card-header"><span class="card-id">Entity ${e.id}</span><span class="class-icon">${getClassIcon(e.cls)}</span></div>
+      <div class="card-header"><span class="card-id">Entity ${e.id}</span></div>
       <div style="font-weight:500;">${e.name}</div>
       <div style="margin:0.3rem 0;">${renderStatsHTML(e.stats, {danger:'Опасность',frequency:'Частота',intelligence:'Интеллект',aggression:'Агрессия'}, statColors)}</div>
       <div>Класс: ${e.cls||'?'}</div>
@@ -355,7 +350,7 @@
   function renderItemCard(i) {
     const thumb = i.thumbnail ? `<img class="card-img" src="${i.thumbnail}" onerror="this.style.display='none'">` : '';
     return `<div class="card" data-type="item" data-id="${i.id}">${thumb}
-      <div class="card-header"><span class="card-id">Item ${i.id}</span><span class="class-icon">${getClassIcon(i.cls)}</span></div>
+      <div class="card-header"><span class="card-id">Item ${i.id}</span></div>
       <div style="font-weight:500;">${i.name}</div>
       <div style="margin:0.3rem 0;">${renderStatsHTML(i.stats, {weight:'Вес',rarity:'Редкость',usefulness:'Полезность',durability:'Прочность'}, statColors)}</div>
       <div>${i.desc?.substring(0,40)||''}</div>
@@ -364,7 +359,7 @@
   function renderFoodCard(f) {
     const thumb = f.thumbnail ? `<img class="card-img" src="${f.thumbnail}" onerror="this.style.display='none'">` : '';
     return `<div class="card" data-type="food" data-id="${f.id}">${thumb}
-      <div class="card-header"><span class="card-id">Food ${f.id}</span><span class="class-icon">${getClassIcon(f.cls)}</span></div>
+      <div class="card-header"><span class="card-id">Food ${f.id}</span></div>
       <div style="font-weight:500;">${f.name}</div>
       <div style="margin:0.3rem 0;">${renderStatsHTML(f.stats, {calories:'Насыщение',availability:'Доступность',taste:'Вкус',shelfLife:'Хранение'}, statColors)}</div>
       <div>${f.desc?.substring(0,40)||''}</div>
@@ -435,7 +430,6 @@
       headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: `Delete ${filename}`, sha, branch: 'main' })
     });
-    // удаляем из массива
     if (type === 'level') levels = levels.filter(l => l.id !== obj.id);
     else if (type === 'entity') entities = entities.filter(e => e.id !== obj.id);
     else if (type === 'item') items = items.filter(i => i.id !== obj.id);
@@ -459,7 +453,7 @@
         <p><strong>Входы:</strong> ${obj.in}</p><p><strong>Выходы:</strong> ${obj.out}</p><div class="gallery">${gallery}</div>`;
     } else if (type === 'entity') {
       return `<h2>Сущность ${obj.id} — «${obj.name}»</h2>${thumb}
-        <p><strong>Класс:</strong> ${obj.cls} ${getClassIcon(obj.cls)}</p>
+        <p><strong>Класс:</strong> ${obj.cls}</p>
         <div>${renderStatsHTML(obj.stats, {danger:'Опасность',frequency:'Частота',intelligence:'Интеллект',aggression:'Агрессия'}, statColors)}</div>
         <div>${tagsHtml}</div>
         <p><strong>Среда:</strong> ${obj.habitat}</p><div class="view-section"><p>${obj.desc}</p></div>
@@ -468,7 +462,7 @@
         <div class="gallery">${gallery}</div>`;
     } else if (type === 'item') {
       return `<h2>Предмет ${obj.id} — «${obj.name}»</h2>${thumb}
-        <p><strong>Класс:</strong> ${obj.cls} ${getClassIcon(obj.cls)}</p>
+        <p><strong>Класс:</strong> ${obj.cls}</p>
         <div>${renderStatsHTML(obj.stats, {weight:'Вес',rarity:'Редкость',usefulness:'Полезность',durability:'Прочность'}, statColors)}</div>
         <div>${tagsHtml}</div>
         <div class="view-section"><p>${obj.desc}</p></div>
@@ -476,7 +470,7 @@
         <div class="gallery">${gallery}</div>`;
     } else if (type === 'food') {
       return `<h2>Еда ${obj.id} — «${obj.name}»</h2>${thumb}
-        <p><strong>Класс:</strong> ${obj.cls} ${getClassIcon(obj.cls)}</p>
+        <p><strong>Класс:</strong> ${obj.cls}</p>
         <div>${renderStatsHTML(obj.stats, {calories:'Насыщение',availability:'Доступность',taste:'Вкус',shelfLife:'Хранение'}, statColors)}</div>
         <div>${tagsHtml}</div>
         <div class="view-section"><p>${obj.desc}</p></div>
@@ -498,7 +492,6 @@
     return Object.entries(styles).map(([val, s]) => `<option value="${val}" ${selected==val?'selected':''}>${val} - ${s.name}</option>`).join('');
   }
 
-  // Дропдаун с поиском (улучшенный, возвращает id контейнера)
   function createLevelDropdown(containerId, selectedIds, placeholder) {
     setTimeout(() => {
       const container = document.getElementById(containerId);
@@ -623,7 +616,6 @@
     addImageListeners();
   }
 
-  // Аналогично для сущностей, предметов, еды (исправлены дропдауны, сохранение в отдельный файл)
   function openEditEntityModal(entity=null) {
     const e = entity || { id:'', name:'', cls:'0', habitat:'', desc:'', behavior:'', survival:'', stats:{danger:3,frequency:3,intelligence:3,aggression:3}, tags:[], thumbnail:'', images:[], _sha:null };
     editContent.innerHTML = `
@@ -951,15 +943,19 @@
     });
   }
 
+  // Кнопка "Повезёт" - теперь работает на всех разделах кроме карты
   luckyBtn.addEventListener('click', () => {
-    let pool = levels;
-    if (currentSection === 'entities') pool = entities;
-    else if (currentSection === 'items') pool = items;
-    else if (currentSection === 'food') pool = foodItems;
-    if (!pool.length) return;
+    if (currentSection === 'map') return;
+    let pool = [];
+    const section = currentSection === 'home' ? ['levels','entities','items','food'][Math.floor(Math.random()*4)] : currentSection;
+    if (section === 'levels') pool = levels;
+    else if (section === 'entities') pool = entities;
+    else if (section === 'items') pool = items;
+    else if (section === 'food') pool = foodItems;
+    if (!pool.length) return alert('Нет записей для случайного выбора');
     const randomItem = pool[Math.floor(Math.random() * pool.length)];
-    if (currentSection !== 'levels' && currentSection !== 'entities' && currentSection !== 'items' && currentSection !== 'food') switchSection('levels');
-    setTimeout(() => openView(currentSection.slice(0, -1), randomItem.id), 100);
+    if (currentSection !== section) switchSection(section);
+    setTimeout(() => openView(section.slice(0, -1), randomItem.id), 100);
   });
 
   document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => switchSection(b.dataset.tab)));
