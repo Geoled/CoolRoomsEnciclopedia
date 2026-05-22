@@ -56,44 +56,6 @@
     "tags": []
   },
   {
-    "id": "692",
-    "title": "Ебактуль",
-    "cluster": "Основной",
-    "cls": "5",
-    "survival": {
-      "safety": 1,
-      "stability": 1,
-      "entities": 1
-    },
-    "desc": "Страшное место с природой похожей на урал (густой хвойный лес)",
-    "food": "только мох , вода тоже с него",
-    "ent": [
-      "отсутствуют"
-    ],
-    "in": "через уровень 0",
-    "out": "разогнатся до 20кмч и влететь в ствол дерева",
-    "thumbnail": "https://i.pinimg.com/1200x/09/6e/6a/096e6a70b841a7eb96028d9e4ad3b13c.jpg",
-    "images": [
-      {
-        "url": "https://i.pinimg.com/736x/25/9b/10/259b10cc2139617f99d26c3ccc260dff.jpg",
-        "description": "фото найденое на старой камере в лесу"
-      },
-      {
-        "url": "https://i.pinimg.com/1200x/d5/64/04/d564049b172e0d46cfc1ba52812285be.jpg",
-        "description": "аномалия внутри уровня , не хвойный лес"
-      }
-    ],
-    "stats": {
-      "safety": 3,
-      "stability": 3,
-      "entities": 3,
-      "resources": 3,
-      "mental": 3,
-      "navigation": 3
-    },
-    "tags": []
-  },
-  {
     "id": "699",
     "title": "Тимейты уроды ебаные",
     "cluster": "Основной",
