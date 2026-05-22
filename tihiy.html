@@ -15,6 +15,7 @@
       font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
       min-height: 100vh;
       background: linear-gradient(145deg, #0b0c14 0%, #141828 40%, #1a1f32 100%);
+      background-attachment: fixed;
       color: #e1e1e1;
       padding: 2rem 1.5rem;
       display: flex;
@@ -23,11 +24,10 @@
     }
 
     .container {
-      max-width: 1300px;
+      max-width: 1400px;
       width: 100%;
     }
 
-    /* Заголовок и настройки */
     .header {
       display: flex;
       flex-wrap: wrap;
@@ -75,7 +75,7 @@
       background: rgba(255, 255, 255, 0.12);
       border-color: rgba(200, 170, 100, 0.5);
       color: #f0e2c5;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
     }
 
     .btn.primary {
@@ -84,10 +84,9 @@
       color: #f2d78a;
     }
 
-    /* Карточки уровней */
     .levels-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
       gap: 1.5rem;
       margin-top: 1rem;
     }
@@ -102,13 +101,15 @@
       cursor: pointer;
       position: relative;
       overflow: hidden;
-      box-shadow: 0 12px 24px rgba(0,0,0,0.5);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
     }
 
     .level-card:hover {
       transform: translateY(-4px);
       border-color: rgba(200, 160, 80, 0.25);
-      box-shadow: 0 20px 32px rgba(0,0,0,0.6);
+      box-shadow: 0 20px 32px rgba(0, 0, 0, 0.6);
     }
 
     .card-header {
@@ -125,7 +126,7 @@
     }
 
     .class-badge {
-      background: rgba(255,255,255,0.08);
+      background: rgba(255, 255, 255, 0.08);
       padding: 0.25rem 1rem;
       border-radius: 16px;
       font-size: 0.8rem;
@@ -143,8 +144,15 @@
     .level-desc {
       font-size: 0.9rem;
       color: #b0b0c0;
-      line-height: 1.5;
+      line-height: 1.6;
       margin-bottom: 1rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+      flex: 1;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 6;
+      -webkit-box-orient: vertical;
     }
 
     .card-images {
@@ -159,7 +167,7 @@
       height: 70px;
       object-fit: cover;
       border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.2);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       transition: transform 0.2s;
     }
 
@@ -183,12 +191,14 @@
       color: #7a7a8a;
     }
 
-    /* Модальное окно */
     .modal {
       display: none;
       position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.7);
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
       backdrop-filter: blur(6px);
       align-items: center;
       justify-content: center;
@@ -205,11 +215,11 @@
       border: 1px solid #2f354a;
       border-radius: 28px;
       padding: 2rem;
-      max-width: 640px;
+      max-width: 800px;
       width: 100%;
       max-height: 90vh;
       overflow-y: auto;
-      box-shadow: 0 24px 48px rgba(0,0,0,0.7);
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.7);
     }
 
     .modal-content h2 {
@@ -218,7 +228,7 @@
     }
 
     .form-group {
-      margin-bottom: 1rem;
+      margin-bottom: 1.2rem;
     }
 
     .form-group label {
@@ -226,11 +236,13 @@
       font-size: 0.85rem;
       margin-bottom: 0.3rem;
       color: #b0b0c0;
+      font-weight: 500;
     }
 
-    .form-group input, .form-group textarea {
+    .form-group input,
+    .form-group textarea {
       width: 100%;
-      padding: 0.75rem 1rem;
+      padding: 0.9rem 1rem;
       background: #0f1119;
       border: 1px solid #2e3345;
       border-radius: 14px;
@@ -238,9 +250,21 @@
       font-size: 0.9rem;
       outline: none;
       transition: 0.2s;
+      font-family: inherit;
     }
 
-    .form-group input:focus, .form-group textarea:focus {
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+      line-height: 1.5;
+    }
+
+    .form-group textarea.large {
+      min-height: 180px;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
       border-color: #b8974c;
     }
 
@@ -251,30 +275,59 @@
       align-items: center;
     }
 
+    .image-entry input {
+      flex: 2;
+    }
+
+    .image-entry .image-desc {
+      flex: 1;
+    }
+
     .modal-actions {
       display: flex;
       justify-content: flex-end;
       gap: 0.75rem;
       margin-top: 1.2rem;
+      position: sticky;
+      bottom: 0;
+      background: #1a1d2e;
+      padding-top: 1rem;
+      border-top: 1px solid #2f354a;
     }
 
-    /* Настройки GitHub */
     .settings-bar {
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
       align-items: center;
       margin: 1rem 0 1.5rem;
+      background: rgba(20, 22, 34, 0.5);
+      padding: 1rem;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
     }
 
     .settings-bar input {
-      padding: 0.5rem 0.8rem;
+      padding: 0.6rem 0.9rem;
       background: #0f1119;
       border: 1px solid #2e3345;
       border-radius: 10px;
       color: #ddd;
       font-size: 0.85rem;
       outline: none;
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .info-banner {
+      background: rgba(180, 150, 90, 0.1);
+      border-left: 3px solid #b8974c;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+      color: #c0b090;
+      line-height: 1.5;
     }
   </style>
 </head>
@@ -290,7 +343,6 @@
       </div>
     </div>
 
-    <!-- Настройки GitHub (скрыты по умолчанию) -->
     <div id="settingsPanel" style="display: none;" class="settings-bar">
       <input type="text" id="ownerInput" placeholder="Username репозитория" />
       <input type="text" id="repoInput" placeholder="Название репозитория" />
@@ -299,10 +351,14 @@
       <button class="btn" id="saveSettingsBtn">💾 Сохранить</button>
     </div>
 
+    <div class="info-banner">
+      💡 <strong>Совет:</strong> поля ввода теперь поддерживают длинные тексты. Вы можете вставлять подробные описания, списки и абзацы — они сохранят форматирование. Для добавления изображений указывайте прямые URL.
+    </div>
+
     <div class="levels-grid" id="levelsGrid"></div>
   </div>
 
-  <!-- Модальное окно добавления/редактирования -->
+  <!-- Модальное окно -->
   <div class="modal" id="levelModal">
     <div class="modal-content">
       <h2 id="modalTitle">Новый уровень</h2>
@@ -319,31 +375,31 @@
         <input type="text" id="levelClass" placeholder="0 (Безопасный)">
       </div>
       <div class="form-group">
-        <label>Описание</label>
-        <textarea id="levelDesc" rows="3" placeholder="Краткое описание..."></textarea>
+        <label>Описание (поддерживает длинный текст, абзацы и переносы строк)</label>
+        <textarea id="levelDesc" class="large" placeholder="Подробное описание уровня..."></textarea>
       </div>
       <div class="form-group">
         <label>Пища и вода</label>
-        <input type="text" id="levelFood" placeholder="хлеб, вода...">
+        <textarea id="levelFood" rows="3" placeholder="Хлеб, сыр, яблоки..."></textarea>
       </div>
       <div class="form-group">
-        <label>Сущности</label>
-        <input type="text" id="levelEntities" placeholder="Кот-Проводник (0), Тени (0)">
+        <label>Сущности (перечислите через запятую)</label>
+        <textarea id="levelEntities" rows="3" placeholder="Кот-Проводник (класс 0), Тени (класс 0)..."></textarea>
       </div>
       <div class="form-group">
         <label>Входы</label>
-        <input type="text" id="levelIn" placeholder="из Уровня 0...">
+        <textarea id="levelIn" rows="3" placeholder="Как попасть на уровень..."></textarea>
       </div>
       <div class="form-group">
         <label>Выходы</label>
-        <input type="text" id="levelOut" placeholder="Уровни 1, 11...">
+        <textarea id="levelOut" rows="3" placeholder="Как покинуть уровень..."></textarea>
       </div>
 
       <div id="imagesContainer">
         <label style="color:#b0b0c0; font-size:0.85rem;">Изображения (URL + описание)</label>
         <div class="image-entry">
-          <input type="text" class="image-url" placeholder="https://... image.jpg" style="flex:2;">
-          <input type="text" class="image-desc" placeholder="Описание" style="flex:1;">
+          <input type="text" class="image-url" placeholder="https://... image.jpg">
+          <input type="text" class="image-desc" placeholder="Описание">
         </div>
       </div>
       <button class="btn" id="addImageField" style="margin-top:0.3rem;">➕ Добавить изображение</button>
@@ -357,7 +413,6 @@
 
   <script>
     (function() {
-      // Элементы DOM
       const grid = document.getElementById('levelsGrid');
       const addBtn = document.getElementById('addLevelBtn');
       const settingsBtn = document.getElementById('settingsBtn');
@@ -369,7 +424,6 @@
       const addImageBtn = document.getElementById('addImageField');
       const imagesContainer = document.getElementById('imagesContainer');
 
-      // Поля ввода
       const ownerInput = document.getElementById('ownerInput');
       const repoInput = document.getElementById('repoInput');
       const pathInput = document.getElementById('pathInput');
@@ -383,11 +437,22 @@
       const levelIn = document.getElementById('levelIn');
       const levelOut = document.getElementById('levelOut');
 
-      // Состояние
       let levels = [];
       let editingId = null;
 
-      // Загрузка настроек из localStorage
+      // Встроенный Уровень 0
+      const defaultLevel0 = {
+        id: "0",
+        title: "Тихая Прихожая",
+        cls: "0 (Безопасный)",
+        desc: "Уровень 0 представляет собой бесконечную анфиладу смежных комнат, коридоров и небольших залов, обставленных как старый, но ухоженный загородный дом. Интерьер выдержан в тёплых тонах: деревянные полы, прикрытые вязаными половиками, книжные шкафы с потёртыми корешками, мягкие кресла и диваны с пледами, камины, в которых уютно потрескивают дрова. Освещение исходит от тканевых абажуров и настенных бра — мягкое, чуть приглушённое, создающее атмосферу покоя. В воздухе витает аромат сушёных яблок, печного тепла и старой бумаги.\n\nКомнаты перетекают одна в другую плавно, без дверей или через арочные проходы. Встречаются кухни с медной посудой и пучками трав, библиотеки с уютными нишами для чтения, спальни с застеленными лоскутными одеялами кроватями. Все предметы выглядят слегка старомодными, но чистыми и готовыми к использованию. Окна есть, но за ними — мягкий молочный свет, словно снаружи густой туман; разглядеть что-либо невозможно.\n\nПространство интуитивно подстраивается под вошедшего, даря ощущение, что он уже бывал здесь раньше. Могут появляться смутно знакомые предметы: старая игрушка на полке, знакомый узор на обоях, запах пирожков. Это не ловушка, а механизм снижения стресса — уровень стремится успокоить странника, дать ему время осознать переход и собраться с мыслями. Заблудиться здесь нельзя: если нужно найти выход, внутреннее чутьё ведёт к нужной двери; если хочется отдохнуть — ближайшая комната окажется спальней; если голоден — кухней.\n\nИногда краем глаза можно заметить движение: в соседней комнате кто-то перекладывает книгу, в кресле у камина сидит фигура с газетой, за приоткрытой дверью слышен негромкий разговор. Но стоит обернуться — комната пуста, газета аккуратно сложена, а разговор обрывается. Это безвредные «тени» — эхо прежних посетителей.",
+        food: "Еда: на кухне или в буфете всегда можно найти свежий хлеб, сыр, яблоки, печенье, баночку варенья. Горячих блюд нет, но на плите стоит чайник с кипятком для чая. Еда не портится и возобновляется, если съесть не всё.\n\nВода: графин с чистой водой, чай в заварочном чайнике. Вода прохладная, безопасная.\n\nЧастота: пища и вода доступны постоянно, их запасы кажутся неисчерпаемыми.",
+        ent: ["Кот-Проводник (класс 0)", "Тени (класс 0)"],
+        in: "Уровень 0 — это точка входа в Закулисье. Попасть сюда можно из реальности следующими способами:\n\nПровал сквозь реальность: в момент сильного стресса, усталости или рассеянности человек может «зацепиться» за край реальности и выпасть в Прихожую. Часто это случается в старых домах, библиотеках, уютных, но заброшенных местах. Субъективно: шёл по коридору, свернул не туда и оказался в незнакомой, но уютной комнате.\n\nСон наяву: задремав в кресле с книгой, можно проснуться уже здесь.",
+        out: "Из Прихожей ведут множество дверей, каждая из которых маркирована интуитивно понятными образами. Основные выходы:\n\nДверь с витражом, изображающим городские здания — Уровень 11 «Бесконечный Город».\n\nДверь с табличкой «Склад» — Уровень 229 «Отзывчивый Склад».\n\nДверь с изображением раскрытой книги — Уровень 228 «Тихая Библиотека».\n\nДверь, увитая плющом и полевыми цветами — Уровень 250 «Луга Наблюдателей».\n\nОбычная входная дверь с крючком — Уровень 1 «Обитаемая зона».\n\nЗеркало в полный рост: если подойти к нему с чётким намерением вернуться домой, можно попытаться выйти в реальность, но срабатывает крайне редко; большинство видят лишь своё отражение.",
+        images: []
+      };
+
       function loadSettings() {
         ownerInput.value = localStorage.getItem('gh_owner') || '';
         repoInput.value = localStorage.getItem('gh_repo') || '';
@@ -396,7 +461,6 @@
       }
       loadSettings();
 
-      // Сохранение настроек
       saveSettingsBtn.addEventListener('click', () => {
         localStorage.setItem('gh_owner', ownerInput.value.trim());
         localStorage.setItem('gh_repo', repoInput.value.trim());
@@ -410,40 +474,38 @@
         settingsPanel.style.display = settingsPanel.style.display === 'none' ? 'flex' : 'none';
       });
 
-      // Загрузка уровней из GitHub (Raw)
       async function fetchLevels() {
         const owner = localStorage.getItem('gh_owner');
         const repo = localStorage.getItem('gh_repo');
         const path = localStorage.getItem('gh_path') || 'levels.json';
         if (!owner || !repo) {
-          console.warn('Настройки репозитория не заданы. Работаем с локальным массивом.');
-          return [];
+          console.warn('Настройки репозитория не заданы. Используем локальный массив.');
+          return [defaultLevel0];
         }
         try {
           const url = `https://raw.githubusercontent.com/${owner}/${repo}/main/${path}`;
           const resp = await fetch(url);
           if (!resp.ok) throw new Error('Файл не найден');
           const data = await resp.json();
-          return Array.isArray(data) ? data : [];
+          return Array.isArray(data) && data.length ? data : [defaultLevel0];
         } catch (e) {
-          console.log('Не удалось загрузить уровни, начинаем с пустого массива', e);
-          return [];
+          console.log('Не удалось загрузить уровни, используем встроенный.', e);
+          return [defaultLevel0];
         }
       }
 
-      // Отображение карточек
       function renderCards() {
         if (!levels.length) {
           grid.innerHTML = '<div style="color:#777; padding:2rem;">Пока нет уровней. Добавьте первый!</div>';
           return;
         }
         grid.innerHTML = levels.map(l => {
-          const imagesHtml = (l.images && l.images.length) 
+          const imagesHtml = (l.images && l.images.length)
             ? l.images.map(img => `
                 <div style="text-align:center;">
                   <img src="${img.url}" alt="image" onerror="this.style.display='none'">
                   <div class="image-caption">${img.description || ''}</div>
-                </div>`).join('') 
+                </div>`).join('')
             : '';
           return `
             <div class="level-card" data-id="${l.id}">
@@ -455,13 +517,12 @@
               <div class="level-desc">${l.desc || ''}</div>
               <div class="card-images">${imagesHtml}</div>
               <div class="card-footer">
-                <span>🍞 ${l.food || '—'}</span>
+                <span>🍞 ${l.food ? l.food.split('\n')[0] : '—'}</span>
                 <span>👥 ${l.ent ? l.ent.join(', ') : '—'}</span>
               </div>
             </div>`;
         }).join('');
 
-        // Клик по карточке — редактирование
         document.querySelectorAll('.level-card').forEach(card => {
           card.addEventListener('click', (e) => {
             const id = card.dataset.id;
@@ -471,7 +532,6 @@
         });
       }
 
-      // Открытие модального окна
       function openModal(level = null) {
         editingId = level ? level.id : null;
         document.getElementById('modalTitle').textContent = level ? 'Редактировать уровень' : 'Новый уровень';
@@ -484,7 +544,6 @@
         levelIn.value = level ? level.in : '';
         levelOut.value = level ? level.out : '';
 
-        // Очистка полей изображений
         imagesContainer.querySelectorAll('.image-entry').forEach(el => el.remove());
         if (level && level.images) {
           level.images.forEach(img => addImageField(img.url, img.description));
@@ -502,13 +561,12 @@
       cancelBtn.addEventListener('click', closeModal);
       modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
 
-      // Добавление поля изображения
       function addImageField(url = '', desc = '') {
         const div = document.createElement('div');
         div.className = 'image-entry';
         div.innerHTML = `
-          <input type="text" class="image-url" placeholder="URL изображения" value="${url}" style="flex:2;">
-          <input type="text" class="image-desc" placeholder="Описание" value="${desc}" style="flex:1;">
+          <input type="text" class="image-url" placeholder="URL изображения" value="${url}">
+          <input type="text" class="image-desc" placeholder="Описание" value="${desc}">
           <button type="button" class="btn remove-image" style="padding:0.3rem 0.7rem;">✕</button>`;
         div.querySelector('.remove-image').addEventListener('click', () => div.remove());
         imagesContainer.appendChild(div);
@@ -516,7 +574,6 @@
 
       addImageBtn.addEventListener('click', () => addImageField('', ''));
 
-      // Сбор данных формы
       function gatherFormData() {
         const images = [];
         document.querySelectorAll('.image-entry').forEach(entry => {
@@ -539,7 +596,6 @@
         };
       }
 
-      // Отправка коммита через GitHub API
       async function commitToGitHub(newLevels) {
         const owner = localStorage.getItem('gh_owner');
         const repo = localStorage.getItem('gh_repo');
@@ -553,7 +609,6 @@
         const content = JSON.stringify(newLevels, null, 2);
         const base64Content = btoa(unescape(encodeURIComponent(content)));
 
-        // Получаем SHA текущего файла (если есть)
         let sha = null;
         try {
           const getResp = await fetch(url, { headers: { Authorization: `token ${token}` } });
@@ -586,7 +641,6 @@
         return true;
       }
 
-      // Сохранение уровня
       saveLevelBtn.addEventListener('click', async () => {
         const formData = gatherFormData();
         if (!formData.id || !formData.title) {
@@ -605,7 +659,6 @@
           closeModal();
           renderCards();
         } else {
-          // Откат локальных изменений при неудаче
           levels = await fetchLevels();
           renderCards();
         }
@@ -613,7 +666,6 @@
 
       addBtn.addEventListener('click', () => openModal(null));
 
-      // Инициализация
       (async function init() {
         levels = await fetchLevels();
         renderCards();
