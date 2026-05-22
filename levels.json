@@ -56,34 +56,6 @@
     "tags": []
   },
   {
-    "id": "43",
-    "title": "Зюрбактуль",
-    "cluster": "Основной",
-    "cls": "3",
-    "survival": {
-      "safety": 4,
-      "stability": 3,
-      "entities": 1
-    },
-    "desc": "Это кошмар просто уходи отсюда",
-    "food": "Хлебушек да водица",
-    "ent": [
-      "нет"
-    ],
-    "in": "через уровень 0,218 , черная дверь",
-    "out": "нету",
-    "images": [],
-    "stats": {
-      "safety": 3,
-      "stability": 3,
-      "entities": 3,
-      "resources": 3,
-      "mental": 3,
-      "navigation": 3
-    },
-    "tags": []
-  },
-  {
     "id": "692",
     "title": "Ебактуль",
     "cluster": "Основной",
