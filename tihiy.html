@@ -10,7 +10,6 @@
       padding: 0;
       box-sizing: border-box;
     }
-
     body {
       font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
       min-height: 100vh;
@@ -22,21 +21,18 @@
       flex-direction: column;
       align-items: center;
     }
-
     .container {
       max-width: 1400px;
       width: 100%;
     }
-
     .header {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 2rem;
+      margin-bottom: 1rem;
       gap: 1rem;
     }
-
     .logo h1 {
       font-size: 2.4rem;
       font-weight: 500;
@@ -46,14 +42,12 @@
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-
     .actions {
       display: flex;
       gap: 0.75rem;
       flex-wrap: wrap;
       align-items: center;
     }
-
     .btn {
       background: rgba(255, 255, 255, 0.06);
       backdrop-filter: blur(8px);
@@ -65,32 +59,72 @@
       font-size: 0.95rem;
       cursor: pointer;
       transition: all 0.25s;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 0.4rem;
       letter-spacing: 0.3px;
     }
-
     .btn:hover {
       background: rgba(255, 255, 255, 0.12);
       border-color: rgba(200, 170, 100, 0.5);
       color: #f0e2c5;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
     }
-
     .btn.primary {
       background: rgba(180, 150, 90, 0.2);
       border-color: #b8974c;
       color: #f2d78a;
     }
-
+    .btn.small {
+      padding: 0.4rem 1rem;
+      font-size: 0.8rem;
+    }
+    /* Панель фильтров */
+    .filters-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      margin: 1rem 0 1.5rem;
+      background: rgba(20, 22, 34, 0.5);
+      padding: 0.8rem 1.2rem;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .filters-bar select, .filters-bar input {
+      padding: 0.5rem 0.9rem;
+      background: #0f1119;
+      border: 1px solid #2e3345;
+      border-radius: 10px;
+      color: #ddd;
+      font-size: 0.85rem;
+      outline: none;
+    }
+    .filter-class-btns {
+      display: flex;
+      gap: 0.3rem;
+    }
+    .filter-class-btn {
+      padding: 0.3rem 0.7rem;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid transparent;
+      color: #aaa;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: 0.2s;
+    }
+    .filter-class-btn.active {
+      background: rgba(180,150,90,0.25);
+      border-color: #b8974c;
+      color: #f2d78a;
+    }
     .levels-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
       gap: 1.5rem;
       margin-top: 1rem;
     }
-
     .level-card {
       background: rgba(20, 22, 34, 0.7);
       backdrop-filter: blur(12px);
@@ -99,138 +133,126 @@
       padding: 1.6rem;
       transition: all 0.3s;
       cursor: pointer;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.5);
       display: flex;
       flex-direction: column;
     }
-
     .level-card:hover {
       transform: translateY(-4px);
       border-color: rgba(200, 160, 80, 0.25);
-      box-shadow: 0 20px 32px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 20px 32px rgba(0,0,0,0.6);
     }
-
     .card-header {
       display: flex;
       justify-content: space-between;
       align-items: baseline;
       margin-bottom: 0.8rem;
     }
-
     .level-id {
       font-size: 1.6rem;
       font-weight: 600;
       color: #c8b07c;
     }
-
     .class-badge {
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(255,255,255,0.08);
       padding: 0.25rem 1rem;
       border-radius: 16px;
       font-size: 0.8rem;
       font-weight: 500;
       color: #bcaa7c;
     }
-
     .level-title {
       font-size: 1.3rem;
       font-weight: 500;
       margin-bottom: 0.8rem;
       color: #f0e3c9;
     }
-
-    .level-desc {
+    .level-desc-preview {
       font-size: 0.9rem;
       color: #b0b0c0;
       line-height: 1.6;
       margin-bottom: 1rem;
       white-space: pre-wrap;
-      word-break: break-word;
-      flex: 1;
       overflow: hidden;
       display: -webkit-box;
-      -webkit-line-clamp: 6;
+      -webkit-line-clamp: 4;
       -webkit-box-orient: vertical;
     }
-
     .card-images {
       display: flex;
       gap: 0.5rem;
       flex-wrap: wrap;
       margin: 0.8rem 0;
     }
-
     .card-images img {
       width: 70px;
       height: 70px;
       object-fit: cover;
       border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      transition: transform 0.2s;
+      border: 1px solid rgba(255,255,255,0.2);
     }
-
-    .card-images img:hover {
-      transform: scale(1.06);
-    }
-
-    .image-caption {
-      font-size: 0.75rem;
-      color: #888;
-      margin-top: 0.2rem;
-      text-align: center;
-    }
-
     .card-footer {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      margin-top: 0.5rem;
       font-size: 0.8rem;
       color: #7a7a8a;
+      margin-top: auto;
     }
-
+    /* Модальное окно */
     .modal {
       display: none;
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
       backdrop-filter: blur(6px);
       align-items: center;
       justify-content: center;
       z-index: 100;
       padding: 1rem;
     }
-
-    .modal.active {
-      display: flex;
-    }
-
+    .modal.active { display: flex; }
     .modal-content {
       background: #1a1d2e;
       border: 1px solid #2f354a;
       border-radius: 28px;
       padding: 2rem;
-      max-width: 800px;
+      max-width: 850px;
       width: 100%;
       max-height: 90vh;
       overflow-y: auto;
-      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.7);
+      box-shadow: 0 24px 48px rgba(0,0,0,0.7);
     }
-
-    .modal-content h2 {
-      color: #cfb991;
+    .modal-content h2 { color: #cfb991; margin-bottom: 1rem; }
+    .view-field {
       margin-bottom: 1.2rem;
     }
-
+    .view-field label {
+      display: block;
+      font-size: 0.8rem;
+      color: #9e8c6c;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.2rem;
+    }
+    .view-field .value {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      color: #d0d0d8;
+    }
+    .images-view {
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+    .images-view img {
+      max-width: 200px;
+      border-radius: 12px;
+      border: 1px solid #444;
+    }
     .form-group {
       margin-bottom: 1.2rem;
     }
-
     .form-group label {
       display: block;
       font-size: 0.85rem;
@@ -238,9 +260,7 @@
       color: #b0b0c0;
       font-weight: 500;
     }
-
-    .form-group input,
-    .form-group textarea {
+    .form-group input, .form-group textarea {
       width: 100%;
       padding: 0.9rem 1rem;
       background: #0f1119;
@@ -249,100 +269,43 @@
       color: #e0e0e0;
       font-size: 0.9rem;
       outline: none;
-      transition: 0.2s;
       font-family: inherit;
     }
-
-    .form-group textarea {
-      resize: vertical;
-      min-height: 100px;
-      line-height: 1.5;
-    }
-
-    .form-group textarea.large {
-      min-height: 180px;
-    }
-
-    .form-group input:focus,
-    .form-group textarea:focus {
-      border-color: #b8974c;
-    }
-
-    .image-entry {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 0.5rem;
-      align-items: center;
-    }
-
-    .image-entry input {
-      flex: 2;
-    }
-
-    .image-entry .image-desc {
-      flex: 1;
-    }
-
+    .form-group textarea { resize: vertical; min-height: 100px; line-height: 1.5; }
+    .form-group textarea.large { min-height: 180px; }
+    .form-group input:focus, .form-group textarea:focus { border-color: #b8974c; }
+    .image-entry { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; align-items: center; }
     .modal-actions {
       display: flex;
       justify-content: flex-end;
       gap: 0.75rem;
       margin-top: 1.2rem;
-      position: sticky;
-      bottom: 0;
-      background: #1a1d2e;
-      padding-top: 1rem;
       border-top: 1px solid #2f354a;
+      padding-top: 1rem;
     }
-
     .settings-bar {
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
       align-items: center;
       margin: 1rem 0 1.5rem;
-      background: rgba(20, 22, 34, 0.5);
+      background: rgba(20,22,34,0.5);
       padding: 1rem;
       border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255,255,255,0.06);
     }
-
-    .settings-bar input {
-      padding: 0.6rem 0.9rem;
-      background: #0f1119;
-      border: 1px solid #2e3345;
-      border-radius: 10px;
-      color: #ddd;
-      font-size: 0.85rem;
-      outline: none;
-      flex: 1;
-      min-width: 150px;
-    }
-
-    .info-banner {
-      background: rgba(180, 150, 90, 0.1);
-      border-left: 3px solid #b8974c;
-      padding: 1rem 1.5rem;
-      border-radius: 12px;
-      margin-bottom: 1.5rem;
-      font-size: 0.9rem;
-      color: #c0b090;
-      line-height: 1.5;
-    }
+    .settings-bar input { padding: 0.6rem 0.9rem; background:#0f1119; border:1px solid #2e3345; border-radius:10px; color:#ddd; font-size:0.85rem; outline:none; flex:1; min-width:150px; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <div class="logo">
-        <h1>🏛️ Backrooms · Archive</h1>
-      </div>
+      <div class="logo"><h1>🏛️ Backrooms · Archive</h1></div>
       <div class="actions">
         <button class="btn" id="settingsBtn">⚙️ Настройки GitHub</button>
         <button class="btn primary" id="addLevelBtn">➕ Новый уровень</button>
       </div>
     </div>
-
     <div id="settingsPanel" style="display: none;" class="settings-bar">
       <input type="text" id="ownerInput" placeholder="Username репозитория" />
       <input type="text" id="repoInput" placeholder="Название репозитория" />
@@ -351,324 +314,372 @@
       <button class="btn" id="saveSettingsBtn">💾 Сохранить</button>
     </div>
 
-    <div class="info-banner">
-      💡 <strong>Совет:</strong> поля ввода теперь поддерживают длинные тексты. Вы можете вставлять подробные описания, списки и абзацы — они сохранят форматирование. Для добавления изображений указывайте прямые URL.
+    <!-- Панель фильтров и сортировки -->
+    <div class="filters-bar" id="filtersBar">
+      <input type="text" id="searchInput" placeholder="🔍 Поиск по названию или ID..." style="flex:2; min-width:180px;" />
+      <select id="clusterFilter">
+        <option value="all">Все кластеры</option>
+      </select>
+      <div class="filter-class-btns" id="classFilterBtns">
+        <span class="filter-class-btn active" data-class="all">Все</span>
+        <span class="filter-class-btn" data-class="0">0</span>
+        <span class="filter-class-btn" data-class="1">1</span>
+        <span class="filter-class-btn" data-class="2">2</span>
+        <span class="filter-class-btn" data-class="3">3</span>
+        <span class="filter-class-btn" data-class="4">4</span>
+        <span class="filter-class-btn" data-class="5">5</span>
+      </div>
+      <select id="sortSelect">
+        <option value="id_asc">ID ↑</option>
+        <option value="id_desc">ID ↓</option>
+        <option value="name_asc">Название А-Я</option>
+        <option value="name_desc">Название Я-А</option>
+        <option value="class_asc">Класс ↑</option>
+        <option value="class_desc">Класс ↓</option>
+      </select>
     </div>
 
     <div class="levels-grid" id="levelsGrid"></div>
   </div>
 
-  <!-- Модальное окно -->
+  <!-- Модальное окно просмотра/редактирования -->
   <div class="modal" id="levelModal">
-    <div class="modal-content">
-      <h2 id="modalTitle">Новый уровень</h2>
-      <div class="form-group">
-        <label>ID уровня</label>
-        <input type="text" id="levelId" placeholder="например, 222">
-      </div>
-      <div class="form-group">
-        <label>Название</label>
-        <input type="text" id="levelName" placeholder="Название уровня">
-      </div>
-      <div class="form-group">
-        <label>Класс</label>
-        <input type="text" id="levelClass" placeholder="0 (Безопасный)">
-      </div>
-      <div class="form-group">
-        <label>Описание (поддерживает длинный текст, абзацы и переносы строк)</label>
-        <textarea id="levelDesc" class="large" placeholder="Подробное описание уровня..."></textarea>
-      </div>
-      <div class="form-group">
-        <label>Пища и вода</label>
-        <textarea id="levelFood" rows="3" placeholder="Хлеб, сыр, яблоки..."></textarea>
-      </div>
-      <div class="form-group">
-        <label>Сущности (перечислите через запятую)</label>
-        <textarea id="levelEntities" rows="3" placeholder="Кот-Проводник (класс 0), Тени (класс 0)..."></textarea>
-      </div>
-      <div class="form-group">
-        <label>Входы</label>
-        <textarea id="levelIn" rows="3" placeholder="Как попасть на уровень..."></textarea>
-      </div>
-      <div class="form-group">
-        <label>Выходы</label>
-        <textarea id="levelOut" rows="3" placeholder="Как покинуть уровень..."></textarea>
-      </div>
-
-      <div id="imagesContainer">
-        <label style="color:#b0b0c0; font-size:0.85rem;">Изображения (URL + описание)</label>
-        <div class="image-entry">
-          <input type="text" class="image-url" placeholder="https://... image.jpg">
-          <input type="text" class="image-desc" placeholder="Описание">
+    <div class="modal-content" id="modalContent">
+      <!-- Режим просмотра -->
+      <div id="viewMode">
+        <h2 id="viewTitle"></h2>
+        <div class="view-field"><label>Кластер</label><div class="value" id="viewCluster"></div></div>
+        <div class="view-field"><label>Класс</label><div class="value" id="viewClass"></div></div>
+        <div class="view-field"><label>Описание</label><div class="value" id="viewDesc"></div></div>
+        <div class="view-field"><label>Пища и вода</label><div class="value" id="viewFood"></div></div>
+        <div class="view-field"><label>Сущности</label><div class="value" id="viewEntities"></div></div>
+        <div class="view-field"><label>Входы</label><div class="value" id="viewIn"></div></div>
+        <div class="view-field"><label>Выходы</label><div class="value" id="viewOut"></div></div>
+        <div class="view-field"><label>Изображения</label><div class="images-view" id="viewImages"></div></div>
+        <div class="modal-actions">
+          <button class="btn" id="closeViewBtn">Закрыть</button>
+          <button class="btn primary" id="editFromViewBtn">✏️ Редактировать</button>
         </div>
       </div>
-      <button class="btn" id="addImageField" style="margin-top:0.3rem;">➕ Добавить изображение</button>
 
-      <div class="modal-actions">
-        <button class="btn" id="cancelModalBtn">Отмена</button>
-        <button class="btn primary" id="saveLevelBtn">Сохранить и закоммитить</button>
+      <!-- Режим редактирования (изначально скрыт) -->
+      <div id="editMode" style="display: none;">
+        <h2 id="editTitle">Редактирование уровня</h2>
+        <div class="form-group"><label>ID</label><input type="text" id="editId"></div>
+        <div class="form-group"><label>Название</label><input type="text" id="editName"></div>
+        <div class="form-group"><label>Кластер</label><input type="text" id="editCluster" placeholder="например, Основной"></div>
+        <div class="form-group"><label>Класс</label><input type="text" id="editClass"></div>
+        <div class="form-group"><label>Описание</label><textarea id="editDesc" class="large"></textarea></div>
+        <div class="form-group"><label>Пища и вода</label><textarea id="editFood" rows="3"></textarea></div>
+        <div class="form-group"><label>Сущности (через запятую)</label><textarea id="editEntities" rows="2"></textarea></div>
+        <div class="form-group"><label>Входы</label><textarea id="editIn" rows="3"></textarea></div>
+        <div class="form-group"><label>Выходы</label><textarea id="editOut" rows="3"></textarea></div>
+        <div id="editImagesContainer">
+          <label style="color:#b0b0c0;">Изображения</label>
+        </div>
+        <button class="btn small" id="addImageEditBtn">➕ Добавить изображение</button>
+        <div class="modal-actions">
+          <button class="btn" id="cancelEditBtn">Отмена</button>
+          <button class="btn primary" id="saveEditBtn">Сохранить и закоммитить</button>
+        </div>
       </div>
     </div>
   </div>
 
   <script>
     (function() {
-      const grid = document.getElementById('levelsGrid');
-      const addBtn = document.getElementById('addLevelBtn');
-      const settingsBtn = document.getElementById('settingsBtn');
-      const settingsPanel = document.getElementById('settingsPanel');
-      const saveSettingsBtn = document.getElementById('saveSettingsBtn');
-      const modal = document.getElementById('levelModal');
-      const cancelBtn = document.getElementById('cancelModalBtn');
-      const saveLevelBtn = document.getElementById('saveLevelBtn');
-      const addImageBtn = document.getElementById('addImageField');
-      const imagesContainer = document.getElementById('imagesContainer');
-
-      const ownerInput = document.getElementById('ownerInput');
-      const repoInput = document.getElementById('repoInput');
-      const pathInput = document.getElementById('pathInput');
-      const tokenInput = document.getElementById('tokenInput');
-      const levelId = document.getElementById('levelId');
-      const levelName = document.getElementById('levelName');
-      const levelClass = document.getElementById('levelClass');
-      const levelDesc = document.getElementById('levelDesc');
-      const levelFood = document.getElementById('levelFood');
-      const levelEntities = document.getElementById('levelEntities');
-      const levelIn = document.getElementById('levelIn');
-      const levelOut = document.getElementById('levelOut');
-
-      let levels = [];
-      let editingId = null;
-
-      // Встроенный Уровень 0
+      // --- ДАННЫЕ ---
       const defaultLevel0 = {
         id: "0",
         title: "Тихая Прихожая",
+        cluster: "Основной",
         cls: "0 (Безопасный)",
-        desc: "Уровень 0 представляет собой бесконечную анфиладу смежных комнат, коридоров и небольших залов, обставленных как старый, но ухоженный загородный дом. Интерьер выдержан в тёплых тонах: деревянные полы, прикрытые вязаными половиками, книжные шкафы с потёртыми корешками, мягкие кресла и диваны с пледами, камины, в которых уютно потрескивают дрова. Освещение исходит от тканевых абажуров и настенных бра — мягкое, чуть приглушённое, создающее атмосферу покоя. В воздухе витает аромат сушёных яблок, печного тепла и старой бумаги.\n\nКомнаты перетекают одна в другую плавно, без дверей или через арочные проходы. Встречаются кухни с медной посудой и пучками трав, библиотеки с уютными нишами для чтения, спальни с застеленными лоскутными одеялами кроватями. Все предметы выглядят слегка старомодными, но чистыми и готовыми к использованию. Окна есть, но за ними — мягкий молочный свет, словно снаружи густой туман; разглядеть что-либо невозможно.\n\nПространство интуитивно подстраивается под вошедшего, даря ощущение, что он уже бывал здесь раньше. Могут появляться смутно знакомые предметы: старая игрушка на полке, знакомый узор на обоях, запах пирожков. Это не ловушка, а механизм снижения стресса — уровень стремится успокоить странника, дать ему время осознать переход и собраться с мыслями. Заблудиться здесь нельзя: если нужно найти выход, внутреннее чутьё ведёт к нужной двери; если хочется отдохнуть — ближайшая комната окажется спальней; если голоден — кухней.\n\nИногда краем глаза можно заметить движение: в соседней комнате кто-то перекладывает книгу, в кресле у камина сидит фигура с газетой, за приоткрытой дверью слышен негромкий разговор. Но стоит обернуться — комната пуста, газета аккуратно сложена, а разговор обрывается. Это безвредные «тени» — эхо прежних посетителей.",
-        food: "Еда: на кухне или в буфете всегда можно найти свежий хлеб, сыр, яблоки, печенье, баночку варенья. Горячих блюд нет, но на плите стоит чайник с кипятком для чая. Еда не портится и возобновляется, если съесть не всё.\n\nВода: графин с чистой водой, чай в заварочном чайнике. Вода прохладная, безопасная.\n\nЧастота: пища и вода доступны постоянно, их запасы кажутся неисчерпаемыми.",
-        ent: ["Кот-Проводник (класс 0)", "Тени (класс 0)"],
-        in: "Уровень 0 — это точка входа в Закулисье. Попасть сюда можно из реальности следующими способами:\n\nПровал сквозь реальность: в момент сильного стресса, усталости или рассеянности человек может «зацепиться» за край реальности и выпасть в Прихожую. Часто это случается в старых домах, библиотеках, уютных, но заброшенных местах. Субъективно: шёл по коридору, свернул не туда и оказался в незнакомой, но уютной комнате.\n\nСон наяву: задремав в кресле с книгой, можно проснуться уже здесь.",
-        out: "Из Прихожей ведут множество дверей, каждая из которых маркирована интуитивно понятными образами. Основные выходы:\n\nДверь с витражом, изображающим городские здания — Уровень 11 «Бесконечный Город».\n\nДверь с табличкой «Склад» — Уровень 229 «Отзывчивый Склад».\n\nДверь с изображением раскрытой книги — Уровень 228 «Тихая Библиотека».\n\nДверь, увитая плющом и полевыми цветами — Уровень 250 «Луга Наблюдателей».\n\nОбычная входная дверь с крючком — Уровень 1 «Обитаемая зона».\n\nЗеркало в полный рост: если подойти к нему с чётким намерением вернуться домой, можно попытаться выйти в реальность, но срабатывает крайне редко; большинство видят лишь своё отражение.",
+        desc: "Уровень 0 представляет собой бесконечную анфиладу смежных комнат...",
+        food: "Хлеб, сыр, яблоки, печенье, чай, вода.",
+        ent: ["Кот-Проводник (0)", "Тени (0)"],
+        in: "Провал сквозь реальность, сон в кресле.",
+        out: "Двери в 1, 11, 228, 229, 250.",
         images: []
       };
 
+      let levels = [defaultLevel0];
+      let currentLevelForEdit = null;
+
+      // DOM элементы
+      const grid = document.getElementById('levelsGrid');
+      const searchInput = document.getElementById('searchInput');
+      const clusterFilter = document.getElementById('clusterFilter');
+      const sortSelect = document.getElementById('sortSelect');
+      const classBtns = document.querySelectorAll('.filter-class-btn');
+      const modal = document.getElementById('levelModal');
+      const viewMode = document.getElementById('viewMode');
+      const editMode = document.getElementById('editMode');
+
+      // --- ЗАГРУЗКА / СОХРАНЕНИЕ НАСТРОЕК ---
       function loadSettings() {
-        ownerInput.value = localStorage.getItem('gh_owner') || '';
-        repoInput.value = localStorage.getItem('gh_repo') || '';
-        pathInput.value = localStorage.getItem('gh_path') || 'levels.json';
-        tokenInput.value = localStorage.getItem('gh_token') || '';
+        document.getElementById('ownerInput').value = localStorage.getItem('gh_owner') || '';
+        document.getElementById('repoInput').value = localStorage.getItem('gh_repo') || '';
+        document.getElementById('pathInput').value = localStorage.getItem('gh_path') || 'levels.json';
+        document.getElementById('tokenInput').value = localStorage.getItem('gh_token') || '';
       }
       loadSettings();
-
-      saveSettingsBtn.addEventListener('click', () => {
-        localStorage.setItem('gh_owner', ownerInput.value.trim());
-        localStorage.setItem('gh_repo', repoInput.value.trim());
-        localStorage.setItem('gh_path', pathInput.value.trim() || 'levels.json');
-        localStorage.setItem('gh_token', tokenInput.value.trim());
+      document.getElementById('saveSettingsBtn').addEventListener('click', () => {
+        localStorage.setItem('gh_owner', document.getElementById('ownerInput').value.trim());
+        localStorage.setItem('gh_repo', document.getElementById('repoInput').value.trim());
+        localStorage.setItem('gh_path', document.getElementById('pathInput').value.trim() || 'levels.json');
+        localStorage.setItem('gh_token', document.getElementById('tokenInput').value.trim());
         alert('Настройки сохранены.');
-        settingsPanel.style.display = 'none';
+        document.getElementById('settingsPanel').style.display = 'none';
+      });
+      document.getElementById('settingsBtn').addEventListener('click', () => {
+        const p = document.getElementById('settingsPanel');
+        p.style.display = p.style.display === 'none' ? 'flex' : 'none';
       });
 
-      settingsBtn.addEventListener('click', () => {
-        settingsPanel.style.display = settingsPanel.style.display === 'none' ? 'flex' : 'none';
-      });
-
+      // --- ЗАГРУЗКА УРОВНЕЙ ---
       async function fetchLevels() {
         const owner = localStorage.getItem('gh_owner');
         const repo = localStorage.getItem('gh_repo');
         const path = localStorage.getItem('gh_path') || 'levels.json';
-        if (!owner || !repo) {
-          console.warn('Настройки репозитория не заданы. Используем локальный массив.');
-          return [defaultLevel0];
-        }
+        if (!owner || !repo) return [defaultLevel0];
         try {
-          const url = `https://raw.githubusercontent.com/${owner}/${repo}/main/${path}`;
-          const resp = await fetch(url);
-          if (!resp.ok) throw new Error('Файл не найден');
+          const resp = await fetch(`https://raw.githubusercontent.com/${owner}/${repo}/main/${path}`);
+          if (!resp.ok) throw new Error('not found');
           const data = await resp.json();
           return Array.isArray(data) && data.length ? data : [defaultLevel0];
         } catch (e) {
-          console.log('Не удалось загрузить уровни, используем встроенный.', e);
           return [defaultLevel0];
         }
       }
 
-      function renderCards() {
-        if (!levels.length) {
-          grid.innerHTML = '<div style="color:#777; padding:2rem;">Пока нет уровней. Добавьте первый!</div>';
+      // --- ФИЛЬТРЫ И СОРТИРОВКА ---
+      function getActiveClassFilter() {
+        const active = document.querySelector('.filter-class-btn.active');
+        return active ? active.dataset.class : 'all';
+      }
+
+      function extractClassNumber(clsStr) {
+        const match = clsStr.match(/(\d+)/);
+        return match ? parseInt(match[1]) : 99;
+      }
+
+      function applyFilters() {
+        let filtered = [...levels];
+        const query = searchInput.value.toLowerCase().trim();
+        if (query) {
+          filtered = filtered.filter(l => l.id.toLowerCase().includes(query) || l.title.toLowerCase().includes(query));
+        }
+        const clusterVal = clusterFilter.value;
+        if (clusterVal !== 'all') {
+          filtered = filtered.filter(l => (l.cluster || 'Без кластера') === clusterVal);
+        }
+        const classVal = getActiveClassFilter();
+        if (classVal !== 'all') {
+          filtered = filtered.filter(l => extractClassNumber(l.cls) === parseInt(classVal));
+        }
+        // Сортировка
+        const sortVal = sortSelect.value;
+        switch (sortVal) {
+          case 'id_asc': filtered.sort((a,b) => a.id.localeCompare(b.id, undefined, {numeric:true})); break;
+          case 'id_desc': filtered.sort((a,b) => b.id.localeCompare(a.id, undefined, {numeric:true})); break;
+          case 'name_asc': filtered.sort((a,b) => a.title.localeCompare(b.title)); break;
+          case 'name_desc': filtered.sort((a,b) => b.title.localeCompare(a.title)); break;
+          case 'class_asc': filtered.sort((a,b) => extractClassNumber(a.cls) - extractClassNumber(b.cls)); break;
+          case 'class_desc': filtered.sort((a,b) => extractClassNumber(b.cls) - extractClassNumber(a.cls)); break;
+        }
+        renderCards(filtered);
+      }
+
+      function updateClusterOptions() {
+        const clusters = new Set(levels.map(l => l.cluster || 'Без кластера'));
+        clusterFilter.innerHTML = '<option value="all">Все кластеры</option>';
+        clusters.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.textContent = c; clusterFilter.appendChild(opt); });
+      }
+
+      // --- РЕНДЕР КАРТОЧЕК ---
+      function renderCards(data) {
+        if (!data.length) {
+          grid.innerHTML = '<div style="color:#777; padding:2rem;">Нет уровней, соответствующих фильтрам.</div>';
           return;
         }
-        grid.innerHTML = levels.map(l => {
-          const imagesHtml = (l.images && l.images.length)
-            ? l.images.map(img => `
-                <div style="text-align:center;">
-                  <img src="${img.url}" alt="image" onerror="this.style.display='none'">
-                  <div class="image-caption">${img.description || ''}</div>
-                </div>`).join('')
-            : '';
+        grid.innerHTML = data.map(l => {
+          const imgs = (l.images && l.images.length) ? l.images.map(img => `<img src="${img.url}" onerror="this.style.display='none'">`).join('') : '';
           return `
             <div class="level-card" data-id="${l.id}">
-              <div class="card-header">
-                <span class="level-id">${l.id}</span>
-                <span class="class-badge">${l.cls || '?'}</span>
-              </div>
+              <div class="card-header"><span class="level-id">${l.id}</span><span class="class-badge">${l.cls}</span></div>
               <div class="level-title">${l.title}</div>
-              <div class="level-desc">${l.desc || ''}</div>
-              <div class="card-images">${imagesHtml}</div>
-              <div class="card-footer">
-                <span>🍞 ${l.food ? l.food.split('\n')[0] : '—'}</span>
-                <span>👥 ${l.ent ? l.ent.join(', ') : '—'}</span>
-              </div>
+              <div class="level-desc-preview">${l.desc || ''}</div>
+              <div class="card-images">${imgs}</div>
+              <div class="card-footer"><span>🍞 ${l.food ? l.food.split('\n')[0] : '—'}</span><span>📁 ${l.cluster || '—'}</span></div>
             </div>`;
         }).join('');
-
         document.querySelectorAll('.level-card').forEach(card => {
-          card.addEventListener('click', (e) => {
-            const id = card.dataset.id;
-            const level = levels.find(l => l.id === id);
-            if (level) openModal(level);
+          card.addEventListener('click', () => {
+            const lvl = levels.find(l => l.id === card.dataset.id);
+            if (lvl) openView(lvl);
           });
         });
       }
 
-      function openModal(level = null) {
-        editingId = level ? level.id : null;
-        document.getElementById('modalTitle').textContent = level ? 'Редактировать уровень' : 'Новый уровень';
-        levelId.value = level ? level.id : '';
-        levelName.value = level ? level.title : '';
-        levelClass.value = level ? level.cls : '';
-        levelDesc.value = level ? level.desc : '';
-        levelFood.value = level ? level.food : '';
-        levelEntities.value = level ? (level.ent ? level.ent.join(', ') : '') : '';
-        levelIn.value = level ? level.in : '';
-        levelOut.value = level ? level.out : '';
-
-        imagesContainer.querySelectorAll('.image-entry').forEach(el => el.remove());
-        if (level && level.images) {
-          level.images.forEach(img => addImageField(img.url, img.description));
-        } else {
-          addImageField('', '');
-        }
+      // --- МОДАЛЬНОЕ ОКНО: ПРОСМОТР ---
+      function openView(level) {
+        currentLevelForEdit = level;
+        document.getElementById('viewTitle').textContent = `Уровень ${level.id} — «${level.title}»`;
+        document.getElementById('viewCluster').textContent = level.cluster || '—';
+        document.getElementById('viewClass').textContent = level.cls;
+        document.getElementById('viewDesc').textContent = level.desc;
+        document.getElementById('viewFood').textContent = level.food;
+        document.getElementById('viewEntities').textContent = level.ent ? level.ent.join(', ') : '—';
+        document.getElementById('viewIn').textContent = level.in;
+        document.getElementById('viewOut').textContent = level.out;
+        const imgContainer = document.getElementById('viewImages');
+        imgContainer.innerHTML = (level.images && level.images.length) ? level.images.map(img => `<div><img src="${img.url}" onerror="this.style.display='none'"><div style="font-size:0.8rem;color:#888;">${img.description||''}</div></div>`).join('') : '—';
+        viewMode.style.display = 'block';
+        editMode.style.display = 'none';
         modal.classList.add('active');
       }
 
-      function closeModal() {
-        modal.classList.remove('active');
-        editingId = null;
+      document.getElementById('closeViewBtn').addEventListener('click', () => modal.classList.remove('active'));
+      document.getElementById('editFromViewBtn').addEventListener('click', () => {
+        if (!currentLevelForEdit) return;
+        openEdit(currentLevelForEdit);
+      });
+
+      // --- МОДАЛЬНОЕ ОКНО: РЕДАКТИРОВАНИЕ ---
+      function openEdit(level) {
+        document.getElementById('editId').value = level.id;
+        document.getElementById('editName').value = level.title;
+        document.getElementById('editCluster').value = level.cluster || '';
+        document.getElementById('editClass').value = level.cls;
+        document.getElementById('editDesc').value = level.desc;
+        document.getElementById('editFood').value = level.food;
+        document.getElementById('editEntities').value = level.ent ? level.ent.join(', ') : '';
+        document.getElementById('editIn').value = level.in;
+        document.getElementById('editOut').value = level.out;
+
+        const imgContainer = document.getElementById('editImagesContainer');
+        imgContainer.querySelectorAll('.image-entry').forEach(e => e.remove());
+        if (level.images && level.images.length) {
+          level.images.forEach(img => addEditImageField(img.url, img.description));
+        } else {
+          addEditImageField('', '');
+        }
+
+        viewMode.style.display = 'none';
+        editMode.style.display = 'block';
+        document.getElementById('editTitle').textContent = `Редактирование: ${level.id}`;
       }
 
-      cancelBtn.addEventListener('click', closeModal);
-      modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
-
-      function addImageField(url = '', desc = '') {
+      function addEditImageField(url='', desc='') {
         const div = document.createElement('div');
         div.className = 'image-entry';
-        div.innerHTML = `
-          <input type="text" class="image-url" placeholder="URL изображения" value="${url}">
-          <input type="text" class="image-desc" placeholder="Описание" value="${desc}">
-          <button type="button" class="btn remove-image" style="padding:0.3rem 0.7rem;">✕</button>`;
+        div.innerHTML = `<input type="text" class="image-url" placeholder="URL" value="${url}" style="flex:2;"><input type="text" class="image-desc" placeholder="Описание" value="${desc}" style="flex:1;"><button type="button" class="btn small remove-image">✕</button>`;
         div.querySelector('.remove-image').addEventListener('click', () => div.remove());
-        imagesContainer.appendChild(div);
+        document.getElementById('editImagesContainer').appendChild(div);
       }
 
-      addImageBtn.addEventListener('click', () => addImageField('', ''));
+      document.getElementById('addImageEditBtn').addEventListener('click', () => addEditImageField('', ''));
+      document.getElementById('cancelEditBtn').addEventListener('click', () => {
+        editMode.style.display = 'none';
+        viewMode.style.display = 'block';
+      });
 
-      function gatherFormData() {
+      // --- СОХРАНЕНИЕ ИЗМЕНЕНИЙ ---
+      document.getElementById('saveEditBtn').addEventListener('click', async () => {
+        const id = document.getElementById('editId').value.trim();
+        if (!id) return alert('ID обязателен');
         const images = [];
-        document.querySelectorAll('.image-entry').forEach(entry => {
+        document.querySelectorAll('#editImagesContainer .image-entry').forEach(entry => {
           const url = entry.querySelector('.image-url').value.trim();
           const desc = entry.querySelector('.image-desc').value.trim();
-          if (url) images.push({ url, description: desc });
+          if (url) images.push({url, description: desc});
         });
-        const entitiesRaw = levelEntities.value.trim();
-        const entArray = entitiesRaw ? entitiesRaw.split(',').map(s => s.trim()).filter(Boolean) : [];
-        return {
-          id: levelId.value.trim(),
-          title: levelName.value.trim(),
-          cls: levelClass.value.trim(),
-          desc: levelDesc.value.trim(),
-          food: levelFood.value.trim(),
-          ent: entArray,
-          in: levelIn.value.trim(),
-          out: levelOut.value.trim(),
+        const updated = {
+          id: id,
+          title: document.getElementById('editName').value.trim(),
+          cluster: document.getElementById('editCluster').value.trim(),
+          cls: document.getElementById('editClass').value.trim(),
+          desc: document.getElementById('editDesc').value.trim(),
+          food: document.getElementById('editFood').value.trim(),
+          ent: document.getElementById('editEntities').value.split(',').map(s=>s.trim()).filter(Boolean),
+          in: document.getElementById('editIn').value.trim(),
+          out: document.getElementById('editOut').value.trim(),
           images: images
         };
-      }
+        const index = levels.findIndex(l => l.id === currentLevelForEdit.id);
+        if (index !== -1) levels[index] = updated;
+        else levels.push(updated);
+        const success = await commitToGitHub(levels);
+        if (success) {
+          alert('Изменения сохранены и отправлены в репозиторий.');
+          modal.classList.remove('active');
+          updateClusterOptions();
+          applyFilters();
+        } else {
+          levels = await fetchLevels();
+          updateClusterOptions();
+          applyFilters();
+        }
+      });
 
-      async function commitToGitHub(newLevels) {
+      // --- GITHUB COMMIT ---
+      async function commitToGitHub(data) {
         const owner = localStorage.getItem('gh_owner');
         const repo = localStorage.getItem('gh_repo');
         const path = localStorage.getItem('gh_path') || 'levels.json';
         const token = localStorage.getItem('gh_token');
-        if (!owner || !repo || !token) {
-          alert('Заполните настройки GitHub (owner, repo, token).');
-          return false;
-        }
+        if (!owner || !repo || !token) { alert('Заполните настройки GitHub.'); return false; }
         const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
-        const content = JSON.stringify(newLevels, null, 2);
-        const base64Content = btoa(unescape(encodeURIComponent(content)));
-
+        const content = JSON.stringify(data, null, 2);
+        const base64 = btoa(unescape(encodeURIComponent(content)));
         let sha = null;
         try {
-          const getResp = await fetch(url, { headers: { Authorization: `token ${token}` } });
-          if (getResp.ok) {
-            const data = await getResp.json();
-            sha = data.sha;
-          }
-        } catch (e) {}
-
-        const body = {
-          message: `Обновление уровней (${new Date().toISOString()})`,
-          content: base64Content,
-          branch: 'main'
-        };
+          const resp = await fetch(url, { headers: { Authorization: `token ${token}` } });
+          if (resp.ok) { const j = await resp.json(); sha = j.sha; }
+        } catch(e){}
+        const body = { message: `Update levels ${new Date().toISOString()}`, content: base64, branch: 'main' };
         if (sha) body.sha = sha;
-
-        const resp = await fetch(url, {
-          method: 'PUT',
-          headers: {
-            Authorization: `token ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(body)
-        });
-        if (!resp.ok) {
-          const err = await resp.json();
-          alert('Ошибка GitHub: ' + (err.message || 'Неизвестная ошибка'));
-          return false;
-        }
+        const resp = await fetch(url, { method:'PUT', headers:{ Authorization:`token ${token}`, 'Content-Type':'application/json' }, body:JSON.stringify(body) });
+        if (!resp.ok) { alert('Ошибка GitHub'); return false; }
         return true;
       }
 
-      saveLevelBtn.addEventListener('click', async () => {
-        const formData = gatherFormData();
-        if (!formData.id || !formData.title) {
-          alert('ID и Название обязательны.');
-          return;
-        }
-        if (editingId) {
-          const index = levels.findIndex(l => l.id === editingId);
-          if (index !== -1) levels[index] = formData;
-        } else {
-          levels.push(formData);
-        }
-        const success = await commitToGitHub(levels);
-        if (success) {
-          alert('Изменения отправлены в репозиторий. GitHub Pages пересоберёт сайт в течение минуты.');
-          closeModal();
-          renderCards();
-        } else {
-          levels = await fetchLevels();
-          renderCards();
-        }
+      // --- ДОБАВЛЕНИЕ НОВОГО УРОВНЯ ---
+      document.getElementById('addLevelBtn').addEventListener('click', () => {
+        currentLevelForEdit = null;
+        document.getElementById('editId').value = '';
+        document.getElementById('editName').value = '';
+        document.getElementById('editCluster').value = '';
+        document.getElementById('editClass').value = '';
+        document.getElementById('editDesc').value = '';
+        document.getElementById('editFood').value = '';
+        document.getElementById('editEntities').value = '';
+        document.getElementById('editIn').value = '';
+        document.getElementById('editOut').value = '';
+        document.getElementById('editImagesContainer').querySelectorAll('.image-entry').forEach(e=>e.remove());
+        addEditImageField('','');
+        document.getElementById('editTitle').textContent = 'Новый уровень';
+        viewMode.style.display = 'none';
+        editMode.style.display = 'block';
+        modal.classList.add('active');
       });
 
-      addBtn.addEventListener('click', () => openModal(null));
+      // --- ПОДПИСКА НА ФИЛЬТРЫ ---
+      searchInput.addEventListener('input', applyFilters);
+      clusterFilter.addEventListener('change', applyFilters);
+      sortSelect.addEventListener('change', applyFilters);
+      classBtns.forEach(btn => btn.addEventListener('click', function() {
+        classBtns.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        applyFilters();
+      }));
 
+      // --- ИНИЦИАЛИЗАЦИЯ ---
       (async function init() {
         levels = await fetchLevels();
-        renderCards();
+        updateClusterOptions();
+        applyFilters();
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
       })();
     })();
   </script>
