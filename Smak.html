@@ -76,6 +76,14 @@
     .form-group { margin-bottom:1rem; }
     .form-group label { display:block; font-size:0.85rem; color:#b0b0be; margin-bottom:0.3rem; }
     .form-group input, .form-group textarea, .form-group select { width:100%; padding:0.7rem; background:#14141b; border:1px solid #3a3a48; border-radius:10px; color:#d0d0d0; font-size:0.9rem; outline:none; }
+    .dropdown-search { position:relative; }
+    .dropdown-search .selected-items { display:flex; flex-wrap:wrap; gap:0.3rem; min-height:40px; align-items:center; padding:0.3rem; background:#14141b; border:1px solid #3a3a48; border-radius:10px; }
+    .selected-item { background:#2c2c38; padding:0.2rem 0.5rem; border-radius:10px; font-size:0.8rem; display:flex; align-items:center; gap:0.3rem; }
+    .selected-item .remove { cursor:pointer; color:#a95a5a; }
+    .dropdown-search input { width:100%; margin-top:0.3rem; }
+    .dropdown-search .dropdown-list { position:absolute; top:100%; left:0; width:100%; background:#1c1c24; border:1px solid #3a3a48; border-radius:10px; max-height:180px; overflow-y:auto; z-index:50; display:none; }
+    .dropdown-list .dropdown-item { padding:0.5rem; cursor:pointer; color:#d0d0d0; }
+    .dropdown-list .dropdown-item:hover { background:#2a2a35; }
     .view-section p { line-height:1.9; margin-bottom:1.2rem; color:#cbcbd4; }
     .view-section div { line-height:1.8; }
     .gallery { display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.5rem; }
@@ -83,6 +91,8 @@
     .gallery img:hover { transform: scale(1.2); z-index:10; box-shadow: 0 4px 12px rgba(0,0,0,0.6); }
     .lightbox { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:none; align-items:center; justify-content:center; z-index:200; }
     .lightbox img { max-width:90%; max-height:90%; border-radius:12px; }
+    .map-legend { display:flex; gap:1rem; margin-bottom:0.5rem; font-size:0.8rem; }
+    .map-legend span { display:inline-flex; align-items:center; gap:0.3rem; }
     @media (max-width:700px) { body { flex-direction:column; } .sidebar { width:100%; height:40%; } }
   </style>
 </head>
@@ -139,7 +149,6 @@
     calories:'#c9a64a', availability:'#6a9a6a', taste:'#c9a64a', shelfLife:'#5a7a9a'
   };
 
-  // Элементы DOM
   const tree = document.getElementById('tree');
   const breadcrumbs = document.getElementById('breadcrumbs');
   const contentArea = document.getElementById('contentArea');
@@ -154,7 +163,6 @@
   const addBtn = document.getElementById('addBtn');
   const luckyBtn = document.getElementById('luckyBtn');
 
-  // Загрузка JSON с GitHub
   async function fetchJSON(file) {
     const owner = localStorage.getItem('gh_owner');
     const repo = localStorage.getItem('gh_repo');
@@ -178,13 +186,10 @@
     levels = await fetchJSON('levels.json') || [];
     if (!levels.length) levels.push({ id:"0", title:"Тихая Прихожая", cluster:"Основные", cls:"0", desc:"...", food:"...", ent:["Кот-Проводник"], in:"...", out:"...", stats:{safety:5,stability:4,entities:1,resources:4,mental:1,navigation:1}, tags:[], thumbnail:"", images:[] });
     levels.forEach(l => ensureStats(l, {safety:3,stability:3,entities:3,resources:3,mental:3,navigation:3}));
-
     entities = await fetchJSON('entities.json') || [];
     entities.forEach(e => ensureStats(e, {danger:3, frequency:3, intelligence:3, aggression:3}));
-
     items = await fetchJSON('items.json') || [];
     items.forEach(i => ensureStats(i, {weight:3, rarity:3, usefulness:3, durability:3}));
-
     foodItems = await fetchJSON('food.json') || [];
     foodItems.forEach(f => ensureStats(f, {calories:500, availability:5, taste:3, shelfLife:7}));
   }
@@ -252,10 +257,7 @@
       tree.innerHTML = '<div style="padding:1rem;color:#8c8c9a;">Выберите раздел</div>';
       return;
     }
-    if (currentSection === 'map') {
-      renderMap();
-      return;
-    }
+    if (currentSection === 'map') { renderMap(); return; }
 
     let data = getCurrentData();
     const search = document.getElementById('searchInputField')?.value?.toLowerCase() || '';
@@ -292,9 +294,7 @@
     document.getElementById('sortSelectField').addEventListener('change', () => renderContent());
   }
 
-  function renderTags(tags) {
-    return (tags||[]).map(t => `<span class="tag">${t}</span>`).join('');
-  }
+  function renderTags(tags) { return (tags||[]).map(t => `<span class="tag">${t}</span>`).join(''); }
 
   function renderLevelCard(l) {
     const thumb = l.thumbnail ? `<img class="card-img" src="${l.thumbnail}" onerror="this.style.display='none'">` : '';
@@ -366,7 +366,6 @@
     viewContent.querySelectorAll('.gallery img').forEach(img => {
       img.addEventListener('click', (e) => { lightboxImg.src = e.target.src; lightbox.style.display = 'flex'; });
     });
-
     document.getElementById('closeViewBtn').addEventListener('click', () => viewModal.classList.remove('active'));
     document.getElementById('editFromViewBtn').addEventListener('click', () => {
       viewModal.classList.remove('active');
@@ -376,9 +375,7 @@
       else if (type === 'food') openEditFoodModal(obj);
     });
     document.getElementById('deleteBtn').addEventListener('click', () => {
-      if (confirm(`Вы действительно хотите удалить "${obj.title || obj.name}"? Это действие нельзя отменить.`)) {
-        deleteItem(type, id);
-      }
+      if (confirm(`Удалить "${obj.title || obj.name}"?`)) deleteItem(type, id);
     });
   }
 
@@ -389,11 +386,9 @@
     else if (type === 'item') arr = items;
     else if (type === 'food') arr = foodItems;
     else return;
-
     const index = arr.findIndex(item => item.id === id);
     if (index === -1) return;
     arr.splice(index, 1);
-
     const filename = type === 'level' ? 'levels.json' : type === 'entity' ? 'entities.json' : type === 'item' ? 'items.json' : 'food.json';
     await commitJSON(filename, arr);
     viewModal.classList.remove('active');
@@ -454,6 +449,60 @@
     return Object.entries(styles).map(([val, s]) => `<option value="${val}" ${selected==val?'selected':''}>${val} - ${s.name}</option>`).join('');
   }
 
+  // Новый компонент для выбора уровней с поиском
+  function createLevelDropdown(selectedIds, placeholder) {
+    const id = 'dropdown_' + Math.random().toString(36).substr(2, 6);
+    setTimeout(() => {
+      const container = document.getElementById(id);
+      if (!container) return;
+      const input = container.querySelector('input');
+      const list = container.querySelector('.dropdown-list');
+      const selectedContainer = container.querySelector('.selected-items');
+      let selected = selectedIds ? selectedIds.split(',').map(s => s.trim()).filter(Boolean) : [];
+      function renderSelected() {
+        selectedContainer.innerHTML = selected.map(id => {
+          const lvl = levels.find(l => l.id === id);
+          return `<span class="selected-item">${id} (${lvl?.title||'?'}) <span class="remove" data-id="${id}">✕</span></span>`;
+        }).join('') + (selected.length === 0 ? `<span style="color:#7a7a8a;font-size:0.8rem;">${placeholder}</span>` : '');
+        selectedContainer.querySelectorAll('.remove').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            selected = selected.filter(id => id !== btn.dataset.id);
+            renderSelected();
+          });
+        });
+      }
+      function filterList(search) {
+        list.innerHTML = '';
+        const filtered = levels.filter(l => l.id.includes(search) || l.title.toLowerCase().includes(search.toLowerCase()));
+        filtered.forEach(l => {
+          const div = document.createElement('div');
+          div.className = 'dropdown-item';
+          div.textContent = `${l.id} – ${l.title}`;
+          div.addEventListener('click', () => {
+            if (!selected.includes(l.id)) {
+              selected.push(l.id);
+              renderSelected();
+            }
+            input.value = '';
+            list.style.display = 'none';
+          });
+          list.appendChild(div);
+        });
+      }
+      renderSelected();
+      input.addEventListener('focus', () => { filterList(input.value); list.style.display = 'block'; });
+      input.addEventListener('input', () => { filterList(input.value); list.style.display = 'block'; });
+      input.addEventListener('blur', () => { setTimeout(() => list.style.display = 'none', 200); });
+      container._getSelected = () => selected.join(', ');
+    }, 50);
+    return `<div class="dropdown-search" id="${id}">
+      <div class="selected-items"></div>
+      <input type="text" placeholder="Поиск уровня...">
+      <div class="dropdown-list"></div>
+    </div>`;
+  }
+
   function openEditLevelModal(level=null) {
     const lvl = level || { id:'', title:'', cluster:'', cls:'0', desc:'', food:'', ent:[], in:'', out:'', stats:{safety:3,stability:3,entities:3,resources:3,mental:3,navigation:3}, tags:[], thumbnail:'', images:[] };
     editContent.innerHTML = `
@@ -474,21 +523,18 @@
       <div class="form-group"><label>Описание</label><textarea id="editDesc">${lvl.desc}</textarea></div>
       <div class="form-group"><label>Пища</label><input id="editFood" value="${lvl.food}"></div>
       <div class="form-group"><label>Сущности</label><input id="editEnt" value="${(lvl.ent||[]).join(', ')}"></div>
-      <div class="form-group"><label>Входы</label><input id="editIn" value="${lvl.in}"></div>
-      <div class="form-group"><label>Выходы</label><input id="editOut" value="${lvl.out}"></div>
+      <div class="form-group"><label>Входы</label>${createLevelDropdown(lvl.in, 'Выберите уровни входа')}</div>
+      <div class="form-group"><label>Выходы</label>${createLevelDropdown(lvl.out, 'Выберите уровни выхода')}</div>
       <div class="form-group"><label>Главное изображение</label><input id="editThumbnail" value="${lvl.thumbnail||''}"></div>
       <div id="imagesContainer">${(lvl.images||[]).map(img => `<div class="image-entry"><input class="image-url" value="${img.url}"><input class="image-desc" value="${img.description||''}"><button class="btn remove-image">✕</button></div>`).join('')}</div>
       <button class="btn" id="addImageBtn">+ Изображение</button>
       <div style="margin-top:1rem;"><button class="btn primary" id="saveBtn">Сохранить</button> <button class="btn" onclick="editModal.classList.remove('active')">Отмена</button></div>`;
     editModal.classList.add('active');
-    bindLevelSave(level);
-    addImageListeners();
-  }
-
-  function bindLevelSave(level) {
     document.getElementById('saveBtn').addEventListener('click', async () => {
       const images = []; document.querySelectorAll('#imagesContainer .image-entry').forEach(e => { const u=e.querySelector('.image-url').value.trim(), d=e.querySelector('.image-desc').value.trim(); if(u) images.push({url:u,description:d}); });
       const tags = document.getElementById('editTags').value.split(',').map(s=>s.trim()).filter(Boolean);
+      const inDropdown = document.querySelector('#editContent .dropdown-search');
+      const outDropdown = document.querySelectorAll('#editContent .dropdown-search')[1];
       const newObj = {
         id: document.getElementById('editId').value, title: document.getElementById('editTitle').value,
         cluster: document.getElementById('editCluster').value, cls: document.getElementById('editClass').value,
@@ -496,7 +542,7 @@
         stats: { safety:+document.getElementById('editSafety').value, stability:+document.getElementById('editStability').value, entities:+document.getElementById('editEntities').value, resources:+document.getElementById('editResources').value, mental:+document.getElementById('editMental').value, navigation:+document.getElementById('editNavigation').value },
         desc: document.getElementById('editDesc').value, food: document.getElementById('editFood').value,
         ent: document.getElementById('editEnt').value.split(',').map(s=>s.trim()).filter(Boolean),
-        in: document.getElementById('editIn').value, out: document.getElementById('editOut').value,
+        in: inDropdown._getSelected(), out: outDropdown._getSelected(),
         thumbnail: document.getElementById('editThumbnail').value, images
       };
       if (level) { const i = levels.findIndex(l=>l.id===level.id); if(i!==-1) levels[i]=newObj; }
@@ -504,6 +550,7 @@
       await commitJSON('levels.json', levels);
       editModal.classList.remove('active'); renderContent(); renderTree();
     });
+    addImageListeners();
   }
 
   function openEditEntityModal(entity=null) {
@@ -513,10 +560,10 @@
       <div class="form-group"><label>ID</label><input id="editId" value="${e.id}"></div>
       <div class="form-group"><label>Название</label><input id="editName" value="${e.name}"></div>
       <div class="form-group"><label>Класс</label><select id="editClass">${buildClassDropdown(e.cls, classStyles)}</select></div>
-      <div class="form-group"><label>Теги (через запятую)</label><input id="editTags" value="${(e.tags||[]).join(', ')}"></div>
+      <div class="form-group"><label>Теги</label><input id="editTags" value="${(e.tags||[]).join(', ')}"></div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
         <div class="form-group"><label>Опасность</label><input type="number" id="editDanger" value="${e.stats.danger}" min="1" max="5"></div>
-        <div class="form-group"><label>Частота встречи</label><input type="number" id="editFrequency" value="${e.stats.frequency}" min="1" max="5"></div>
+        <div class="form-group"><label>Частота</label><input type="number" id="editFrequency" value="${e.stats.frequency}" min="1" max="5"></div>
         <div class="form-group"><label>Интеллект</label><input type="number" id="editIntelligence" value="${e.stats.intelligence}" min="1" max="5"></div>
         <div class="form-group"><label>Агрессия</label><input type="number" id="editAggression" value="${e.stats.aggression}" min="1" max="5"></div>
       </div>
@@ -534,8 +581,7 @@
       const tags = document.getElementById('editTags').value.split(',').map(s=>s.trim()).filter(Boolean);
       const newObj = {
         id: document.getElementById('editId').value, name: document.getElementById('editName').value,
-        cls: document.getElementById('editClass').value,
-        tags,
+        cls: document.getElementById('editClass').value, tags,
         stats: { danger:+document.getElementById('editDanger').value, frequency:+document.getElementById('editFrequency').value, intelligence:+document.getElementById('editIntelligence').value, aggression:+document.getElementById('editAggression').value },
         habitat: document.getElementById('editHabitat').value, desc: document.getElementById('editDesc').value,
         behavior: document.getElementById('editBehavior').value, survival: document.getElementById('editSurvival').value,
@@ -556,12 +602,12 @@
       <div class="form-group"><label>ID</label><input id="editId" value="${i.id}"></div>
       <div class="form-group"><label>Название</label><input id="editName" value="${i.name}"></div>
       <div class="form-group"><label>Класс</label><select id="editClass">${itemClasses.map((t,idx) => `<option value="${idx}" ${i.cls==idx?'selected':''}>${t}</option>`).join('')}</select></div>
-      <div class="form-group"><label>Теги (через запятую)</label><input id="editTags" value="${(i.tags||[]).join(', ')}"></div>
+      <div class="form-group"><label>Теги</label><input id="editTags" value="${(i.tags||[]).join(', ')}"></div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
-        <div class="form-group"><label>Вес (1-10)</label><input type="number" id="editWeight" value="${i.stats.weight}" min="1" max="10"></div>
-        <div class="form-group"><label>Редкость (1-5)</label><input type="number" id="editRarity" value="${i.stats.rarity}" min="1" max="5"></div>
-        <div class="form-group"><label>Полезность (1-5)</label><input type="number" id="editUsefulness" value="${i.stats.usefulness}" min="1" max="5"></div>
-        <div class="form-group"><label>Прочность (1-5)</label><input type="number" id="editDurability" value="${i.stats.durability}" min="1" max="5"></div>
+        <div class="form-group"><label>Вес</label><input type="number" id="editWeight" value="${i.stats.weight}" min="1" max="10"></div>
+        <div class="form-group"><label>Редкость</label><input type="number" id="editRarity" value="${i.stats.rarity}" min="1" max="5"></div>
+        <div class="form-group"><label>Полезность</label><input type="number" id="editUsefulness" value="${i.stats.usefulness}" min="1" max="5"></div>
+        <div class="form-group"><label>Прочность</label><input type="number" id="editDurability" value="${i.stats.durability}" min="1" max="5"></div>
       </div>
       <div class="form-group"><label>Описание</label><textarea id="editDesc">${i.desc||''}</textarea></div>
       <div class="form-group"><label>Свойства</label><textarea id="editProps">${i.props||''}</textarea></div>
@@ -575,8 +621,7 @@
       const tags = document.getElementById('editTags').value.split(',').map(s=>s.trim()).filter(Boolean);
       const newObj = {
         id: document.getElementById('editId').value, name: document.getElementById('editName').value,
-        cls: document.getElementById('editClass').value,
-        tags,
+        cls: document.getElementById('editClass').value, tags,
         stats: { weight:+document.getElementById('editWeight').value, rarity:+document.getElementById('editRarity').value, usefulness:+document.getElementById('editUsefulness').value, durability:+document.getElementById('editDurability').value },
         desc: document.getElementById('editDesc').value, props: document.getElementById('editProps').value,
         thumbnail: document.getElementById('editThumbnail').value, images
@@ -596,12 +641,12 @@
       <div class="form-group"><label>ID</label><input id="editId" value="${f.id}"></div>
       <div class="form-group"><label>Название</label><input id="editName" value="${f.name}"></div>
       <div class="form-group"><label>Класс</label><select id="editClass">${foodClasses.map((t,idx) => `<option value="${idx}" ${f.cls==idx?'selected':''}>${t}</option>`).join('')}</select></div>
-      <div class="form-group"><label>Теги (через запятую)</label><input id="editTags" value="${(f.tags||[]).join(', ')}"></div>
+      <div class="form-group"><label>Теги</label><input id="editTags" value="${(f.tags||[]).join(', ')}"></div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
-        <div class="form-group"><label>Насыщение (ккал)</label><input type="number" id="editCalories" value="${f.stats.calories}" min="0" max="2000"></div>
-        <div class="form-group"><label>Доступность (1-10)</label><input type="number" id="editAvailability" value="${f.stats.availability}" min="1" max="10"></div>
-        <div class="form-group"><label>Вкус/Польза (1-5)</label><input type="number" id="editTaste" value="${f.stats.taste}" min="1" max="5"></div>
-        <div class="form-group"><label>Срок хранения (дни)</label><input type="number" id="editShelfLife" value="${f.stats.shelfLife}" min="1" max="365"></div>
+        <div class="form-group"><label>Насыщение</label><input type="number" id="editCalories" value="${f.stats.calories}" min="0" max="2000"></div>
+        <div class="form-group"><label>Доступность</label><input type="number" id="editAvailability" value="${f.stats.availability}" min="1" max="10"></div>
+        <div class="form-group"><label>Вкус</label><input type="number" id="editTaste" value="${f.stats.taste}" min="1" max="5"></div>
+        <div class="form-group"><label>Хранение</label><input type="number" id="editShelfLife" value="${f.stats.shelfLife}" min="1" max="365"></div>
       </div>
       <div class="form-group"><label>Описание</label><textarea id="editDesc">${f.desc||''}</textarea></div>
       <div class="form-group"><label>Эффект</label><textarea id="editEffect">${f.effect||''}</textarea></div>
@@ -615,8 +660,7 @@
       const tags = document.getElementById('editTags').value.split(',').map(s=>s.trim()).filter(Boolean);
       const newObj = {
         id: document.getElementById('editId').value, name: document.getElementById('editName').value,
-        cls: document.getElementById('editClass').value,
-        tags,
+        cls: document.getElementById('editClass').value, tags,
         stats: { calories:+document.getElementById('editCalories').value, availability:+document.getElementById('editAvailability').value, taste:+document.getElementById('editTaste').value, shelfLife:+document.getElementById('editShelfLife').value },
         desc: document.getElementById('editDesc').value, effect: document.getElementById('editEffect').value,
         thumbnail: document.getElementById('editThumbnail').value, images
@@ -696,29 +740,27 @@
   window.switchSection = switchSection;
   window.openView = openView;
 
-  // --- Карта связей ---
-  let mapNodes = [], mapEdges = [], selectedNodeId = null, draggingNode = null, dragOffsetX = 0, dragOffsetY = 0;
-
-  function extractIds(str) {
-    const matches = str.match(/\d+/g);
-    return matches ? matches : [];
-  }
-
+  // Карта: организованная сетка + полноэкранный режим
+  let mapNodes = [], mapEdges = [];
   function buildGraph() {
-    mapNodes = levels.map(l => ({
+    const cols = Math.ceil(Math.sqrt(levels.length));
+    mapNodes = levels.map((l, i) => ({
       id: l.id,
       title: l.title,
-      x: Math.random() * 700 + 100,
-      y: Math.random() * 400 + 100
+      x: (i % cols) * 120 + 60,
+      y: Math.floor(i / cols) * 100 + 50
     }));
     const nodeMap = {};
     mapNodes.forEach(n => nodeMap[n.id] = n);
     mapEdges = [];
+    const extractIds = (str) => str.match(/\d+/g) || [];
     levels.forEach(l => {
       const outIds = extractIds(l.out);
       outIds.forEach(targetId => {
         if (nodeMap[targetId] && targetId !== l.id) {
-          mapEdges.push({ from: l.id, to: targetId });
+          if (!mapEdges.some(e => (e.from === l.id && e.to === targetId) || (e.from === targetId && e.to === l.id))) {
+            mapEdges.push({ from: l.id, to: targetId });
+          }
         }
       });
       const inIds = extractIds(l.in);
@@ -732,20 +774,28 @@
     });
   }
 
+  let canvasElement = null;
   function renderMap() {
-    contentArea.innerHTML = `<canvas id="mapCanvas" style="width:100%; height:70vh; border:1px solid #3d3d4a; border-radius:16px;"></canvas>`;
+    contentArea.innerHTML = `
+      <div class="map-legend">
+        <span><span style="background:#c9a86c;width:12px;height:12px;display:inline-block;border-radius:50%;"></span> Выбранный</span>
+        <span><span style="background:#2c2c38;width:12px;height:12px;display:inline-block;border-radius:50%;border:1px solid #b8974c;"></span> Уровень</span>
+        <span>Двойной клик — открыть</span>
+        <button class="btn" id="fullscreenMapBtn">🗺️ На весь экран</button>
+      </div>
+      <canvas id="mapCanvas" style="width:100%; height:65vh; border:1px solid #3d3d4a; border-radius:16px; background:#14141b;"></canvas>`;
     const canvas = document.getElementById('mapCanvas');
+    canvasElement = canvas;
     const ctx = canvas.getContext('2d');
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
     buildGraph();
     drawGraph(ctx, canvas);
 
+    let selectedNodeId = null, draggingNode = null, dragOffsetX = 0, dragOffsetY = 0;
     canvas.onmousedown = (e) => {
       const rect = canvas.getBoundingClientRect();
-      const mx = e.clientX - rect.left;
-      const my = e.clientY - rect.top;
-      draggingNode = null;
+      const mx = e.clientX - rect.left, my = e.clientY - rect.top;
       for (let node of mapNodes) {
         const dx = mx - node.x, dy = my - node.y;
         if (Math.sqrt(dx*dx+dy*dy) < 20) {
@@ -764,22 +814,24 @@
         drawGraph(ctx, canvas);
       }
     };
-    canvas.onmouseup = () => { draggingNode = null; drawGraph(ctx, canvas); };
+    canvas.onmouseup = () => { draggingNode = null; };
     canvas.onclick = (e) => {
       const rect = canvas.getBoundingClientRect();
       const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+      selectedNodeId = null;
       for (let node of mapNodes) {
         const dx = mx - node.x, dy = my - node.y;
         if (Math.sqrt(dx*dx+dy*dy) < 20) {
           selectedNodeId = node.id;
-          drawGraph(ctx, canvas);
-          if (e.detail === 2) openView('level', node.id);
-          return;
+          break;
         }
       }
-      selectedNodeId = null;
       drawGraph(ctx, canvas);
+      if (e.detail === 2 && selectedNodeId) openView('level', selectedNodeId);
     };
+    document.getElementById('fullscreenMapBtn').addEventListener('click', () => {
+      if (canvas.requestFullscreen) canvas.requestFullscreen();
+    });
   }
 
   function drawGraph(ctx, canvas) {
@@ -799,7 +851,7 @@
     mapNodes.forEach(node => {
       ctx.beginPath();
       ctx.arc(node.x, node.y, 16, 0, 2*Math.PI);
-      ctx.fillStyle = node.id === selectedNodeId ? '#c9a86c' : '#2c2c38';
+      ctx.fillStyle = node.id === window._selectedNodeId ? '#c9a86c' : '#2c2c38';
       ctx.fill();
       ctx.strokeStyle = '#b8974c';
       ctx.lineWidth = 2;
@@ -812,15 +864,14 @@
     });
   }
 
-  // Кнопка "Мне повезёт"
   luckyBtn.addEventListener('click', () => {
     let pool = [];
     if (currentSection === 'levels') pool = levels;
     else if (currentSection === 'entities') pool = entities;
     else if (currentSection === 'items') pool = items;
     else if (currentSection === 'food') pool = foodItems;
-    else pool = levels; // home или map – случайный уровень
-    if (pool.length === 0) return;
+    else pool = levels;
+    if (!pool.length) return;
     const randomItem = pool[Math.floor(Math.random() * pool.length)];
     if (currentSection !== 'levels' && currentSection !== 'entities' && currentSection !== 'items' && currentSection !== 'food') {
       switchSection('levels');
