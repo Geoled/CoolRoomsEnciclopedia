@@ -8,7 +8,13 @@
     "behavior": "наблюдает издалека , любит принимать героические позы",
     "survival": "ничего особого не требуется",
     "thumbnail": "https://i.pinimg.com/1200x/7f/5f/7c/7f5f7c887443ebbeab66e422cf21abae.jpg",
-    "images": []
+    "images": [],
+    "stats": {
+      "danger": 3,
+      "frequency": 3,
+      "intelligence": 3,
+      "aggression": 3
+    }
   },
   {
     "id": "2",
@@ -19,7 +25,46 @@
     "behavior": "При виде любого живого существа моментально сьедает его",
     "survival": "невозможно,молитесь",
     "thumbnail": "https://media.discordapp.net/attachments/1456044999232847902/1507090576045117550/IMG_20251002_174412_568.jpg?ex=6a114bb9&is=6a0ffa39&hm=49396c6453f62b646f423af39ce17875816f478e1102a38289570e409876359b&=&format=webp&width=674&height=899",
+    "images": [],
+    "stats": {
+      "danger": 3,
+      "frequency": 3,
+      "intelligence": 3,
+      "aggression": 3
+    }
+  },
+  {
+    "id": "2",
+    "name": "Фiя",
+    "cls": "5",
+    "habitat": "уровень 0 с невероятно низким шансом",
+    "desc": "Огромная толстая оранжевая кошка ",
+    "behavior": "При виде любого живого существа моментально сьедает его",
+    "survival": "невозможно,молитесь",
+    "thumbnail": "https://media.discordapp.net/attachments/1456044999232847902/1507090576045117550/IMG_20251002_174412_568.jpg?ex=6a114bb9&is=6a0ffa39&hm=49396c6453f62b646f423af39ce17875816f478e1102a38289570e409876359b&=&format=webp&width=674&height=899",
+    "images": [],
+    "stats": {
+      "danger": 3,
+      "frequency": 3,
+      "intelligence": 3,
+      "aggression": 3
+    }
+  },
+  {
+    "id": "5",
+    "name": "Фiя",
+    "cls": "5",
+    "stats": {
+      "danger": 5,
+      "frequency": 1,
+      "intelligence": 1,
+      "aggression": 5
+    },
+    "habitat": "уровень 0 с невероятно низким шансом",
+    "desc": "Огромнейшая оранжевая кошка ",
+    "behavior": "При виде любого живого существа мгновенно бежит в его сторону при достижении - пожирает ",
+    "survival": "при виде её , тихо отойдите на 30 метров - дальше бегите что есть мочи , если она вас заметила - уже поздно",
+    "thumbnail": "https://media.discordapp.net/attachments/1456044999232847902/1507090576045117550/IMG_20251002_174412_568.jpg?ex=6a114bb9&is=6a0ffa39&hm=49396c6453f62b646f423af39ce17875816f478e1102a38289570e409876359b&=&format=webp&width=674&height=899",
     "images": []
   }
-  
 ]
