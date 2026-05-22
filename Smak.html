@@ -213,7 +213,6 @@
       else if (obj.type === 'item' || file.name.startsWith('item_')) items.push(obj);
       else if (obj.type === 'food' || file.name.startsWith('food_')) foodItems.push(obj);
     });
-    // убираем дефолтный уровень 0
     levels.forEach(l => ensureStats(l, {safety:3,stability:3,entities:3,resources:3,mental:3,navigation:3}));
     entities.forEach(e => ensureStats(e, {danger:3, frequency:3, intelligence:3, aggression:3}));
     items.forEach(i => ensureStats(i, {weight:3, rarity:3, usefulness:3, durability:3}));
@@ -851,12 +850,17 @@
     }
   }
 
-  function switchSection(section) {
+  async function switchSection(section) {
     currentSection = section;
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === section));
     if (section === 'home') breadcrumbs.innerHTML = 'Главная';
     else if (section === 'map') breadcrumbs.innerHTML = 'Карта связей';
     else breadcrumbs.innerHTML = `<span onclick="switchSection('home')">Главная</span> > ${section==='levels'?'Уровни':section==='entities'?'Сущности':section==='items'?'Предметы':'Еда'}`;
+
+    // автоматически загружаем данные при переключении на разделы с контентом
+    if (section === 'levels' || section === 'entities' || section === 'items' || section === 'food') {
+      await loadAllData();
+    }
     renderTree();
     renderContent();
   }
@@ -943,19 +947,21 @@
     });
   }
 
-  // Кнопка "Повезёт" - теперь работает на всех разделах кроме карты
-  luckyBtn.addEventListener('click', () => {
+  // Кнопка "Повезёт" теперь работает на всех разделах кроме карты
+  luckyBtn.addEventListener('click', async () => {
     if (currentSection === 'map') return;
+    let section = currentSection === 'home' ? ['levels','entities','items','food'][Math.floor(Math.random()*4)] : currentSection;
+    if (section !== currentSection) {
+      await switchSection(section);
+    }
     let pool = [];
-    const section = currentSection === 'home' ? ['levels','entities','items','food'][Math.floor(Math.random()*4)] : currentSection;
     if (section === 'levels') pool = levels;
     else if (section === 'entities') pool = entities;
     else if (section === 'items') pool = items;
     else if (section === 'food') pool = foodItems;
     if (!pool.length) return alert('Нет записей для случайного выбора');
     const randomItem = pool[Math.floor(Math.random() * pool.length)];
-    if (currentSection !== section) switchSection(section);
-    setTimeout(() => openView(section.slice(0, -1), randomItem.id), 100);
+    openView(section.slice(0, -1), randomItem.id);
   });
 
   document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => switchSection(b.dataset.tab)));
