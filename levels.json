@@ -51,5 +51,32 @@
         "description": "3"
       }
     ]
+  },
+  {
+    "id": "22222",
+    "title": "Писюн-X",
+    "cluster": "Основной",
+    "cls": "1",
+    "desc": "Безопаснеьнко",
+    "food": "хлеб сыр хуй дыр",
+    "ent": [
+      "писюн ходячий очень страшно(класс-3)"
+    ],
+    "in": "никак",
+    "out": "никак тоже ты обречён",
+    "images": [
+      {
+        "url": "https://i.pinimg.com/736x/a4/74/39/a4743947435ada0b84e8e01133f167ef.jpg",
+        "description": "хъиъиъ"
+      },
+      {
+        "url": "https://i.pinimg.com/736x/91/4f/5c/914f5cb7c6722eedd30ac0b76fb4f453.jpg",
+        "description": "уааааааа"
+      },
+      {
+        "url": "https://i.pinimg.com/736x/dd/c5/9b/ddc59b8b47871593f4825e6dd161a679.jpg",
+        "description": "БУЭЭЭ"
+      }
+    ]
   }
 ]
