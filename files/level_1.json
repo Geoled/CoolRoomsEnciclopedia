@@ -1,0 +1,27 @@
+{
+  "type": "level",
+  "id": "1",
+  "title": "Бошетунмай",
+  "cluster": "Основной",
+  "cls": "0",
+  "tags": [
+    "Уютненько"
+  ],
+  "stats": {
+    "safety": 1,
+    "stability": 5,
+    "entities": 1,
+    "resources": 1,
+    "mental": 5,
+    "navigation": 1
+  },
+  "desc": "Бошетунмай",
+  "food": "Харчок на полу и крошки хлеба",
+  "ent": [
+    "нету"
+  ],
+  "in": "",
+  "out": "",
+  "thumbnail": "https://i.pinimg.com/736x/74/cc/9c/74cc9ccd1d6aa563737b23ed02605186.jpg",
+  "images": []
+}
