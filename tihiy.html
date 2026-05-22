@@ -1,756 +1,517 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Tihie Rooms Enciclopedia</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
-            min-height: 100vh;
-            background: #121217;
-            background-image: radial-gradient(circle at 50% 0%, #1e1d24 0%, #121217 60%);
-            color: #d4d4dc;
-            padding: 2rem 1.5rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .container {
-            max-width: 1400px;
-            width: 100%;
-        }
-
-        .header {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1.8rem;
-            gap: 1rem;
-        }
-
-        .logo h1 {
-            font-size: 2rem;
-            font-weight: 500;
-            letter-spacing: 0.8px;
-            color: #c9b896;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .logo-icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
-            background: #2a2a35;
-            border-radius: 6px;
-            border: 1px solid #5a5a6a;
-        }
-
-        .actions {
-            display: flex;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .btn {
-            background: #1e1e26;
-            border: 1px solid #3d3d4a;
-            color: #cacaca;
-            padding: 0.6rem 1.2rem;
-            border-radius: 40px;
-            font-weight: 500;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            letter-spacing: 0.3px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-        }
-
-        .btn:hover {
-            background: #262630;
-            border-color: #c9a86c;
-            color: #e8dcc8;
-            box-shadow: 0 6px 14px rgba(0,0,0,0.5);
-        }
-
-        .btn.primary {
-            background: #2c2a1f;
-            border-color: #b8974c;
-            color: #e5c97a;
-        }
-
-        .btn.primary:hover {
-            background: #3a3528;
-        }
-
-        .color-dot {
-            display: inline-block;
-            width: 14px;
-            height: 14px;
-            border-radius: 4px;
-            background: #777;
-        }
-        .dot-green { background: #6a9a6a; }
-        .dot-yellow { background: #c9a64a; }
-        .dot-blue { background: #5a7a9a; }
-        .dot-orange { background: #b9774a; }
-        .dot-red { background: #a95a5a; }
-        .dot-gray { background: #6a6a7a; }
-
-        .filters-bar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.8rem;
-            margin-bottom: 1.8rem;
-            background: #1a1a22;
-            padding: 0.9rem 1.2rem;
-            border-radius: 20px;
-            border: 1px solid #2e2e3a;
-            align-items: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-        }
-
-        .filters-bar input,
-        .filters-bar select {
-            padding: 0.6rem 1rem;
-            background: #14141b;
-            border: 1px solid #3a3a48;
-            border-radius: 14px;
-            color: #d0d0d0;
-            font-size: 0.9rem;
-            outline: none;
-            transition: 0.2s;
-        }
-
-        .filters-bar input:focus,
-        .filters-bar select:focus {
-            border-color: #c9a86c;
-            background: #1a1a24;
-        }
-
-        .levels-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .level-card {
-            background: #1c1c24;
-            border: 1px solid #2d2d3a;
-            border-radius: 20px;
-            padding: 1.5rem;
-            transition: all 0.25s;
-            cursor: pointer;
-            box-shadow: 0 8px 18px rgba(0,0,0,0.5);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .level-card:hover {
-            transform: translateY(-3px);
-            border-color: #b8974c;
-            box-shadow: 0 14px 28px rgba(0,0,0,0.7);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            margin-bottom: 0.4rem;
-        }
-
-        .level-id {
-            font-size: 1.4rem;
-            font-weight: 600;
-            color: #c9a86c;
-        }
-
-        .class-badge {
-            background: #2a2a36;
-            padding: 0.2rem 0.9rem;
-            border-radius: 16px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            color: #bcaa7c;
-        }
-
-        .level-title {
-            font-size: 1.3rem;
-            font-weight: 500;
-            margin-bottom: 0.6rem;
-            color: #e8d9b8;
-        }
-
-        .level-desc {
-            font-size: 0.9rem;
-            color: #b0b0be;
-            line-height: 1.6;
-            margin-bottom: 1rem;
-            white-space: pre-wrap;
-            word-break: break-word;
-            flex: 1;
-            overflow: hidden;
-            display: -webkit-box;
-            -webkit-line-clamp: 4;
-            -webkit-box-orient: vertical;
-        }
-
-        .card-images {
-            display: flex;
-            gap: 0.4rem;
-            flex-wrap: wrap;
-            margin: 0.5rem 0;
-        }
-        .card-images img {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 10px;
-            border: 1px solid #3a3a4a;
-        }
-
-        .cluster-tag {
-            font-size: 0.75rem;
-            background: #2a2a35;
-            padding: 0.2rem 0.8rem;
-            border-radius: 12px;
-            color: #bca07c;
-            margin-left: 0.4rem;
-        }
-
-        .card-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 0.4rem;
-            font-size: 0.8rem;
-            color: #8c8c9a;
-        }
-
-        /* Модальные окна */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.65);
-            backdrop-filter: blur(6px);
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            padding: 1rem;
-        }
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: #1c1c24;
-            border: 1px solid #3d3d4a;
-            border-radius: 24px;
-            padding: 2rem;
-            max-width: 850px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-        }
-
-        .view-content h2 {
-            color: #c9a86c;
-            margin-bottom: 0.5rem;
-        }
-        .view-content .class-tag {
-            background: #2a2a36;
-            padding: 0.4rem 1.2rem;
-            border-radius: 20px;
-            font-weight: 600;
-            color: #cfc19e;
-            display: inline-block;
-            margin-bottom: 1rem;
-        }
-        .view-section {
-            margin: 1.2rem 0;
-        }
-        .view-section h3 {
-            color: #b8974c;
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.3rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .view-section p, .view-section div {
-            color: #cbcbd4;
-            line-height: 1.7;
-            white-space: pre-wrap;
-            font-size: 0.95rem;
-        }
-        .view-images img {
-            max-width: 220px;
-            border-radius: 14px;
-            margin: 0.4rem;
-            border: 1px solid #3d3d4a;
-        }
-
-        .form-group {
-            margin-bottom: 1.2rem;
-        }
-        .form-group label {
-            display: block;
-            font-size: 0.85rem;
-            margin-bottom: 0.3rem;
-            color: #b0b0be;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 0.8rem 1rem;
-            background: #14141b;
-            border: 1px solid #3a3a48;
-            border-radius: 14px;
-            color: #d0d0d0;
-            font-size: 0.9rem;
-            outline: none;
-            font-family: inherit;
-            transition: 0.2s;
-        }
-        .form-group textarea {
-            resize: vertical;
-            min-height: 90px;
-        }
-        .form-group textarea.large {
-            min-height: 150px;
-        }
-        .form-group input:focus,
-        .form-group textarea:focus {
-            border-color: #c9a86c;
-            background: #1a1a24;
-        }
-
-        .image-entry {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
-            align-items: center;
-        }
-        .modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 0.7rem;
-            margin-top: 1.5rem;
-            border-top: 1px solid #3d3d4a;
-            padding-top: 1.2rem;
-        }
-
-        .settings-bar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin: 1rem 0 1.5rem;
-            background: #1a1a22;
-            padding: 1rem;
-            border-radius: 16px;
-            border: 1px solid #2e2e3a;
-        }
-        .settings-bar input {
-            padding: 0.6rem 0.9rem;
-            background: #14141b;
-            border: 1px solid #3a3a48;
-            border-radius: 10px;
-            color: #d0d0d0;
-            font-size: 0.85rem;
-            outline: none;
-            flex: 1;
-            min-width: 140px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Tihie Rooms Enciclopedia</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
+      background: #121217;
+      background-image: radial-gradient(circle at 50% 0%, #1e1d24 0%, #121217 60%);
+      color: #d4d4dc;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .sidebar {
+      width: 260px;
+      background: #1a1a22;
+      border-right: 1px solid #2e2e3a;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow-y: auto;
+    }
+    .sidebar-header {
+      padding: 1.2rem;
+      border-bottom: 1px solid #2e2e3a;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .sidebar-header h3 {
+      color: #c9b896;
+      font-weight: 500;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .tree {
+      flex:1; overflow-y:auto; padding:0.5rem 0;
+    }
+    .tree-item {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: #b0b0be;
+      font-size: 0.9rem;
+      transition: 0.15s;
+    }
+    .tree-item:hover { background:#2a2a35; color:#e8dcc8; }
+    .tree-item.active { background:#2c2c38; color:#c9a86c; font-weight:500; }
+    .tree-folder { font-weight:600; color:#b8974c; }
+    .main {
+      flex:1; display:flex; flex-direction:column; overflow:hidden;
+    }
+    .top-bar {
+      background:#1a1a22; border-bottom:1px solid #2e2e3a; padding:0.8rem 1.5rem;
+      display:flex; align-items:center; gap:1rem; flex-wrap:wrap;
+    }
+    .breadcrumbs { font-size:0.85rem; color:#8c8c9a; }
+    .breadcrumbs span { color:#bca07c; cursor:pointer; }
+    .breadcrumbs span:hover { text-decoration:underline; }
+    .actions { margin-left:auto; display:flex; gap:0.5rem; }
+    .btn {
+      background:#1e1e26; border:1px solid #3d3d4a; color:#cacaca;
+      padding:0.5rem 1rem; border-radius:20px; font-size:0.85rem; cursor:pointer;
+      transition:0.2s; display:inline-flex; align-items:center; gap:0.3rem;
+    }
+    .btn:hover { background:#262630; border-color:#c9a86c; color:#e8dcc8; }
+    .btn.primary { background:#2c2a1f; border-color:#b8974c; color:#e5c97a; }
+    .content-area {
+      flex:1; overflow-y:auto; padding:1.5rem;
+    }
+    .filters-bar {
+      display:flex; gap:0.8rem; margin-bottom:1.5rem; flex-wrap:wrap;
+    }
+    .filters-bar input, .filters-bar select {
+      padding:0.6rem 1rem; background:#14141b; border:1px solid #3a3a48;
+      border-radius:14px; color:#d0d0d0; font-size:0.9rem; outline:none;
+    }
+    .filters-bar input:focus, .filters-bar select:focus { border-color:#c9a86c; }
+    .grid {
+      display:grid; grid-template-columns:repeat(auto-fill, minmax(300px,1fr)); gap:1.2rem;
+    }
+    .card {
+      background:#1c1c24; border:1px solid #2d2d3a; border-radius:16px;
+      padding:1.2rem; cursor:pointer; transition:0.2s;
+    }
+    .card:hover { transform:translateY(-2px); border-color:#b8974c; }
+    .card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; }
+    .card-id { font-weight:600; color:#c9a86c; }
+    .class-icon { font-size:1.2rem; }
+    .survival-bar { display:flex; gap:0.3rem; margin:0.5rem 0; }
+    .survival-segment { height:6px; border-radius:3px; flex:1; }
+    .segment-safe { background:#6a9a6a; } .segment-stable { background:#5a7a9a; } .segment-entity { background:#b9774a; }
+    .modal {
+      display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+      background:rgba(0,0,0,0.7); backdrop-filter:blur(6px); align-items:center;
+      justify-content:center; z-index:100; padding:1rem;
+    }
+    .modal.active { display:flex; }
+    .modal-content {
+      background:#1c1c24; border:1px solid #3d3d4a; border-radius:24px;
+      padding:2rem; max-width:800px; width:100%; max-height:90vh; overflow-y:auto;
+    }
+    .form-group { margin-bottom:1rem; }
+    .form-group label { display:block; font-size:0.85rem; color:#b0b0be; margin-bottom:0.3rem; }
+    .form-group input, .form-group textarea, .form-group select {
+      width:100%; padding:0.7rem; background:#14141b; border:1px solid #3a3a48;
+      border-radius:10px; color:#d0d0d0; font-size:0.9rem; outline:none;
+    }
+    .gallery { display:flex; flex-wrap:wrap; gap:0.5rem; }
+    .gallery img { width:80px; height:80px; object-fit:cover; border-radius:8px; cursor:pointer; border:1px solid #3a3a4a; }
+    .lightbox {
+      position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9);
+      display:none; align-items:center; justify-content:center; z-index:200;
+    }
+    .lightbox img { max-width:90%; max-height:90%; border-radius:12px; }
+    @media (max-width:700px) {
+      body { flex-direction:column; }
+      .sidebar { width:100%; height:40%; }
+    }
+  </style>
 </head>
 <body>
-<div class="container">
-    <div class="header">
-        <div class="logo">
-            <span class="logo-icon"><span style="color:#c9a86c; font-weight:bold;">◈</span></span>
-            <h1>Tihie Rooms Enciclopedia</h1>
-        </div>
-        <div class="actions">
-            <button class="btn" id="refreshBtn"><span class="color-dot dot-blue"></span> Обновить</button>
-            <button class="btn" id="settingsBtn"><span class="color-dot dot-blue"></span> Настройки GitHub</button>
-            <button class="btn primary" id="addLevelBtn"><span class="color-dot dot-green"></span> Новый уровень</button>
-        </div>
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header"><span>◈</span><h3>Tihie Rooms</h3></div>
+  <div class="tree" id="tree"></div>
+</div>
+<div class="main">
+  <div class="top-bar" id="topBar">
+    <div class="breadcrumbs" id="breadcrumbs">Главная</div>
+    <div class="actions">
+      <button class="btn" id="refreshBtn">🔄 Обновить</button>
+      <button class="btn" id="settingsBtn">⚙️ Классы</button>
+      <button class="btn primary" id="addBtn">➕ Новый</button>
     </div>
-
-    <div id="settingsPanel" style="display: none;" class="settings-bar">
-        <input type="text" id="ownerInput" placeholder="Username репозитория" />
-        <input type="text" id="repoInput" placeholder="Название репозитория" />
-        <input type="text" id="pathInput" placeholder="Путь к JSON (levels.json)" value="levels.json" />
-        <input type="password" id="tokenInput" placeholder="GitHub Token (classic)" />
-        <button class="btn" id="saveSettingsBtn"><span class="color-dot dot-blue"></span> Сохранить</button>
-    </div>
-
+  </div>
+  <div class="content-area" id="contentArea">
     <div class="filters-bar">
-        <input type="text" id="searchInput" placeholder="Поиск по названию или ID..." style="flex:2; min-width:200px;" />
-        <select id="clusterFilter" style="flex:1;">
-            <option value="">Все кластеры</option>
-        </select>
-        <select id="sortSelect" style="flex:1;">
-            <option value="default">По умолчанию</option>
-            <option value="id_asc">ID (возр.)</option>
-            <option value="id_desc">ID (убыв.)</option>
-            <option value="name_asc">Название (А-Я)</option>
-            <option value="name_desc">Название (Я-А)</option>
-            <option value="class_asc">Класс (0→5)</option>
-            <option value="class_desc">Класс (5→0)</option>
-        </select>
+      <input type="text" id="searchInput" placeholder="Поиск...">
+      <select id="sortSelect">
+        <option value="default">По умолчанию</option><option value="id_asc">ID возр.</option><option value="id_desc">ID убыв.</option>
+        <option value="name_asc">Название А-Я</option><option value="name_desc">Название Я-А</option>
+      </select>
     </div>
-
-    <div class="levels-grid" id="levelsGrid"></div>
+    <div class="grid" id="grid"></div>
+  </div>
 </div>
 
-<!-- Просмотр уровня -->
-<div class="modal" id="viewModal">
-    <div class="modal-content view-content" id="viewContent"></div>
-</div>
-
-<!-- Редактирование -->
-<div class="modal" id="editModal">
-    <div class="modal-content">
-        <h2 id="modalTitle">Новый уровень</h2>
-        <div class="form-group"><label>ID уровня</label><input type="text" id="levelId" placeholder="например, 222"></div>
-        <div class="form-group"><label>Название</label><input type="text" id="levelName" placeholder="Название уровня"></div>
-        <div class="form-group"><label>Кластер</label><input type="text" id="levelCluster" placeholder="Основные, Подуровни..."></div>
-        <div class="form-group"><label>Класс</label><input type="text" id="levelClass" placeholder="0 (Безопасный)"></div>
-        <div class="form-group"><label>Описание</label><textarea id="levelDesc" class="large" placeholder="Подробное описание..."></textarea></div>
-        <div class="form-group"><label><span class="color-dot dot-green"></span> Пища и вода</label><textarea id="levelFood" rows="3" placeholder="Хлеб, сыр..."></textarea></div>
-        <div class="form-group"><label><span class="color-dot dot-yellow"></span> Сущности (через запятую)</label><textarea id="levelEntities" rows="2" placeholder="Кот-Проводник (0), Тени (0)"></textarea></div>
-        <div class="form-group"><label><span class="color-dot dot-blue"></span> Входы</label><textarea id="levelIn" rows="3" placeholder="Как попасть..."></textarea></div>
-        <div class="form-group"><label><span class="color-dot dot-orange"></span> Выходы</label><textarea id="levelOut" rows="3" placeholder="Как уйти..."></textarea></div>
-
-        <div id="imagesContainer">
-            <label style="color:#b0b0be; font-size:0.85rem;"><span class="color-dot dot-gray"></span> Изображения (URL + описание)</label>
-            <div class="image-entry">
-                <input type="text" class="image-url" placeholder="https://...">
-                <input type="text" class="image-desc" placeholder="Описание">
-            </div>
-        </div>
-        <button class="btn" id="addImageField" style="margin-top:0.3rem;"><span class="color-dot dot-green"></span> Добавить изображение</button>
-
-        <div class="modal-actions">
-            <button class="btn" id="cancelEditBtn"><span class="color-dot dot-red"></span> Отмена</button>
-            <button class="btn primary" id="saveLevelBtn"><span class="color-dot dot-green"></span> Сохранить и закоммитить</button>
-        </div>
-    </div>
-</div>
+<!-- Модальное окно просмотра -->
+<div class="modal" id="viewModal"><div class="modal-content" id="viewContent"></div></div>
+<!-- Модальное окно редактирования -->
+<div class="modal" id="editModal"><div class="modal-content" id="editContent"></div></div>
+<!-- Настройки классов -->
+<div class="modal" id="classSettingsModal"><div class="modal-content" id="classSettingsContent"></div></div>
+<!-- Лайтбокс -->
+<div class="lightbox" id="lightbox" onclick="this.style.display='none'"><img id="lightboxImg" src=""></div>
 
 <script>
-    (function() {
-        const grid = document.getElementById('levelsGrid');
-        const searchInput = document.getElementById('searchInput');
-        const clusterFilter = document.getElementById('clusterFilter');
-        const sortSelect = document.getElementById('sortSelect');
-        const viewModal = document.getElementById('viewModal');
-        const viewContent = document.getElementById('viewContent');
-        const editModal = document.getElementById('editModal');
+(function() {
+  // Состояние
+  let currentTab = 'levels'; // levels, entities, items
+  let levels = [], entities = [], items = [];
+  let classStyles = JSON.parse(localStorage.getItem('classStyles')) || {
+    "0": { icon:"🟢", color:"#6a9a6a", name:"Безопасный" },
+    "1": { icon:"🟡", color:"#c9a64a", name:"Почти безопасный" },
+    "2": { icon:"🟠", color:"#b9774a", name:"Небезопасный" },
+    "3": { icon:"🟤", color:"#8b5a2b", name:"Опасный" },
+    "4": { icon:"🔴", color:"#a95a5a", name:"Очень опасный" },
+    "5": { icon:"⛔", color:"#8b0000", name:"Смертельный" }
+  };
 
-        const addBtn = document.getElementById('addLevelBtn');
-        const refreshBtn = document.getElementById('refreshBtn');
-        const settingsBtn = document.getElementById('settingsBtn');
-        const settingsPanel = document.getElementById('settingsPanel');
-        const saveSettingsBtn = document.getElementById('saveSettingsBtn');
-        const cancelEditBtn = document.getElementById('cancelEditBtn');
-        const saveLevelBtn = document.getElementById('saveLevelBtn');
-        const addImageBtn = document.getElementById('addImageField');
-        const imagesContainer = document.getElementById('imagesContainer');
+  // DOM элементы
+  const tree = document.getElementById('tree');
+  const breadcrumbs = document.getElementById('breadcrumbs');
+  const grid = document.getElementById('grid');
+  const searchInput = document.getElementById('searchInput');
+  const sortSelect = document.getElementById('sortSelect');
+  const viewModal = document.getElementById('viewModal');
+  const viewContent = document.getElementById('viewContent');
+  const editModal = document.getElementById('editModal');
+  const editContent = document.getElementById('editContent');
+  const classSettingsModal = document.getElementById('classSettingsModal');
+  const classSettingsContent = document.getElementById('classSettingsContent');
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightboxImg');
 
-        const ownerInput = document.getElementById('ownerInput');
-        const repoInput = document.getElementById('repoInput');
-        const pathInput = document.getElementById('pathInput');
-        const tokenInput = document.getElementById('tokenInput');
-        const levelId = document.getElementById('levelId');
-        const levelName = document.getElementById('levelName');
-        const levelCluster = document.getElementById('levelCluster');
-        const levelClass = document.getElementById('levelClass');
-        const levelDesc = document.getElementById('levelDesc');
-        const levelFood = document.getElementById('levelFood');
-        const levelEntities = document.getElementById('levelEntities');
-        const levelIn = document.getElementById('levelIn');
-        const levelOut = document.getElementById('levelOut');
+  // Загрузка данных
+  async function fetchJSON(file) {
+    const owner = localStorage.getItem('gh_owner');
+    const repo = localStorage.getItem('gh_repo');
+    if (!owner || !repo) return [];
+    try {
+      const url = `https://raw.githubusercontent.com/${owner}/${repo}/main/${file}?t=${Date.now()}`;
+      const resp = await fetch(url, { cache:'no-store' });
+      if (!resp.ok) throw new Error('not found');
+      return await resp.json();
+    } catch(e) { return []; }
+  }
 
-        let levels = [];
-        let editingId = null;
+  async function loadData() {
+    levels = await fetchJSON('levels.json');
+    if (!levels.length) levels = [{ id:"0", title:"Тихая Прихожая", cluster:"Основные", cls:"0", desc:"...", food:"...", ent:["Кот-Проводник"], in:"...", out:"...", survival:{safety:5, stability:4, entities:1}, images:[] }];
+    entities = await fetchJSON('entities.json');
+    items = await fetchJSON('items.json');
+    renderTree();
+    renderContent();
+  }
 
-        const defaultLevel0 = {
-            id: "0", title: "Тихая Прихожая", cluster: "Основные", cls: "0 (Безопасный)",
-            desc: "Уютная анфилада комнат старинного загородного дома с мягким светом, камином и половиками...",
-            food: "Хлеб, сыр, яблоки, печенье, варенье, чай, чистая вода.",
-            ent: ["Кот-Проводник (0)","Тени (0)"],
-            in: "Провал сквозь реальность в момент стресса; сон в кресле с книгой.",
-            out: "Двери в уровни 1, 11, 228, 229, 250.",
-            images: []
+  // Древовидная навигация
+  function buildTree() {
+    if (currentTab === 'levels') {
+      const clusters = {};
+      levels.forEach(l => {
+        const c = l.cluster || 'Без кластера';
+        if (!clusters[c]) clusters[c] = [];
+        clusters[c].push(l);
+      });
+      return Object.entries(clusters).map(([name, items]) => ({
+        type:'folder', name, children: items.map(l => ({ type:'level', id:l.id, title:l.title }))
+      }));
+    } else if (currentTab === 'entities') {
+      return [{ type:'folder', name:'Все сущности', children: entities.map(e => ({ type:'entity', id:e.id, title:e.name })) }];
+    } else {
+      return [{ type:'folder', name:'Предметы', children: items.map(i => ({ type:'item', id:i.id, title:i.name })) }];
+    }
+  }
+
+  function renderTree() {
+    const data = buildTree();
+    tree.innerHTML = '';
+    data.forEach(node => renderTreeNode(node, 0));
+  }
+
+  function renderTreeNode(node, depth) {
+    const div = document.createElement('div');
+    div.className = 'tree-item';
+    div.style.paddingLeft = (depth*1.2 + 1) + 'rem';
+    if (node.type === 'folder') {
+      div.classList.add('tree-folder');
+      div.textContent = '📁 ' + node.name;
+      div.onclick = () => {
+        const childContainer = div.nextElementSibling;
+        if (childContainer && childContainer.classList.contains('tree-children')) {
+          childContainer.style.display = childContainer.style.display === 'none' ? 'block' : 'none';
+        }
+      };
+      tree.appendChild(div);
+      const childContainer = document.createElement('div');
+      childContainer.className = 'tree-children';
+      childContainer.style.display = 'block';
+      node.children.forEach(child => renderTreeNode(child, depth+1));
+      tree.appendChild(childContainer);
+    } else {
+      div.innerHTML = `<span class="class-icon">${getClassIcon(node.type==='level' ? levels.find(l=>l.id===node.id)?.cls : '')}</span> ${node.title || node.id}`;
+      div.onclick = (e) => {
+        e.stopPropagation();
+        if (node.type === 'level') openView('level', node.id);
+        else if (node.type === 'entity') openView('entity', node.id);
+        else if (node.type === 'item') openView('item', node.id);
+      };
+      tree.appendChild(div);
+    }
+  }
+
+  function getClassIcon(cls) {
+    const num = cls ? cls.toString().match(/^(\d+)/)?.[1] : '?';
+    return classStyles[num]?.icon || '⬜';
+  }
+
+  // Хлебные крошки
+  function updateBreadcrumbs(text) {
+    breadcrumbs.innerHTML = `<span onclick="switchTab('${currentTab}')">Главная</span> > ${text}`;
+  }
+
+  // Отображение контента
+  function renderContent() {
+    let data = currentTab === 'levels' ? levels : currentTab === 'entities' ? entities : items;
+    const search = searchInput.value.toLowerCase();
+    data = data.filter(d => (d.title||d.name||'').toLowerCase().includes(search) || (d.id||'').includes(search));
+    const sort = sortSelect.value;
+    if (sort === 'id_asc') data.sort((a,b) => (a.id||'').localeCompare(b.id||'', undefined, {numeric:true}));
+    else if (sort === 'id_desc') data.sort((a,b) => (b.id||'').localeCompare(a.id||'', undefined, {numeric:true}));
+    else if (sort === 'name_asc') data.sort((a,b) => (a.title||a.name||'').localeCompare(b.title||b.name||''));
+    else if (sort === 'name_desc') data.sort((a,b) => (b.title||b.name||'').localeCompare(a.title||a.name||''));
+    
+    grid.innerHTML = data.map(d => {
+      if (currentTab === 'levels') return renderLevelCard(d);
+      else if (currentTab === 'entities') return renderEntityCard(d);
+      else return renderItemCard(d);
+    }).join('');
+    attachCardListeners();
+  }
+
+  function renderLevelCard(l) {
+    const survival = l.survival || {safety:3, stability:3, entities:3};
+    return `<div class="card" data-type="level" data-id="${l.id}">
+      <div class="card-header"><span class="card-id">${l.id}</span><span class="class-icon">${getClassIcon(l.cls)}</span></div>
+      <div class="card-title">${l.title}</div>
+      <div class="survival-bar">
+        <div class="survival-segment segment-safe" style="flex:${survival.safety}"></div>
+        <div class="survival-segment segment-stable" style="flex:${survival.stability}"></div>
+        <div class="survival-segment segment-entity" style="flex:${survival.entities}"></div>
+      </div>
+      <div class="card-desc">${l.desc?.substring(0,80)}...</div>
+    </div>`;
+  }
+
+  function renderEntityCard(e) {
+    return `<div class="card" data-type="entity" data-id="${e.id}">
+      <div class="card-header"><span class="card-id">Entity ${e.id}</span></div>
+      <div class="card-title">${e.name}</div>
+      <div>Класс: ${e.cls||'?'}</div>
+    </div>`;
+  }
+
+  function renderItemCard(i) {
+    return `<div class="card" data-type="item" data-id="${i.id}">
+      <div class="card-header"><span class="card-id">Item ${i.id}</span></div>
+      <div class="card-title">${i.name}</div>
+      <div>${i.desc?.substring(0,60)}</div>
+    </div>`;
+  }
+
+  function attachCardListeners() {
+    document.querySelectorAll('.card').forEach(card => {
+      card.addEventListener('click', () => {
+        const type = card.dataset.type;
+        const id = card.dataset.id;
+        openView(type, id);
+      });
+    });
+  }
+
+  // Просмотр деталей
+  function openView(type, id) {
+    let obj;
+    if (type === 'level') obj = levels.find(l => l.id === id);
+    else if (type === 'entity') obj = entities.find(e => e.id === id);
+    else obj = items.find(i => i.id === id);
+    if (!obj) return;
+    updateBreadcrumbs(`${type==='level'?'Уровень':type==='entity'?'Сущность':'Предмет'} ${obj.id}`);
+    viewContent.innerHTML = generateViewHTML(type, obj);
+    viewModal.classList.add('active');
+    // Галерея
+    viewContent.querySelectorAll('.gallery img').forEach(img => {
+      img.addEventListener('click', (e) => {
+        lightboxImg.src = e.target.src;
+        lightbox.style.display = 'flex';
+      });
+    });
+    // Кликабельные сущности
+    viewContent.querySelectorAll('.entity-link').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const name = link.dataset.entity;
+        const ent = entities.find(e => e.name === name);
+        if (ent) openView('entity', ent.id);
+      });
+    });
+  }
+
+  function generateViewHTML(type, obj) {
+    if (type === 'level') {
+      const survival = obj.survival || {safety:3, stability:3, entities:3};
+      const imgs = (obj.images||[]).map(img => `<img src="${img.url}" alt="${img.description||''}">`).join('');
+      return `<h2>Уровень ${obj.id} — «${obj.title}»</h2>
+        <p><strong>Класс:</strong> ${obj.cls} ${getClassIcon(obj.cls)}</p>
+        <div class="survival-bar">
+          <div class="survival-segment segment-safe" style="flex:${survival.safety}"></div>
+          <div class="survival-segment segment-stable" style="flex:${survival.stability}"></div>
+          <div class="survival-segment segment-entity" style="flex:${survival.entities}"></div>
+        </div>
+        <p>${obj.desc}</p>
+        <p><strong>Пища:</strong> ${obj.food}</p>
+        <p><strong>Сущности:</strong> ${(obj.ent||[]).map(e => `<span class="entity-link" data-entity="${e}">${e}</span>`).join(', ') || '—'}</p>
+        <p><strong>Входы:</strong> ${obj.in}</p>
+        <p><strong>Выходы:</strong> ${obj.out}</p>
+        <div class="gallery">${imgs}</div>`;
+    } else if (type === 'entity') {
+      return `<h2>Сущность ${obj.id} — «${obj.name}»</h2>
+        <p><strong>Класс:</strong> ${obj.cls}</p>
+        <p><strong>Среда:</strong> ${obj.habitat}</p>
+        <p>${obj.desc}</p>`;
+    } else {
+      return `<h2>Предмет ${obj.id} — «${obj.name}»</h2>
+        <p>${obj.desc}</p>`;
+    }
+  }
+
+  viewModal.addEventListener('click', e => { if (e.target === viewModal) viewModal.classList.remove('active'); });
+
+  // Редактирование (только уровни пока)
+  function openEditModal(level=null) {
+    const lvl = level || { id:'', title:'', cluster:'', cls:'0', desc:'', food:'', ent:[], in:'', out:'', survival:{safety:3,stability:3,entities:3}, images:[] };
+    editContent.innerHTML = `
+      <h3>${level?'Редактировать':'Новый'} уровень</h3>
+      <div class="form-group"><label>ID</label><input id="editId" value="${lvl.id}"></div>
+      <div class="form-group"><label>Название</label><input id="editTitle" value="${lvl.title}"></div>
+      <div class="form-group"><label>Кластер</label><input id="editCluster" value="${lvl.cluster||''}"></div>
+      <div class="form-group"><label>Класс</label><input id="editClass" value="${lvl.cls}"></div>
+      <div class="form-group"><label>Безопасность (1-5)</label><input type="number" id="editSafety" value="${lvl.survival?.safety||3}" min="1" max="5"></div>
+      <div class="form-group"><label>Стабильность (1-5)</label><input type="number" id="editStability" value="${lvl.survival?.stability||3}" min="1" max="5"></div>
+      <div class="form-group"><label>Заселённость (1-5)</label><input type="number" id="editEntities" value="${lvl.survival?.entities||3}" min="1" max="5"></div>
+      <div class="form-group"><label>Описание</label><textarea id="editDesc">${lvl.desc}</textarea></div>
+      <div class="form-group"><label>Пища</label><input id="editFood" value="${lvl.food}"></div>
+      <div class="form-group"><label>Сущности (через запятую)</label><input id="editEnt" value="${(lvl.ent||[]).join(', ')}"></div>
+      <div class="form-group"><label>Входы</label><input id="editIn" value="${lvl.in}"></div>
+      <div class="form-group"><label>Выходы</label><input id="editOut" value="${lvl.out}"></div>
+      <button class="btn primary" id="saveEditBtn">Сохранить</button>
+      <button class="btn" onclick="editModal.classList.remove('active')">Отмена</button>
+    `;
+    editModal.classList.add('active');
+    document.getElementById('saveEditBtn').addEventListener('click', async () => {
+      const newLevel = {
+        id: document.getElementById('editId').value,
+        title: document.getElementById('editTitle').value,
+        cluster: document.getElementById('editCluster').value,
+        cls: document.getElementById('editClass').value,
+        survival: {
+          safety: +document.getElementById('editSafety').value,
+          stability: +document.getElementById('editStability').value,
+          entities: +document.getElementById('editEntities').value
+        },
+        desc: document.getElementById('editDesc').value,
+        food: document.getElementById('editFood').value,
+        ent: document.getElementById('editEnt').value.split(',').map(s=>s.trim()).filter(Boolean),
+        in: document.getElementById('editIn').value,
+        out: document.getElementById('editOut').value,
+        images: lvl.images || []
+      };
+      if (level) {
+        const idx = levels.findIndex(l => l.id === level.id);
+        if (idx !== -1) levels[idx] = newLevel;
+      } else {
+        levels.push(newLevel);
+      }
+      await commitLevels();
+      editModal.classList.remove('active');
+      renderTree();
+      renderContent();
+    });
+  }
+
+  async function commitLevels() {
+    const owner = localStorage.getItem('gh_owner');
+    const repo = localStorage.getItem('gh_repo');
+    const path = 'levels.json';
+    const token = localStorage.getItem('gh_token');
+    if (!owner || !repo || !token) return alert('Настройте GitHub.');
+    const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(levels, null, 2))));
+    let sha = null;
+    try {
+      const resp = await fetch(url, { headers: { Authorization: `token ${token}` }, cache:'no-store' });
+      if (resp.ok) sha = (await resp.json()).sha;
+    } catch(e) {}
+    const body = { message:'Update levels', content, branch:'main', ...(sha?{sha}:{}) };
+    await fetch(url, { method:'PUT', headers: { Authorization: `token ${token}`, 'Content-Type':'application/json' }, body: JSON.stringify(body) });
+  }
+
+  // Настройки классов
+  function openClassSettings() {
+    let html = '<h3>Настройка иконок классов</h3>';
+    for (let i=0; i<=5; i++) {
+      const style = classStyles[i] || { icon:'⬜', color:'#777', name:`Класс ${i}` };
+      html += `<div class="form-group"><label>Класс ${i}</label>
+        <input id="icon${i}" value="${style.icon}" placeholder="Иконка"> 
+        <input id="color${i}" value="${style.color}" placeholder="Цвет"> 
+        <input id="name${i}" value="${style.name}" placeholder="Название"></div>`;
+    }
+    html += '<button class="btn primary" id="saveClassBtn">Сохранить</button>';
+    classSettingsContent.innerHTML = html;
+    classSettingsModal.classList.add('active');
+    document.getElementById('saveClassBtn').addEventListener('click', () => {
+      for (let i=0; i<=5; i++) {
+        classStyles[i] = {
+          icon: document.getElementById(`icon${i}`).value,
+          color: document.getElementById(`color${i}`).value,
+          name: document.getElementById(`name${i}`).value
         };
+      }
+      localStorage.setItem('classStyles', JSON.stringify(classStyles));
+      classSettingsModal.classList.remove('active');
+      renderTree();
+      renderContent();
+    });
+  }
 
-        function loadSettings() {
-            ownerInput.value = localStorage.getItem('gh_owner') || '';
-            repoInput.value = localStorage.getItem('gh_repo') || '';
-            pathInput.value = localStorage.getItem('gh_path') || 'levels.json';
-            tokenInput.value = localStorage.getItem('gh_token') || '';
-        }
-        loadSettings();
+  // Переключение вкладок
+  window.switchTab = function(tab) {
+    currentTab = tab;
+    document.getElementById('breadcrumbs').innerHTML = 'Главная';
+    searchInput.value = '';
+    renderTree();
+    renderContent();
+  };
 
-        saveSettingsBtn.addEventListener('click', () => {
-            localStorage.setItem('gh_owner', ownerInput.value.trim());
-            localStorage.setItem('gh_repo', repoInput.value.trim());
-            localStorage.setItem('gh_path', pathInput.value.trim() || 'levels.json');
-            localStorage.setItem('gh_token', tokenInput.value.trim());
-            alert('Настройки сохранены.');
-            settingsPanel.style.display = 'none';
-        });
-        settingsBtn.addEventListener('click', () => {
-            settingsPanel.style.display = settingsPanel.style.display === 'none' ? 'flex' : 'none';
-        });
+  // Инициализация
+  document.getElementById('settingsBtn').addEventListener('click', openClassSettings);
+  document.getElementById('addBtn').addEventListener('click', () => openEditModal());
+  document.getElementById('refreshBtn').addEventListener('click', loadData);
+  searchInput.addEventListener('input', renderContent);
+  sortSelect.addEventListener('change', renderContent);
+  classSettingsModal.addEventListener('click', e => { if (e.target===classSettingsModal) classSettingsModal.classList.remove('active'); });
+  editModal.addEventListener('click', e => { if (e.target===editModal) editModal.classList.remove('active'); });
 
-        // Обновлённая загрузка (без кэша, с timestamp)
-        async function fetchLevels() {
-            const owner = localStorage.getItem('gh_owner');
-            const repo = localStorage.getItem('gh_repo');
-            const path = localStorage.getItem('gh_path') || 'levels.json';
-            if (!owner || !repo) return [defaultLevel0];
-            try {
-                const url = `https://raw.githubusercontent.com/${owner}/${repo}/main/${path}?t=${Date.now()}`;
-                const resp = await fetch(url, { cache: 'no-store' });
-                if (!resp.ok) throw new Error('not found');
-                const data = await resp.json();
-                return Array.isArray(data) && data.length ? data : [defaultLevel0];
-            } catch (e) { return [defaultLevel0]; }
-        }
-
-        function getClassNumber(cls) {
-            const m = cls.match(/^(\d+)/);
-            return m ? parseInt(m[1]) : 999;
-        }
-        function sortLevels(arr, key) {
-            const a = [...arr];
-            switch(key) {
-                case 'id_asc': return a.sort((x,y)=>x.id.localeCompare(y.id, undefined, {numeric:true}));
-                case 'id_desc': return a.sort((x,y)=>y.id.localeCompare(x.id, undefined, {numeric:true}));
-                case 'name_asc': return a.sort((x,y)=>x.title.localeCompare(y.title));
-                case 'name_desc': return a.sort((x,y)=>y.title.localeCompare(x.title));
-                case 'class_asc': return a.sort((x,y)=>getClassNumber(x.cls)-getClassNumber(y.cls));
-                case 'class_desc': return a.sort((x,y)=>getClassNumber(y.cls)-getClassNumber(x.cls));
-                default: return a;
-            }
-        }
-
-        function getFilteredLevels() {
-            const s = searchInput.value.toLowerCase().trim();
-            const c = clusterFilter.value;
-            let f = levels.filter(l => (!s || l.title.toLowerCase().includes(s) || l.id.includes(s)) && (!c || l.cluster===c));
-            return sortLevels(f, sortSelect.value);
-        }
-
-        function renderCards() {
-            const display = getFilteredLevels();
-            if (!display.length) { grid.innerHTML = '<div style="color:#8c8c9a; padding:2rem;">Ничего не найдено.</div>'; return; }
-            grid.innerHTML = display.map(l => {
-                const imgs = (l.images||[]).map(img => `<img src="${img.url}" onerror="this.style.display='none'">`).join('');
-                return `<div class="level-card" data-id="${l.id}">
-                    <div class="card-header"><span class="level-id">${l.id}<span class="cluster-tag">${l.cluster||'—'}</span></span><span class="class-badge">${l.cls||'?'}</span></div>
-                    <div class="level-title">${l.title}</div>
-                    <div class="level-desc">${l.desc||''}</div>
-                    <div class="card-images">${imgs}</div>
-                    <div class="card-footer"><span><span class="color-dot dot-green"></span> ${(l.food||'').split('\n')[0]}</span><span><span class="color-dot dot-yellow"></span> ${(l.ent||[]).join(', ')}</span></div>
-                </div>`;
-            }).join('');
-            document.querySelectorAll('.level-card').forEach(card => {
-                card.addEventListener('click', e => {
-                    const id = card.dataset.id;
-                    const lvl = levels.find(l=>l.id===id);
-                    if(lvl) openView(lvl);
-                });
-            });
-        }
-
-        function updateClusterFilter() {
-            const clusters = [...new Set(levels.map(l=>l.cluster||'Без кластера'))].sort();
-            clusterFilter.innerHTML = '<option value="">Все кластеры</option>' + clusters.map(c=>`<option value="${c}">${c}</option>`).join('');
-        }
-
-        function openView(level) {
-            const imgs = (level.images||[]).map(img => `<div style="display:inline-block;text-align:center;"><img src="${img.url}" style="max-width:240px;" onerror="this.style.display='none'"><br><small>${img.description||''}</small></div>`).join('') || 'Нет изображений';
-            viewContent.innerHTML = `
-                <h2>Уровень ${level.id} — «${level.title}»</h2>
-                <span class="class-tag">Класс: ${level.cls}</span> <span class="cluster-tag">${level.cluster||'—'}</span>
-                <div class="view-section"><h3>Описание</h3><p>${level.desc}</p></div>
-                <div class="view-section"><h3><span class="color-dot dot-green"></span> Пища и вода</h3><p>${level.food}</p></div>
-                <div class="view-section"><h3><span class="color-dot dot-yellow"></span> Сущности</h3><p>${level.ent ? level.ent.join(', ') : '—'}</p></div>
-                <div class="view-section"><h3><span class="color-dot dot-blue"></span> Входы</h3><p>${level.in}</p></div>
-                <div class="view-section"><h3><span class="color-dot dot-orange"></span> Выходы</h3><p>${level.out}</p></div>
-                <div class="view-section"><h3><span class="color-dot dot-gray"></span> Изображения</h3><div>${imgs}</div></div>
-                <div class="modal-actions">
-                    <button class="btn" id="closeViewBtn"><span class="color-dot dot-red"></span> Закрыть</button>
-                    <button class="btn primary" id="editFromViewBtn"><span class="color-dot dot-yellow"></span> Редактировать</button>
-                </div>`;
-            document.getElementById('closeViewBtn').onclick = ()=> viewModal.classList.remove('active');
-            document.getElementById('editFromViewBtn').onclick = ()=> { viewModal.classList.remove('active'); openEditModal(level); };
-            viewModal.classList.add('active');
-        }
-        viewModal.addEventListener('click', e => { if(e.target===viewModal) viewModal.classList.remove('active'); });
-
-        function openEditModal(level=null) {
-            editingId = level ? level.id : null;
-            document.getElementById('modalTitle').textContent = level ? 'Редактировать' : 'Новый уровень';
-            levelId.value = level?.id||'';
-            levelName.value = level?.title||'';
-            levelCluster.value = level?.cluster||'';
-            levelClass.value = level?.cls||'';
-            levelDesc.value = level?.desc||'';
-            levelFood.value = level?.food||'';
-            levelEntities.value = level?.ent ? level.ent.join(', ') : '';
-            levelIn.value = level?.in||'';
-            levelOut.value = level?.out||'';
-            imagesContainer.querySelectorAll('.image-entry').forEach(e=>e.remove());
-            if(level?.images) level.images.forEach(img=>addImageField(img.url, img.description));
-            else addImageField('','');
-            editModal.classList.add('active');
-        }
-
-        function closeEditModal() { editModal.classList.remove('active'); editingId=null; }
-        cancelEditBtn.addEventListener('click', closeEditModal);
-        editModal.addEventListener('click', e=>{ if(e.target===editModal) closeEditModal(); });
-
-        function addImageField(url='', desc='') {
-            const div = document.createElement('div'); div.className='image-entry';
-            div.innerHTML = `<input type="text" class="image-url" placeholder="URL" value="${url}"><input type="text" class="image-desc" placeholder="Описание" value="${desc}"><button class="btn remove-image"><span class="color-dot dot-red"></span></button>`;
-            div.querySelector('.remove-image').onclick = ()=> div.remove();
-            imagesContainer.appendChild(div);
-        }
-        addImageBtn.addEventListener('click', ()=> addImageField('',''));
-
-        function gatherFormData() {
-            const imgs = []; document.querySelectorAll('.image-entry').forEach(e=>{
-                const u=e.querySelector('.image-url').value.trim(), d=e.querySelector('.image-desc').value.trim();
-                if(u) imgs.push({url:u, description:d});
-            });
-            return {
-                id: levelId.value.trim(), title: levelName.value.trim(), cluster: levelCluster.value.trim(),
-                cls: levelClass.value.trim(), desc: levelDesc.value.trim(), food: levelFood.value.trim(),
-                ent: levelEntities.value.trim() ? levelEntities.value.split(',').map(s=>s.trim()) : [],
-                in: levelIn.value.trim(), out: levelOut.value.trim(), images: imgs
-            };
-        }
-
-        // Улучшенная отправка с актуальным SHA и обработкой конфликтов
-        async function commitToGitHub(newLevels) {
-            const owner = localStorage.getItem('gh_owner');
-            const repo = localStorage.getItem('gh_repo');
-            const path = localStorage.getItem('gh_path') || 'levels.json';
-            const token = localStorage.getItem('gh_token');
-            if (!owner || !repo || !token) {
-                alert('Заполните настройки GitHub (owner, repo, token).');
-                return false;
-            }
-            const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
-            const content = btoa(unescape(encodeURIComponent(JSON.stringify(newLevels, null, 2))));
-
-            let sha = null;
-            try {
-                const getResp = await fetch(url, {
-                    headers: { Authorization: `token ${token}` },
-                    cache: 'no-store'
-                });
-                if (getResp.ok) {
-                    const data = await getResp.json();
-                    sha = data.sha;
-                }
-            } catch (e) {}
-
-            const body = {
-                message: `Update levels ${new Date().toISOString()}`,
-                content: content,
-                branch: 'main'
-            };
-            if (sha) body.sha = sha;
-
-            const resp = await fetch(url, {
-                method: 'PUT',
-                headers: {
-                    Authorization: `token ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(body)
-            });
-
-            if (!resp.ok) {
-                const err = await resp.json();
-                if (err.message && err.message.includes('SHA')) {
-                    alert('Конфликт: кто-то изменил данные, пока вы редактировали. Перезагрузите страницу и попробуйте снова.');
-                } else {
-                    alert('Ошибка GitHub: ' + (err.message || 'Неизвестная ошибка'));
-                }
-                return false;
-            }
-            return true;
-        }
-
-        saveLevelBtn.addEventListener('click', async ()=>{
-            const data = gatherFormData();
-            if (!data.id || !data.title) { alert('ID и Название обязательны.'); return; }
-            if (editingId) {
-                const i = levels.findIndex(l => l.id === editingId);
-                if (i !== -1) levels[i] = data;
-            } else {
-                levels.push(data);
-            }
-            if (await commitToGitHub(levels)) {
-                alert('Сохранено. Нажмите «Обновить», чтобы увидеть изменения.');
-                closeEditModal();
-                updateClusterFilter();
-                renderCards();
-            } else {
-                levels = await fetchLevels();
-                updateClusterFilter();
-                renderCards();
-            }
-        });
-
-        addBtn.addEventListener('click', ()=> openEditModal(null));
-        refreshBtn.addEventListener('click', async ()=> {
-            levels = await fetchLevels();
-            updateClusterFilter();
-            renderCards();
-            alert('Данные обновлены.');
-        });
-        searchInput.addEventListener('input', renderCards);
-        clusterFilter.addEventListener('change', renderCards);
-        sortSelect.addEventListener('change', renderCards);
-
-        (async ()=>{
-            levels = await fetchLevels();
-            updateClusterFilter();
-            renderCards();
-        })();
-    })();
+  loadData();
+})();
 </script>
 </body>
 </html>
