@@ -1,27 +1,25 @@
 {
   "type": "level",
   "id": "1",
-  "title": "Бошетунмай",
+  "title": "Ебактуль",
   "cluster": "Основной",
-  "cls": "0",
+  "cls": "2",
   "tags": [
     "Уютненько"
   ],
   "stats": {
-    "safety": 1,
-    "stability": 5,
+    "safety": 3,
+    "stability": 4,
     "entities": 1,
     "resources": 1,
-    "mental": 5,
-    "navigation": 1
+    "mental": 3,
+    "navigation": 3
   },
-  "desc": "Бошетунмай",
-  "food": "Харчок на полу и крошки хлеба",
-  "ent": [
-    "нету"
-  ],
-  "in": "0",
-  "out": "0",
-  "thumbnail": "https://i.pinimg.com/736x/74/cc/9c/74cc9ccd1d6aa563737b23ed02605186.jpg",
+  "desc": "стра",
+  "food": "",
+  "ent": [],
+  "in": "",
+  "out": "",
+  "thumbnail": "https://i.pinimg.com/1200x/09/6e/6a/096e6a70b841a7eb96028d9e4ad3b13c.jpg",
   "images": []
 }
