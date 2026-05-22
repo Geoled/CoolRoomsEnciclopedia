@@ -14,9 +14,9 @@
         body {
             font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
             min-height: 100vh;
-            background: #f8f5f0;
-            background-image: radial-gradient(circle at 50% 0%, #f0e8d8 0%, #f8f5f0 60%);
-            color: #3e3a34;
+            background: #121217;
+            background-image: radial-gradient(circle at 50% 0%, #1e1d24 0%, #121217 60%);
+            color: #d4d4dc;
             padding: 2rem 1.5rem;
             display: flex;
             flex-direction: column;
@@ -38,13 +38,24 @@
         }
 
         .logo h1 {
-            font-size: 2.2rem;
+            font-size: 2rem;
             font-weight: 500;
             letter-spacing: 0.8px;
-            color: #5c4a32;
+            color: #c9b896;
             display: flex;
             align-items: center;
-            gap: 0.4rem;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: #2a2a35;
+            border-radius: 6px;
+            border: 1px solid #5a5a6a;
         }
 
         .actions {
@@ -55,10 +66,10 @@
         }
 
         .btn {
-            background: #ffffff;
-            border: 1px solid #d9cdb3;
-            color: #4d4538;
-            padding: 0.65rem 1.3rem;
+            background: #1e1e26;
+            border: 1px solid #3d3d4a;
+            color: #cacaca;
+            padding: 0.6rem 1.2rem;
             border-radius: 40px;
             font-weight: 500;
             font-size: 0.9rem;
@@ -68,46 +79,60 @@
             align-items: center;
             gap: 0.4rem;
             letter-spacing: 0.3px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
         }
 
         .btn:hover {
-            background: #faf7f2;
-            border-color: #b8976c;
-            color: #2f281c;
-            box-shadow: 0 6px 14px rgba(0,0,0,0.06);
+            background: #262630;
+            border-color: #c9a86c;
+            color: #e8dcc8;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.5);
         }
 
         .btn.primary {
-            background: #efe1cf;
-            border-color: #c2a073;
-            color: #4d3820;
+            background: #2c2a1f;
+            border-color: #b8974c;
+            color: #e5c97a;
         }
 
         .btn.primary:hover {
-            background: #e6d2b5;
+            background: #3a3528;
         }
+
+        .color-dot {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
+            background: #777;
+        }
+        .dot-green { background: #6a9a6a; }
+        .dot-yellow { background: #c9a64a; }
+        .dot-blue { background: #5a7a9a; }
+        .dot-orange { background: #b9774a; }
+        .dot-red { background: #a95a5a; }
+        .dot-gray { background: #6a6a7a; }
 
         .filters-bar {
             display: flex;
             flex-wrap: wrap;
             gap: 0.8rem;
             margin-bottom: 1.8rem;
-            background: #ffffff;
+            background: #1a1a22;
             padding: 0.9rem 1.2rem;
             border-radius: 20px;
-            border: 1px solid #e0d6c2;
+            border: 1px solid #2e2e3a;
             align-items: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         }
 
         .filters-bar input,
         .filters-bar select {
             padding: 0.6rem 1rem;
-            background: #faf8f3;
-            border: 1px solid #d9cdb3;
+            background: #14141b;
+            border: 1px solid #3a3a48;
             border-radius: 14px;
-            color: #3b352b;
+            color: #d0d0d0;
             font-size: 0.9rem;
             outline: none;
             transition: 0.2s;
@@ -115,8 +140,8 @@
 
         .filters-bar input:focus,
         .filters-bar select:focus {
-            border-color: #b8976c;
-            background: #fff;
+            border-color: #c9a86c;
+            background: #1a1a24;
         }
 
         .levels-grid {
@@ -126,21 +151,21 @@
         }
 
         .level-card {
-            background: #ffffff;
-            border: 1px solid #e4d9c4;
+            background: #1c1c24;
+            border: 1px solid #2d2d3a;
             border-radius: 20px;
             padding: 1.5rem;
             transition: all 0.25s;
             cursor: pointer;
-            box-shadow: 0 8px 18px rgba(0,0,0,0.04);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.5);
             display: flex;
             flex-direction: column;
         }
 
         .level-card:hover {
             transform: translateY(-3px);
-            border-color: #c8a87c;
-            box-shadow: 0 14px 28px rgba(0,0,0,0.08);
+            border-color: #b8974c;
+            box-shadow: 0 14px 28px rgba(0,0,0,0.7);
         }
 
         .card-header {
@@ -153,28 +178,28 @@
         .level-id {
             font-size: 1.4rem;
             font-weight: 600;
-            color: #8b7355;
+            color: #c9a86c;
         }
 
         .class-badge {
-            background: #f2eadb;
+            background: #2a2a36;
             padding: 0.2rem 0.9rem;
             border-radius: 16px;
             font-size: 0.8rem;
             font-weight: 500;
-            color: #6b5a44;
+            color: #bcaa7c;
         }
 
         .level-title {
             font-size: 1.3rem;
             font-weight: 500;
             margin-bottom: 0.6rem;
-            color: #4d3f2e;
+            color: #e8d9b8;
         }
 
         .level-desc {
             font-size: 0.9rem;
-            color: #5f5546;
+            color: #b0b0be;
             line-height: 1.6;
             margin-bottom: 1rem;
             white-space: pre-wrap;
@@ -197,15 +222,15 @@
             height: 60px;
             object-fit: cover;
             border-radius: 10px;
-            border: 1px solid #d9cdb3;
+            border: 1px solid #3a3a4a;
         }
 
         .cluster-tag {
             font-size: 0.75rem;
-            background: #f5ede1;
+            background: #2a2a35;
             padding: 0.2rem 0.8rem;
             border-radius: 12px;
-            color: #7b6040;
+            color: #bca07c;
             margin-left: 0.4rem;
         }
 
@@ -215,7 +240,7 @@
             align-items: center;
             margin-top: 0.4rem;
             font-size: 0.8rem;
-            color: #8c8070;
+            color: #8c8c9a;
         }
 
         /* Модальные окна */
@@ -223,7 +248,7 @@
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.65);
             backdrop-filter: blur(6px);
             align-items: center;
             justify-content: center;
@@ -235,27 +260,27 @@
         }
 
         .modal-content {
-            background: #fff;
-            border: 1px solid #d9cdb3;
+            background: #1c1c24;
+            border: 1px solid #3d3d4a;
             border-radius: 24px;
             padding: 2rem;
             max-width: 850px;
             width: 100%;
             max-height: 90vh;
             overflow-y: auto;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
         }
 
         .view-content h2 {
-            color: #5c4a32;
+            color: #c9a86c;
             margin-bottom: 0.5rem;
         }
         .view-content .class-tag {
-            background: #f2eadb;
+            background: #2a2a36;
             padding: 0.4rem 1.2rem;
             border-radius: 20px;
             font-weight: 600;
-            color: #6b5a44;
+            color: #cfc19e;
             display: inline-block;
             margin-bottom: 1rem;
         }
@@ -263,14 +288,17 @@
             margin: 1.2rem 0;
         }
         .view-section h3 {
-            color: #8b7355;
+            color: #b8974c;
             font-size: 1rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-bottom: 0.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
         .view-section p, .view-section div {
-            color: #4a4034;
+            color: #cbcbd4;
             line-height: 1.7;
             white-space: pre-wrap;
             font-size: 0.95rem;
@@ -279,7 +307,7 @@
             max-width: 220px;
             border-radius: 14px;
             margin: 0.4rem;
-            border: 1px solid #d9cdb3;
+            border: 1px solid #3d3d4a;
         }
 
         .form-group {
@@ -289,17 +317,20 @@
             display: block;
             font-size: 0.85rem;
             margin-bottom: 0.3rem;
-            color: #6b5a44;
+            color: #b0b0be;
             font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
         }
         .form-group input,
         .form-group textarea {
             width: 100%;
             padding: 0.8rem 1rem;
-            background: #faf8f3;
-            border: 1px solid #d9cdb3;
+            background: #14141b;
+            border: 1px solid #3a3a48;
             border-radius: 14px;
-            color: #3b352b;
+            color: #d0d0d0;
             font-size: 0.9rem;
             outline: none;
             font-family: inherit;
@@ -314,8 +345,8 @@
         }
         .form-group input:focus,
         .form-group textarea:focus {
-            border-color: #b8976c;
-            background: #fff;
+            border-color: #c9a86c;
+            background: #1a1a24;
         }
 
         .image-entry {
@@ -329,7 +360,7 @@
             justify-content: flex-end;
             gap: 0.7rem;
             margin-top: 1.5rem;
-            border-top: 1px solid #e4d9c4;
+            border-top: 1px solid #3d3d4a;
             padding-top: 1.2rem;
         }
 
@@ -338,17 +369,17 @@
             flex-wrap: wrap;
             gap: 0.5rem;
             margin: 1rem 0 1.5rem;
-            background: #fff;
+            background: #1a1a22;
             padding: 1rem;
             border-radius: 16px;
-            border: 1px solid #e0d6c2;
+            border: 1px solid #2e2e3a;
         }
         .settings-bar input {
             padding: 0.6rem 0.9rem;
-            background: #faf8f3;
-            border: 1px solid #d9cdb3;
+            background: #14141b;
+            border: 1px solid #3a3a48;
             border-radius: 10px;
-            color: #3b352b;
+            color: #d0d0d0;
             font-size: 0.85rem;
             outline: none;
             flex: 1;
@@ -360,11 +391,12 @@
 <div class="container">
     <div class="header">
         <div class="logo">
-            <h1><span style="font-size:2rem;">⬜</span> Tihie Rooms Enciclopedia</h1>
+            <span class="logo-icon"><span style="color:#c9a86c; font-weight:bold;">◈</span></span>
+            <h1>Tihie Rooms Enciclopedia</h1>
         </div>
         <div class="actions">
-            <button class="btn" id="settingsBtn"><span>🟦</span> Настройки GitHub</button>
-            <button class="btn primary" id="addLevelBtn"><span>🟩</span> Новый уровень</button>
+            <button class="btn" id="settingsBtn"><span class="color-dot dot-blue"></span> Настройки GitHub</button>
+            <button class="btn primary" id="addLevelBtn"><span class="color-dot dot-green"></span> Новый уровень</button>
         </div>
     </div>
 
@@ -373,7 +405,7 @@
         <input type="text" id="repoInput" placeholder="Название репозитория" />
         <input type="text" id="pathInput" placeholder="Путь к JSON (levels.json)" value="levels.json" />
         <input type="password" id="tokenInput" placeholder="GitHub Token (classic)" />
-        <button class="btn" id="saveSettingsBtn"><span>🟦</span> Сохранить</button>
+        <button class="btn" id="saveSettingsBtn"><span class="color-dot dot-blue"></span> Сохранить</button>
     </div>
 
     <div class="filters-bar">
@@ -409,23 +441,23 @@
         <div class="form-group"><label>Кластер</label><input type="text" id="levelCluster" placeholder="Основные, Подуровни..."></div>
         <div class="form-group"><label>Класс</label><input type="text" id="levelClass" placeholder="0 (Безопасный)"></div>
         <div class="form-group"><label>Описание</label><textarea id="levelDesc" class="large" placeholder="Подробное описание..."></textarea></div>
-        <div class="form-group"><label><span>🟩</span> Пища и вода</label><textarea id="levelFood" rows="3" placeholder="Хлеб, сыр..."></textarea></div>
-        <div class="form-group"><label><span>🟨</span> Сущности (через запятую)</label><textarea id="levelEntities" rows="2" placeholder="Кот-Проводник (0), Тени (0)"></textarea></div>
-        <div class="form-group"><label><span>🟦</span> Входы</label><textarea id="levelIn" rows="3" placeholder="Как попасть..."></textarea></div>
-        <div class="form-group"><label><span>🟧</span> Выходы</label><textarea id="levelOut" rows="3" placeholder="Как уйти..."></textarea></div>
+        <div class="form-group"><label><span class="color-dot dot-green"></span> Пища и вода</label><textarea id="levelFood" rows="3" placeholder="Хлеб, сыр..."></textarea></div>
+        <div class="form-group"><label><span class="color-dot dot-yellow"></span> Сущности (через запятую)</label><textarea id="levelEntities" rows="2" placeholder="Кот-Проводник (0), Тени (0)"></textarea></div>
+        <div class="form-group"><label><span class="color-dot dot-blue"></span> Входы</label><textarea id="levelIn" rows="3" placeholder="Как попасть..."></textarea></div>
+        <div class="form-group"><label><span class="color-dot dot-orange"></span> Выходы</label><textarea id="levelOut" rows="3" placeholder="Как уйти..."></textarea></div>
 
         <div id="imagesContainer">
-            <label style="color:#6b5a44; font-size:0.85rem;"><span>⬜</span> Изображения (URL + описание)</label>
+            <label style="color:#b0b0be; font-size:0.85rem;"><span class="color-dot dot-gray"></span> Изображения (URL + описание)</label>
             <div class="image-entry">
                 <input type="text" class="image-url" placeholder="https://...">
                 <input type="text" class="image-desc" placeholder="Описание">
             </div>
         </div>
-        <button class="btn" id="addImageField" style="margin-top:0.3rem;"><span>🟩</span> Добавить изображение</button>
+        <button class="btn" id="addImageField" style="margin-top:0.3rem;"><span class="color-dot dot-green"></span> Добавить изображение</button>
 
         <div class="modal-actions">
-            <button class="btn" id="cancelEditBtn"><span>🟥</span> Отмена</button>
-            <button class="btn primary" id="saveLevelBtn"><span>🟩</span> Сохранить и закоммитить</button>
+            <button class="btn" id="cancelEditBtn"><span class="color-dot dot-red"></span> Отмена</button>
+            <button class="btn primary" id="saveLevelBtn"><span class="color-dot dot-green"></span> Сохранить и закоммитить</button>
         </div>
     </div>
 </div>
@@ -536,7 +568,7 @@
 
         function renderCards() {
             const display = getFilteredLevels();
-            if (!display.length) { grid.innerHTML = '<div style="color:#8c8070; padding:2rem;">Ничего не найдено.</div>'; return; }
+            if (!display.length) { grid.innerHTML = '<div style="color:#8c8c9a; padding:2rem;">Ничего не найдено.</div>'; return; }
             grid.innerHTML = display.map(l => {
                 const imgs = (l.images||[]).map(img => `<img src="${img.url}" onerror="this.style.display='none'">`).join('');
                 return `<div class="level-card" data-id="${l.id}">
@@ -544,7 +576,7 @@
                     <div class="level-title">${l.title}</div>
                     <div class="level-desc">${l.desc||''}</div>
                     <div class="card-images">${imgs}</div>
-                    <div class="card-footer"><span><span>🟩</span> ${(l.food||'').split('\n')[0]}</span><span><span>🟨</span> ${(l.ent||[]).join(', ')}</span></div>
+                    <div class="card-footer"><span><span class="color-dot dot-green"></span> ${(l.food||'').split('\n')[0]}</span><span><span class="color-dot dot-yellow"></span> ${(l.ent||[]).join(', ')}</span></div>
                 </div>`;
             }).join('');
             document.querySelectorAll('.level-card').forEach(card => {
@@ -567,14 +599,14 @@
                 <h2>Уровень ${level.id} — «${level.title}»</h2>
                 <span class="class-tag">Класс: ${level.cls}</span> <span class="cluster-tag">${level.cluster||'—'}</span>
                 <div class="view-section"><h3>Описание</h3><p>${level.desc}</p></div>
-                <div class="view-section"><h3><span>🟩</span> Пища и вода</h3><p>${level.food}</p></div>
-                <div class="view-section"><h3><span>🟨</span> Сущности</h3><p>${level.ent ? level.ent.join(', ') : '—'}</p></div>
-                <div class="view-section"><h3><span>🟦</span> Входы</h3><p>${level.in}</p></div>
-                <div class="view-section"><h3><span>🟧</span> Выходы</h3><p>${level.out}</p></div>
-                <div class="view-section"><h3><span>⬜</span> Изображения</h3><div>${imgs}</div></div>
+                <div class="view-section"><h3><span class="color-dot dot-green"></span> Пища и вода</h3><p>${level.food}</p></div>
+                <div class="view-section"><h3><span class="color-dot dot-yellow"></span> Сущности</h3><p>${level.ent ? level.ent.join(', ') : '—'}</p></div>
+                <div class="view-section"><h3><span class="color-dot dot-blue"></span> Входы</h3><p>${level.in}</p></div>
+                <div class="view-section"><h3><span class="color-dot dot-orange"></span> Выходы</h3><p>${level.out}</p></div>
+                <div class="view-section"><h3><span class="color-dot dot-gray"></span> Изображения</h3><div>${imgs}</div></div>
                 <div class="modal-actions">
-                    <button class="btn" id="closeViewBtn"><span>🟥</span> Закрыть</button>
-                    <button class="btn primary" id="editFromViewBtn"><span>🟨</span> Редактировать</button>
+                    <button class="btn" id="closeViewBtn"><span class="color-dot dot-red"></span> Закрыть</button>
+                    <button class="btn primary" id="editFromViewBtn"><span class="color-dot dot-yellow"></span> Редактировать</button>
                 </div>`;
             document.getElementById('closeViewBtn').onclick = ()=> viewModal.classList.remove('active');
             document.getElementById('editFromViewBtn').onclick = ()=> { viewModal.classList.remove('active'); openEditModal(level); };
@@ -606,7 +638,7 @@
 
         function addImageField(url='', desc='') {
             const div = document.createElement('div'); div.className='image-entry';
-            div.innerHTML = `<input type="text" class="image-url" placeholder="URL" value="${url}"><input type="text" class="image-desc" placeholder="Описание" value="${desc}"><button class="btn remove-image"><span>🟥</span></button>`;
+            div.innerHTML = `<input type="text" class="image-url" placeholder="URL" value="${url}"><input type="text" class="image-desc" placeholder="Описание" value="${desc}"><button class="btn remove-image"><span class="color-dot dot-red"></span></button>`;
             div.querySelector('.remove-image').onclick = ()=> div.remove();
             imagesContainer.appendChild(div);
         }
