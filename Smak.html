@@ -72,6 +72,115 @@
     .btn:hover { background:#262630; border-color:#c9a86c; color:#e8dcc8; }
     .btn.primary { background:#2c2a1f; border-color:#b8974c; color:#e5c97a; }
     .content-area { flex:1; overflow-y:auto; padding:1.5rem; }
+
+    /* Главная страница */
+    .home-container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .hero {
+      background: linear-gradient(135deg, #1e1d24 0%, #2a2a35 100%);
+      border: 1px solid #3d3d4a;
+      border-radius: 28px;
+      padding: 2.5rem 2rem;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    .hero h2 {
+      font-size: 2.2rem;
+      color: #e8dcc8;
+      margin-bottom: 0.8rem;
+    }
+    .hero p {
+      color: #b0b0be;
+      font-size: 1rem;
+      max-width: 600px;
+      margin: 0 auto 1.5rem;
+    }
+    .stats-row {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+    .stat-item {
+      background: #1c1c24;
+      border: 1px solid #2d2d3a;
+      border-radius: 16px;
+      padding: 1rem 1.5rem;
+      min-width: 100px;
+    }
+    .stat-number {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #c9b896;
+    }
+    .stat-label {
+      font-size: 0.8rem;
+      color: #8c8c9a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .section-title {
+      font-size: 1.3rem;
+      color: #cfc19e;
+      margin: 2rem 0 1rem;
+      border-bottom: 1px solid #2e2e3a;
+      padding-bottom: 0.5rem;
+    }
+    .quick-links {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .quick-link-card {
+      background: #1c1c24;
+      border: 1px solid #2d2d3a;
+      border-radius: 20px;
+      padding: 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: block;
+      text-decoration: none;
+      color: inherit;
+    }
+    .quick-link-card:hover {
+      transform: translateY(-3px);
+      border-color: #b8974c;
+      background: #22222e;
+    }
+    .quick-link-icon {
+      font-size: 2.2rem;
+      margin-bottom: 0.5rem;
+    }
+    .quick-link-title {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #e8d9b8;
+    }
+    .recent-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+    }
+    .recent-item {
+      background: #1c1c24;
+      border: 1px solid #2d2d3a;
+      border-radius: 14px;
+      padding: 0.7rem 1rem;
+      font-size: 0.85rem;
+      color: #c0c0c8;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .recent-item:hover {
+      border-color: #b8974c;
+      color: #e8dcc8;
+    }
+
     .filters-bar { display:flex; gap:0.8rem; margin-bottom:1.5rem; flex-wrap:wrap; }
     .filters-bar input, .filters-bar select {
       padding:0.6rem 1rem; background:#14141b; border:1px solid #3a3a48;
@@ -95,7 +204,6 @@
     .survival-segment { height:6px; border-radius:3px; flex:1; }
     .segment-safe { background:#6a9a6a; } .segment-stable { background:#5a7a9a; } .segment-entity { background:#b9774a; }
     .card-desc { font-size:0.85rem; color:#a0a0b0; margin-top:0.3rem; }
-    .home-content { max-width:700px; margin:0 auto; line-height:1.6; }
     .modal {
       display:none; position:fixed; top:0; left:0; width:100%; height:100%;
       background:rgba(0,0,0,0.7); backdrop-filter:blur(6px); align-items:center;
@@ -228,13 +336,49 @@
 
   function renderContent() {
     if (currentSection === 'home') {
-      contentArea.innerHTML = `<div class="home-content">
-        <h2 style="color:#c9b896;">Добро пожаловать в Tihie Rooms Enciclopedia</h2>
-        <p style="margin-top:1rem;">Это сообщество исследователей Закулисья. Здесь вы найдёте описания уровней, существ, предметов и пищи, с которыми сталкиваются странники в бесконечных комнатах.</p>
-        <p>Используйте вкладки выше для навигации по разделам, а боковую панель — для быстрого перехода к конкретным записям.</p>
-        <p style="margin-top:1rem;"><strong>Последние добавленные уровни:</strong></p>
-        <ul>${levels.slice(-3).map(l => `<li>Уровень ${l.id} – ${l.title}</li>`).join('')}</ul>
-      </div>`;
+      contentArea.innerHTML = `
+        <div class="home-container">
+          <div class="hero">
+            <h2>Добро пожаловать в Tihie Rooms Enciclopedia</h2>
+            <p>Здесь собраны знания о бесконечных комнатах Закулисья. Исследуйте уровни, изучайте существ, находите предметы и узнавайте о пище, которая помогает выжить.</p>
+            <div class="stats-row">
+              <div class="stat-item"><div class="stat-number">${levels.length}</div><div class="stat-label">Уровней</div></div>
+              <div class="stat-item"><div class="stat-number">${entities.length}</div><div class="stat-label">Сущностей</div></div>
+              <div class="stat-item"><div class="stat-number">${items.length}</div><div class="stat-label">Предметов</div></div>
+              <div class="stat-item"><div class="stat-number">${foodItems.length}</div><div class="stat-label">Еды</div></div>
+            </div>
+          </div>
+
+          <div class="section-title">Быстрый доступ</div>
+          <div class="quick-links">
+            <div class="quick-link-card" onclick="switchSection('levels')">
+              <div class="quick-link-icon">📊</div>
+              <div class="quick-link-title">Уровни</div>
+              <div style="font-size:0.8rem;color:#8c8c9a;">Анфилады, отели, леса</div>
+            </div>
+            <div class="quick-link-card" onclick="switchSection('entities')">
+              <div class="quick-link-icon">👾</div>
+              <div class="quick-link-title">Сущности</div>
+              <div style="font-size:0.8rem;color:#8c8c9a;">Дружелюбные и опасные</div>
+            </div>
+            <div class="quick-link-card" onclick="switchSection('items')">
+              <div class="quick-link-icon">📦</div>
+              <div class="quick-link-title">Предметы</div>
+              <div style="font-size:0.8rem;color:#8c8c9a;">Артефакты и инструменты</div>
+            </div>
+            <div class="quick-link-card" onclick="switchSection('food')">
+              <div class="quick-link-icon">🍎</div>
+              <div class="quick-link-title">Еда</div>
+              <div style="font-size:0.8rem;color:#8c8c9a;">Провизия и эффекты</div>
+            </div>
+          </div>
+
+          <div class="section-title">Последние добавленные уровни</div>
+          <div class="recent-list">
+            ${levels.slice(-4).reverse().map(l => `<div class="recent-item" onclick="switchSection('levels');setTimeout(()=>openView('level','${l.id}'),100)">${l.id} – ${l.title}</div>`).join('') || '<div style="color:#8c8c9a;">Нет данных</div>'}
+          </div>
+        </div>
+      `;
       tree.innerHTML = '<div style="padding:1rem; color:#8c8c9a;">Выберите раздел</div>';
       return;
     }
@@ -268,12 +412,8 @@
     }).join('');
     attachCardListeners();
 
-    document.getElementById('searchInputField').addEventListener('input', (e) => {
-      renderContent();
-    });
-    document.getElementById('sortSelectField').addEventListener('change', (e) => {
-      renderContent();
-    });
+    document.getElementById('searchInputField').addEventListener('input', () => renderContent());
+    document.getElementById('sortSelectField').addEventListener('change', () => renderContent());
   }
 
   function renderLevelCard(l) {
