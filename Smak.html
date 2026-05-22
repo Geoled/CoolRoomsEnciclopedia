@@ -163,6 +163,11 @@
   const addBtn = document.getElementById('addBtn');
   const luckyBtn = document.getElementById('luckyBtn');
 
+  function getApiHeaders() {
+    const token = localStorage.getItem('gh_token');
+    return token ? { Authorization: `token ${token}` } : {};
+  }
+
   async function fetchJSON(file) {
     const owner = localStorage.getItem('gh_owner');
     const repo = localStorage.getItem('gh_repo');
@@ -175,23 +180,56 @@
     } catch(e) { return []; }
   }
 
+  // Загрузка списка файлов из папки files/
+  async function fetchFilesList() {
+    const owner = localStorage.getItem('gh_owner');
+    const repo = localStorage.getItem('gh_repo');
+    if (!owner || !repo) return [];
+    const url = `https://api.github.com/repos/${owner}/${repo}/contents/files`;
+    try {
+      const resp = await fetch(url, { headers: getApiHeaders(), cache:'no-store' });
+      if (!resp.ok) return [];
+      const data = await resp.json();
+      return Array.isArray(data) ? data : [];
+    } catch(e) { return []; }
+  }
+
+  async function loadAllData() {
+    levels = []; entities = []; items = []; foodItems = [];
+    const files = await fetchFilesList();
+    const downloadPromises = files.map(async (file) => {
+      if (file.type !== 'file') return null;
+      try {
+        const resp = await fetch(file.download_url, { cache:'no-store' });
+        if (!resp.ok) return null;
+        const obj = await resp.json();
+        return { ...obj, _sha: file.sha }; // сохраняем sha для удаления
+      } catch(e) { return null; }
+    });
+    const results = await Promise.all(downloadPromises);
+    results.forEach(obj => {
+      if (!obj) return;
+      if (obj.type === 'level' || file.name.startsWith('level_')) levels.push(obj);
+      else if (obj.type === 'entity' || file.name.startsWith('entity_')) entities.push(obj);
+      else if (obj.type === 'item' || file.name.startsWith('item_')) items.push(obj);
+      else if (obj.type === 'food' || file.name.startsWith('food_')) foodItems.push(obj);
+    });
+    // если совсем нет уровней, добавляем стандартный
+    if (!levels.length) {
+      const defaultLevel = { id:"0", title:"Тихая Прихожая", cluster:"Основные", cls:"0", desc:"...", food:"...", ent:["Кот-Проводник"], in:"...", out:"...", stats:{safety:5,stability:4,entities:1,resources:4,mental:1,navigation:1}, tags:[], thumbnail:"", images:[], type:"level" };
+      levels.push(defaultLevel);
+    }
+    levels.forEach(l => ensureStats(l, {safety:3,stability:3,entities:3,resources:3,mental:3,navigation:3}));
+    entities.forEach(e => ensureStats(e, {danger:3, frequency:3, intelligence:3, aggression:3}));
+    items.forEach(i => ensureStats(i, {weight:3, rarity:3, usefulness:3, durability:3}));
+    foodItems.forEach(f => ensureStats(f, {calories:500, availability:5, taste:3, shelfLife:7}));
+  }
+
   function ensureStats(obj, defaults) {
     if (!obj.stats) obj.stats = {};
     Object.keys(defaults).forEach(k => { if (obj.stats[k] === undefined) obj.stats[k] = defaults[k]; });
     if (!obj.tags) obj.tags = [];
     return obj;
-  }
-
-  async function loadAllData() {
-    levels = await fetchJSON('levels.json') || [];
-    if (!levels.length) levels.push({ id:"0", title:"Тихая Прихожая", cluster:"Основные", cls:"0", desc:"...", food:"...", ent:["Кот-Проводник"], in:"...", out:"...", stats:{safety:5,stability:4,entities:1,resources:4,mental:1,navigation:1}, tags:[], thumbnail:"", images:[] });
-    levels.forEach(l => ensureStats(l, {safety:3,stability:3,entities:3,resources:3,mental:3,navigation:3}));
-    entities = await fetchJSON('entities.json') || [];
-    entities.forEach(e => ensureStats(e, {danger:3, frequency:3, intelligence:3, aggression:3}));
-    items = await fetchJSON('items.json') || [];
-    items.forEach(i => ensureStats(i, {weight:3, rarity:3, usefulness:3, durability:3}));
-    foodItems = await fetchJSON('food.json') || [];
-    foodItems.forEach(f => ensureStats(f, {calories:500, availability:5, taste:3, shelfLife:7}));
   }
 
   function getCurrentData() {
@@ -375,22 +413,33 @@
       else if (type === 'food') openEditFoodModal(obj);
     });
     document.getElementById('deleteBtn').addEventListener('click', () => {
-      if (confirm(`Удалить "${obj.title || obj.name}"?`)) deleteItem(type, id);
+      if (confirm(`Удалить "${obj.title || obj.name}"?`)) deleteItem(type, obj);
     });
   }
 
-  async function deleteItem(type, id) {
-    let arr;
-    if (type === 'level') arr = levels;
-    else if (type === 'entity') arr = entities;
-    else if (type === 'item') arr = items;
-    else if (type === 'food') arr = foodItems;
-    else return;
-    const index = arr.findIndex(item => item.id === id);
-    if (index === -1) return;
-    arr.splice(index, 1);
-    const filename = type === 'level' ? 'levels.json' : type === 'entity' ? 'entities.json' : type === 'item' ? 'items.json' : 'food.json';
-    await commitJSON(filename, arr);
+  async function deleteItem(type, obj) {
+    const filename = `files/${type}_${obj.id}.json`;
+    const owner = localStorage.getItem('gh_owner'), repo = localStorage.getItem('gh_repo'), token = localStorage.getItem('gh_token');
+    if (!owner || !repo || !token) return alert('Настройте GitHub.');
+    const url = `https://api.github.com/repos/${owner}/${repo}/contents/${filename}`;
+    let sha = obj._sha;
+    if (!sha) {
+      try {
+        const resp = await fetch(url, { headers: { Authorization: `token ${token}` } });
+        if (resp.ok) sha = (await resp.json()).sha;
+      } catch(e) {}
+    }
+    if (!sha) return alert('Не удалось получить SHA файла.');
+    await fetch(url, {
+      method: 'PUT',
+      headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: `Delete ${filename}`, sha, branch: 'main' })
+    });
+    // удаляем из массива
+    if (type === 'level') levels = levels.filter(l => l.id !== obj.id);
+    else if (type === 'entity') entities = entities.filter(e => e.id !== obj.id);
+    else if (type === 'item') items = items.filter(i => i.id !== obj.id);
+    else if (type === 'food') foodItems = foodItems.filter(f => f.id !== obj.id);
     viewModal.classList.remove('active');
     renderTree();
     renderContent();
@@ -449,10 +498,10 @@
     return Object.entries(styles).map(([val, s]) => `<option value="${val}" ${selected==val?'selected':''}>${val} - ${s.name}</option>`).join('');
   }
 
-  function createLevelDropdown(selectedIds, placeholder) {
-    const id = 'dropdown_' + Math.random().toString(36).substr(2, 6);
+  // Дропдаун с поиском (улучшенный, возвращает id контейнера)
+  function createLevelDropdown(containerId, selectedIds, placeholder) {
     setTimeout(() => {
-      const container = document.getElementById(id);
+      const container = document.getElementById(containerId);
       if (!container) return;
       const input = container.querySelector('input');
       const list = container.querySelector('.dropdown-list');
@@ -495,7 +544,7 @@
       input.addEventListener('blur', () => { setTimeout(() => list.style.display = 'none', 200); });
       container._getSelected = () => selected.join(', ');
     }, 50);
-    return `<div class="dropdown-search" id="${id}">
+    return `<div class="dropdown-search" id="${containerId}">
       <div class="selected-items"></div>
       <input type="text" placeholder="Поиск уровня...">
       <div class="dropdown-list"></div>
@@ -503,7 +552,9 @@
   }
 
   function openEditLevelModal(level=null) {
-    const lvl = level || { id:'', title:'', cluster:'', cls:'0', desc:'', food:'', ent:[], in:'', out:'', stats:{safety:3,stability:3,entities:3,resources:3,mental:3,navigation:3}, tags:[], thumbnail:'', images:[] };
+    const lvl = level || { id:'', title:'', cluster:'', cls:'0', desc:'', food:'', ent:[], in:'', out:'', stats:{safety:3,stability:3,entities:3,resources:3,mental:3,navigation:3}, tags:[], thumbnail:'', images:[], _sha:null };
+    const inContainerId = 'dropdown_in_' + Date.now();
+    const outContainerId = 'dropdown_out_' + Date.now();
     editContent.innerHTML = `
       <h3>${level?'Редактировать':'Новый'} уровень</h3>
       <div class="form-group"><label>ID</label><input id="editId" value="${lvl.id}"></div>
@@ -522,8 +573,8 @@
       <div class="form-group"><label>Описание</label><textarea id="editDesc">${lvl.desc}</textarea></div>
       <div class="form-group"><label>Пища</label><input id="editFood" value="${lvl.food}"></div>
       <div class="form-group"><label>Сущности</label><input id="editEnt" value="${(lvl.ent||[]).join(', ')}"></div>
-      <div class="form-group"><label>Входы</label>${createLevelDropdown(lvl.in, 'Выберите уровни входа')}</div>
-      <div class="form-group"><label>Выходы</label>${createLevelDropdown(lvl.out, 'Выберите уровни выхода')}</div>
+      <div class="form-group"><label>Входы</label>${createLevelDropdown(inContainerId, lvl.in, 'Выберите уровни входа')}</div>
+      <div class="form-group"><label>Выходы</label>${createLevelDropdown(outContainerId, lvl.out, 'Выберите уровни выхода')}</div>
       <div class="form-group"><label>Главное изображение</label><input id="editThumbnail" value="${lvl.thumbnail||''}"></div>
       <div id="imagesContainer">${(lvl.images||[]).map(img => `<div class="image-entry"><input class="image-url" value="${img.url}"><input class="image-desc" value="${img.description||''}"><button class="btn remove-image">✕</button></div>`).join('')}</div>
       <button class="btn" id="addImageBtn">+ Изображение</button>
@@ -532,28 +583,49 @@
     document.getElementById('saveBtn').addEventListener('click', async () => {
       const images = []; document.querySelectorAll('#imagesContainer .image-entry').forEach(e => { const u=e.querySelector('.image-url').value.trim(), d=e.querySelector('.image-desc').value.trim(); if(u) images.push({url:u,description:d}); });
       const tags = document.getElementById('editTags').value.split(',').map(s=>s.trim()).filter(Boolean);
-      const inDropdown = document.querySelector('#editContent .dropdown-search');
-      const outDropdown = document.querySelectorAll('#editContent .dropdown-search')[1];
+      const inDropdown = document.getElementById(inContainerId);
+      const outDropdown = document.getElementById(outContainerId);
       const newObj = {
-        id: document.getElementById('editId').value, title: document.getElementById('editTitle').value,
-        cluster: document.getElementById('editCluster').value, cls: document.getElementById('editClass').value,
+        type: 'level',
+        id: document.getElementById('editId').value,
+        title: document.getElementById('editTitle').value,
+        cluster: document.getElementById('editCluster').value,
+        cls: document.getElementById('editClass').value,
         tags,
-        stats: { safety:+document.getElementById('editSafety').value, stability:+document.getElementById('editStability').value, entities:+document.getElementById('editEntities').value, resources:+document.getElementById('editResources').value, mental:+document.getElementById('editMental').value, navigation:+document.getElementById('editNavigation').value },
-        desc: document.getElementById('editDesc').value, food: document.getElementById('editFood').value,
+        stats: {
+          safety: +document.getElementById('editSafety').value,
+          stability: +document.getElementById('editStability').value,
+          entities: +document.getElementById('editEntities').value,
+          resources: +document.getElementById('editResources').value,
+          mental: +document.getElementById('editMental').value,
+          navigation: +document.getElementById('editNavigation').value
+        },
+        desc: document.getElementById('editDesc').value,
+        food: document.getElementById('editFood').value,
         ent: document.getElementById('editEnt').value.split(',').map(s=>s.trim()).filter(Boolean),
-        in: inDropdown._getSelected(), out: outDropdown._getSelected(),
-        thumbnail: document.getElementById('editThumbnail').value, images
+        in: inDropdown ? inDropdown._getSelected() : '',
+        out: outDropdown ? outDropdown._getSelected() : '',
+        thumbnail: document.getElementById('editThumbnail').value,
+        images
       };
-      if (level) { const i = levels.findIndex(l=>l.id===level.id); if(i!==-1) levels[i]=newObj; }
-      else levels.push(newObj);
-      await commitJSON('levels.json', levels);
-      editModal.classList.remove('active'); renderContent(); renderTree();
+      const filename = `files/level_${newObj.id}.json`;
+      await commitFile(filename, newObj, level?._sha);
+      if (level) {
+        const idx = levels.findIndex(l => l.id === level.id);
+        if (idx !== -1) levels[idx] = newObj;
+      } else {
+        levels.push(newObj);
+      }
+      editModal.classList.remove('active');
+      renderContent();
+      renderTree();
     });
     addImageListeners();
   }
 
+  // Аналогично для сущностей, предметов, еды (исправлены дропдауны, сохранение в отдельный файл)
   function openEditEntityModal(entity=null) {
-    const e = entity || { id:'', name:'', cls:'0', habitat:'', desc:'', behavior:'', survival:'', stats:{danger:3,frequency:3,intelligence:3,aggression:3}, tags:[], thumbnail:'', images:[] };
+    const e = entity || { id:'', name:'', cls:'0', habitat:'', desc:'', behavior:'', survival:'', stats:{danger:3,frequency:3,intelligence:3,aggression:3}, tags:[], thumbnail:'', images:[], _sha:null };
     editContent.innerHTML = `
       <h3>${entity?'Редактировать':'Новая'} сущность</h3>
       <div class="form-group"><label>ID</label><input id="editId" value="${e.id}"></div>
@@ -579,23 +651,41 @@
       const images = []; document.querySelectorAll('#imagesContainer .image-entry').forEach(e => { const u=e.querySelector('.image-url').value.trim(), d=e.querySelector('.image-desc').value.trim(); if(u) images.push({url:u,description:d}); });
       const tags = document.getElementById('editTags').value.split(',').map(s=>s.trim()).filter(Boolean);
       const newObj = {
-        id: document.getElementById('editId').value, name: document.getElementById('editName').value,
-        cls: document.getElementById('editClass').value, tags,
-        stats: { danger:+document.getElementById('editDanger').value, frequency:+document.getElementById('editFrequency').value, intelligence:+document.getElementById('editIntelligence').value, aggression:+document.getElementById('editAggression').value },
-        habitat: document.getElementById('editHabitat').value, desc: document.getElementById('editDesc').value,
-        behavior: document.getElementById('editBehavior').value, survival: document.getElementById('editSurvival').value,
-        thumbnail: document.getElementById('editThumbnail').value, images
+        type: 'entity',
+        id: document.getElementById('editId').value,
+        name: document.getElementById('editName').value,
+        cls: document.getElementById('editClass').value,
+        tags,
+        stats: {
+          danger: +document.getElementById('editDanger').value,
+          frequency: +document.getElementById('editFrequency').value,
+          intelligence: +document.getElementById('editIntelligence').value,
+          aggression: +document.getElementById('editAggression').value
+        },
+        habitat: document.getElementById('editHabitat').value,
+        desc: document.getElementById('editDesc').value,
+        behavior: document.getElementById('editBehavior').value,
+        survival: document.getElementById('editSurvival').value,
+        thumbnail: document.getElementById('editThumbnail').value,
+        images
       };
-      if (entity) { const i = entities.findIndex(en=>en.id===entity.id); if(i!==-1) entities[i]=newObj; }
-      else entities.push(newObj);
-      await commitJSON('entities.json', entities);
-      editModal.classList.remove('active'); renderContent(); renderTree();
+      const filename = `files/entity_${newObj.id}.json`;
+      await commitFile(filename, newObj, entity?._sha);
+      if (entity) {
+        const idx = entities.findIndex(en => en.id === entity.id);
+        if (idx !== -1) entities[idx] = newObj;
+      } else {
+        entities.push(newObj);
+      }
+      editModal.classList.remove('active');
+      renderContent();
+      renderTree();
     });
     addImageListeners();
   }
 
   function openEditItemModal(item=null) {
-    const i = item || { id:'', name:'', cls:'0', desc:'', props:'', stats:{weight:3,rarity:3,usefulness:3,durability:3}, tags:[], thumbnail:'', images:[] };
+    const i = item || { id:'', name:'', cls:'0', desc:'', props:'', stats:{weight:3,rarity:3,usefulness:3,durability:3}, tags:[], thumbnail:'', images:[], _sha:null };
     editContent.innerHTML = `
       <h3>${item?'Редактировать':'Новый'} предмет</h3>
       <div class="form-group"><label>ID</label><input id="editId" value="${i.id}"></div>
@@ -619,22 +709,39 @@
       const images = []; document.querySelectorAll('#imagesContainer .image-entry').forEach(e => { const u=e.querySelector('.image-url').value.trim(), d=e.querySelector('.image-desc').value.trim(); if(u) images.push({url:u,description:d}); });
       const tags = document.getElementById('editTags').value.split(',').map(s=>s.trim()).filter(Boolean);
       const newObj = {
-        id: document.getElementById('editId').value, name: document.getElementById('editName').value,
-        cls: document.getElementById('editClass').value, tags,
-        stats: { weight:+document.getElementById('editWeight').value, rarity:+document.getElementById('editRarity').value, usefulness:+document.getElementById('editUsefulness').value, durability:+document.getElementById('editDurability').value },
-        desc: document.getElementById('editDesc').value, props: document.getElementById('editProps').value,
-        thumbnail: document.getElementById('editThumbnail').value, images
+        type: 'item',
+        id: document.getElementById('editId').value,
+        name: document.getElementById('editName').value,
+        cls: document.getElementById('editClass').value,
+        tags,
+        stats: {
+          weight: +document.getElementById('editWeight').value,
+          rarity: +document.getElementById('editRarity').value,
+          usefulness: +document.getElementById('editUsefulness').value,
+          durability: +document.getElementById('editDurability').value
+        },
+        desc: document.getElementById('editDesc').value,
+        props: document.getElementById('editProps').value,
+        thumbnail: document.getElementById('editThumbnail').value,
+        images
       };
-      if (item) { const idx = items.findIndex(it=>it.id===item.id); if(idx!==-1) items[idx]=newObj; }
-      else items.push(newObj);
-      await commitJSON('items.json', items);
-      editModal.classList.remove('active'); renderContent(); renderTree();
+      const filename = `files/item_${newObj.id}.json`;
+      await commitFile(filename, newObj, item?._sha);
+      if (item) {
+        const idx = items.findIndex(it => it.id === item.id);
+        if (idx !== -1) items[idx] = newObj;
+      } else {
+        items.push(newObj);
+      }
+      editModal.classList.remove('active');
+      renderContent();
+      renderTree();
     });
     addImageListeners();
   }
 
   function openEditFoodModal(food=null) {
-    const f = food || { id:'', name:'', cls:'0', desc:'', effect:'', stats:{calories:500,availability:5,taste:3,shelfLife:7}, tags:[], thumbnail:'', images:[] };
+    const f = food || { id:'', name:'', cls:'0', desc:'', effect:'', stats:{calories:500,availability:5,taste:3,shelfLife:7}, tags:[], thumbnail:'', images:[], _sha:null };
     editContent.innerHTML = `
       <h3>${food?'Редактировать':'Новая'} еда</h3>
       <div class="form-group"><label>ID</label><input id="editId" value="${f.id}"></div>
@@ -658,16 +765,33 @@
       const images = []; document.querySelectorAll('#imagesContainer .image-entry').forEach(e => { const u=e.querySelector('.image-url').value.trim(), d=e.querySelector('.image-desc').value.trim(); if(u) images.push({url:u,description:d}); });
       const tags = document.getElementById('editTags').value.split(',').map(s=>s.trim()).filter(Boolean);
       const newObj = {
-        id: document.getElementById('editId').value, name: document.getElementById('editName').value,
-        cls: document.getElementById('editClass').value, tags,
-        stats: { calories:+document.getElementById('editCalories').value, availability:+document.getElementById('editAvailability').value, taste:+document.getElementById('editTaste').value, shelfLife:+document.getElementById('editShelfLife').value },
-        desc: document.getElementById('editDesc').value, effect: document.getElementById('editEffect').value,
-        thumbnail: document.getElementById('editThumbnail').value, images
+        type: 'food',
+        id: document.getElementById('editId').value,
+        name: document.getElementById('editName').value,
+        cls: document.getElementById('editClass').value,
+        tags,
+        stats: {
+          calories: +document.getElementById('editCalories').value,
+          availability: +document.getElementById('editAvailability').value,
+          taste: +document.getElementById('editTaste').value,
+          shelfLife: +document.getElementById('editShelfLife').value
+        },
+        desc: document.getElementById('editDesc').value,
+        effect: document.getElementById('editEffect').value,
+        thumbnail: document.getElementById('editThumbnail').value,
+        images
       };
-      if (food) { const idx = foodItems.findIndex(fd=>fd.id===food.id); if(idx!==-1) foodItems[idx]=newObj; }
-      else foodItems.push(newObj);
-      await commitJSON('food.json', foodItems);
-      editModal.classList.remove('active'); renderContent(); renderTree();
+      const filename = `files/food_${newObj.id}.json`;
+      await commitFile(filename, newObj, food?._sha);
+      if (food) {
+        const idx = foodItems.findIndex(fd => fd.id === food.id);
+        if (idx !== -1) foodItems[idx] = newObj;
+      } else {
+        foodItems.push(newObj);
+      }
+      editModal.classList.remove('active');
+      renderContent();
+      renderTree();
     });
     addImageListeners();
   }
@@ -686,14 +810,23 @@
     document.querySelectorAll('#imagesContainer .remove-image').forEach(btn => btn.addEventListener('click', e => e.target.closest('.image-entry').remove()));
   }
 
-  async function commitJSON(filename, data) {
+  async function commitFile(filename, data, existingSha = null) {
     const owner = localStorage.getItem('gh_owner'), repo = localStorage.getItem('gh_repo'), token = localStorage.getItem('gh_token');
     if (!owner || !repo || !token) return alert('Настройте GitHub.');
     const url = `https://api.github.com/repos/${owner}/${repo}/contents/${filename}`;
     const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
-    let sha = null;
-    try { const resp = await fetch(url, { headers: { Authorization: `token ${token}` }, cache:'no-store' }); if (resp.ok) sha = (await resp.json()).sha; } catch(e) {}
-    await fetch(url, { method:'PUT', headers: { Authorization: `token ${token}`, 'Content-Type':'application/json' }, body: JSON.stringify({ message:`Update ${filename}`, content, branch:'main', ...(sha?{sha}:{}) }) });
+    let sha = existingSha;
+    if (!sha) {
+      try {
+        const resp = await fetch(url, { headers: { Authorization: `token ${token}` } });
+        if (resp.ok) sha = (await resp.json()).sha;
+      } catch(e) {}
+    }
+    await fetch(url, {
+      method: 'PUT',
+      headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: `Update ${filename}`, content, sha, branch: 'main' })
+    });
   }
 
   function renderTree() {
@@ -739,45 +872,25 @@
   window.switchSection = switchSection;
   window.openView = openView;
 
-  // ----- НОВАЯ КАРТА (панорамирование, фиксированные узлы, связи из in/out) -----
-  let mapNodes = [], mapEdges = [];
+  // Карта (панорамирование, фиксированные узлы, связи из in/out)
+  let mapNodes = [], mapEdges = [], viewOffsetX = 0, viewOffsetY = 0, selectedNodeId = null;
   function extractIdsFromField(str) {
     if (!str) return [];
     return str.split(',').map(s => s.trim()).filter(id => levels.some(l => l.id === id));
   }
   function buildGraph() {
     const cols = Math.ceil(Math.sqrt(levels.length));
-    mapNodes = levels.map((l, i) => ({
-      id: l.id,
-      title: l.title,
-      x: (i % cols) * 120 + 60,
-      y: Math.floor(i / cols) * 100 + 50
-    }));
+    mapNodes = levels.map((l, i) => ({ id: l.id, title: l.title, x: (i % cols) * 120 + 60, y: Math.floor(i / cols) * 100 + 50 }));
     const nodeMap = {};
     mapNodes.forEach(n => nodeMap[n.id] = n);
     mapEdges = [];
     levels.forEach(l => {
       const outIds = extractIdsFromField(l.out);
-      outIds.forEach(targetId => {
-        if (nodeMap[targetId] && targetId !== l.id) {
-          if (!mapEdges.some(e => (e.from === l.id && e.to === targetId) || (e.from === targetId && e.to === l.id))) {
-            mapEdges.push({ from: l.id, to: targetId });
-          }
-        }
-      });
+      outIds.forEach(targetId => { if (nodeMap[targetId] && targetId !== l.id) mapEdges.push({ from: l.id, to: targetId }); });
       const inIds = extractIdsFromField(l.in);
-      inIds.forEach(sourceId => {
-        if (nodeMap[sourceId] && sourceId !== l.id) {
-          if (!mapEdges.some(e => (e.from === sourceId && e.to === l.id) || (e.from === l.id && e.to === sourceId))) {
-            mapEdges.push({ from: sourceId, to: l.id });
-          }
-        }
-      });
+      inIds.forEach(sourceId => { if (nodeMap[sourceId] && sourceId !== l.id) mapEdges.push({ from: sourceId, to: l.id }); });
     });
   }
-
-  let viewOffsetX = 0, viewOffsetY = 0;
-  let selectedNodeId = null;
   function renderMap() {
     contentArea.innerHTML = `
       <div class="map-legend">
@@ -795,106 +908,58 @@
     viewOffsetX = 0; viewOffsetY = 0;
     buildGraph();
     drawMap(ctx, canvas);
-
     let panning = false, lastX = 0, lastY = 0;
     canvas.onmousedown = (e) => {
       const rect = canvas.getBoundingClientRect();
-      const mx = e.clientX - rect.left;
-      const my = e.clientY - rect.top;
+      const mx = e.clientX - rect.left, my = e.clientY - rect.top;
       let hitNode = null;
       for (let node of mapNodes) {
-        const dx = mx - (node.x + viewOffsetX);
-        const dy = my - (node.y + viewOffsetY);
-        if (Math.sqrt(dx*dx + dy*dy) < 20) { hitNode = node; break; }
+        const dx = mx - (node.x + viewOffsetX), dy = my - (node.y + viewOffsetY);
+        if (Math.sqrt(dx*dx+dy*dy) < 20) { hitNode = node; break; }
       }
-      if (hitNode) {
-        selectedNodeId = hitNode.id;
-        drawMap(ctx, canvas);
-      } else {
-        panning = true;
-        lastX = e.clientX;
-        lastY = e.clientY;
-      }
+      if (hitNode) { selectedNodeId = hitNode.id; drawMap(ctx, canvas); }
+      else { panning = true; lastX = e.clientX; lastY = e.clientY; }
     };
     canvas.onmousemove = (e) => {
-      if (panning) {
-        const dx = e.clientX - lastX;
-        const dy = e.clientY - lastY;
-        viewOffsetX += dx;
-        viewOffsetY += dy;
-        lastX = e.clientX;
-        lastY = e.clientY;
-        drawMap(ctx, canvas);
-      }
+      if (panning) { viewOffsetX += e.clientX - lastX; viewOffsetY += e.clientY - lastY; lastX = e.clientX; lastY = e.clientY; drawMap(ctx, canvas); }
     };
     canvas.onmouseup = () => { panning = false; };
     canvas.ondblclick = (e) => {
       const rect = canvas.getBoundingClientRect();
-      const mx = e.clientX - rect.left;
-      const my = e.clientY - rect.top;
+      const mx = e.clientX - rect.left, my = e.clientY - rect.top;
       for (let node of mapNodes) {
-        const dx = mx - (node.x + viewOffsetX);
-        const dy = my - (node.y + viewOffsetY);
-        if (Math.sqrt(dx*dx + dy*dy) < 20) {
-          openView('level', node.id);
-          return;
-        }
+        const dx = mx - (node.x + viewOffsetX), dy = my - (node.y + viewOffsetY);
+        if (Math.sqrt(dx*dx+dy*dy) < 20) { openView('level', node.id); return; }
       }
     };
-    document.getElementById('fullscreenMapBtn').addEventListener('click', () => {
-      if (canvas.requestFullscreen) canvas.requestFullscreen();
-    });
-    document.getElementById('resetViewBtn').addEventListener('click', () => {
-      viewOffsetX = 0; viewOffsetY = 0;
-      drawMap(ctx, canvas);
-    });
+    document.getElementById('fullscreenMapBtn').addEventListener('click', () => canvas.requestFullscreen());
+    document.getElementById('resetViewBtn').addEventListener('click', () => { viewOffsetX = 0; viewOffsetY = 0; drawMap(ctx, canvas); });
   }
-
   function drawMap(ctx, canvas) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.strokeStyle = '#4a4a5a';
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#4a4a5a'; ctx.lineWidth = 2;
     mapEdges.forEach(edge => {
-      const from = mapNodes.find(n => n.id === edge.from);
-      const to = mapNodes.find(n => n.id === edge.to);
-      if (from && to) {
-        ctx.beginPath();
-        ctx.moveTo(from.x + viewOffsetX, from.y + viewOffsetY);
-        ctx.lineTo(to.x + viewOffsetX, to.y + viewOffsetY);
-        ctx.stroke();
-      }
+      const from = mapNodes.find(n => n.id === edge.from), to = mapNodes.find(n => n.id === edge.to);
+      if (from && to) { ctx.beginPath(); ctx.moveTo(from.x+viewOffsetX, from.y+viewOffsetY); ctx.lineTo(to.x+viewOffsetX, to.y+viewOffsetY); ctx.stroke(); }
     });
     mapNodes.forEach(node => {
-      ctx.beginPath();
-      ctx.arc(node.x + viewOffsetX, node.y + viewOffsetY, 16, 0, 2*Math.PI);
-      ctx.fillStyle = node.id === selectedNodeId ? '#c9a86c' : '#2c2c38';
-      ctx.fill();
-      ctx.strokeStyle = '#b8974c';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      ctx.fillStyle = '#e8dcc8';
-      ctx.font = '12px Segoe UI';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(node.id, node.x + viewOffsetX, node.y + viewOffsetY);
+      ctx.beginPath(); ctx.arc(node.x+viewOffsetX, node.y+viewOffsetY, 16, 0, 2*Math.PI);
+      ctx.fillStyle = node.id === selectedNodeId ? '#c9a86c' : '#2c2c38'; ctx.fill();
+      ctx.strokeStyle = '#b8974c'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = '#e8dcc8'; ctx.font = '12px Segoe UI'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(node.id, node.x+viewOffsetX, node.y+viewOffsetY);
     });
   }
 
   luckyBtn.addEventListener('click', () => {
-    let pool = [];
-    if (currentSection === 'levels') pool = levels;
-    else if (currentSection === 'entities') pool = entities;
+    let pool = levels;
+    if (currentSection === 'entities') pool = entities;
     else if (currentSection === 'items') pool = items;
     else if (currentSection === 'food') pool = foodItems;
-    else pool = levels;
     if (!pool.length) return;
     const randomItem = pool[Math.floor(Math.random() * pool.length)];
-    if (currentSection !== 'levels' && currentSection !== 'entities' && currentSection !== 'items' && currentSection !== 'food') {
-      switchSection('levels');
-      setTimeout(() => openView('level', randomItem.id), 100);
-    } else {
-      openView(currentSection.slice(0, -1), randomItem.id);
-    }
+    if (currentSection !== 'levels' && currentSection !== 'entities' && currentSection !== 'items' && currentSection !== 'food') switchSection('levels');
+    setTimeout(() => openView(currentSection.slice(0, -1), randomItem.id), 100);
   });
 
   document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => switchSection(b.dataset.tab)));
