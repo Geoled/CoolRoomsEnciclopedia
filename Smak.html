@@ -449,7 +449,6 @@
     return Object.entries(styles).map(([val, s]) => `<option value="${val}" ${selected==val?'selected':''}>${val} - ${s.name}</option>`).join('');
   }
 
-  // Новый компонент для выбора уровней с поиском
   function createLevelDropdown(selectedIds, placeholder) {
     const id = 'dropdown_' + Math.random().toString(36).substr(2, 6);
     setTimeout(() => {
@@ -740,8 +739,12 @@
   window.switchSection = switchSection;
   window.openView = openView;
 
-  // Карта: организованная сетка + полноэкранный режим
+  // ----- НОВАЯ КАРТА (панорамирование, фиксированные узлы, связи из in/out) -----
   let mapNodes = [], mapEdges = [];
+  function extractIdsFromField(str) {
+    if (!str) return [];
+    return str.split(',').map(s => s.trim()).filter(id => levels.some(l => l.id === id));
+  }
   function buildGraph() {
     const cols = Math.ceil(Math.sqrt(levels.length));
     mapNodes = levels.map((l, i) => ({
@@ -753,9 +756,8 @@
     const nodeMap = {};
     mapNodes.forEach(n => nodeMap[n.id] = n);
     mapEdges = [];
-    const extractIds = (str) => str.match(/\d+/g) || [];
     levels.forEach(l => {
-      const outIds = extractIds(l.out);
+      const outIds = extractIdsFromField(l.out);
       outIds.forEach(targetId => {
         if (nodeMap[targetId] && targetId !== l.id) {
           if (!mapEdges.some(e => (e.from === l.id && e.to === targetId) || (e.from === targetId && e.to === l.id))) {
@@ -763,7 +765,7 @@
           }
         }
       });
-      const inIds = extractIds(l.in);
+      const inIds = extractIdsFromField(l.in);
       inIds.forEach(sourceId => {
         if (nodeMap[sourceId] && sourceId !== l.id) {
           if (!mapEdges.some(e => (e.from === sourceId && e.to === l.id) || (e.from === l.id && e.to === sourceId))) {
@@ -774,7 +776,8 @@
     });
   }
 
-  let canvasElement = null;
+  let viewOffsetX = 0, viewOffsetY = 0;
+  let selectedNodeId = null;
   function renderMap() {
     contentArea.innerHTML = `
       <div class="map-legend">
@@ -782,59 +785,72 @@
         <span><span style="background:#2c2c38;width:12px;height:12px;display:inline-block;border-radius:50%;border:1px solid #b8974c;"></span> Уровень</span>
         <span>Двойной клик — открыть</span>
         <button class="btn" id="fullscreenMapBtn">🗺️ На весь экран</button>
+        <button class="btn" id="resetViewBtn">🔄 Сбросить обзор</button>
       </div>
       <canvas id="mapCanvas" style="width:100%; height:65vh; border:1px solid #3d3d4a; border-radius:16px; background:#14141b;"></canvas>`;
     const canvas = document.getElementById('mapCanvas');
-    canvasElement = canvas;
     const ctx = canvas.getContext('2d');
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
+    viewOffsetX = 0; viewOffsetY = 0;
     buildGraph();
-    drawGraph(ctx, canvas);
+    drawMap(ctx, canvas);
 
-    let selectedNodeId = null, draggingNode = null, dragOffsetX = 0, dragOffsetY = 0;
+    let panning = false, lastX = 0, lastY = 0;
     canvas.onmousedown = (e) => {
       const rect = canvas.getBoundingClientRect();
-      const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      let hitNode = null;
       for (let node of mapNodes) {
-        const dx = mx - node.x, dy = my - node.y;
-        if (Math.sqrt(dx*dx+dy*dy) < 20) {
-          draggingNode = node;
-          dragOffsetX = dx;
-          dragOffsetY = dy;
-          break;
-        }
+        const dx = mx - (node.x + viewOffsetX);
+        const dy = my - (node.y + viewOffsetY);
+        if (Math.sqrt(dx*dx + dy*dy) < 20) { hitNode = node; break; }
+      }
+      if (hitNode) {
+        selectedNodeId = hitNode.id;
+        drawMap(ctx, canvas);
+      } else {
+        panning = true;
+        lastX = e.clientX;
+        lastY = e.clientY;
       }
     };
     canvas.onmousemove = (e) => {
-      if (draggingNode) {
-        const rect = canvas.getBoundingClientRect();
-        draggingNode.x = e.clientX - rect.left - dragOffsetX;
-        draggingNode.y = e.clientY - rect.top - dragOffsetY;
-        drawGraph(ctx, canvas);
+      if (panning) {
+        const dx = e.clientX - lastX;
+        const dy = e.clientY - lastY;
+        viewOffsetX += dx;
+        viewOffsetY += dy;
+        lastX = e.clientX;
+        lastY = e.clientY;
+        drawMap(ctx, canvas);
       }
     };
-    canvas.onmouseup = () => { draggingNode = null; };
-    canvas.onclick = (e) => {
+    canvas.onmouseup = () => { panning = false; };
+    canvas.ondblclick = (e) => {
       const rect = canvas.getBoundingClientRect();
-      const mx = e.clientX - rect.left, my = e.clientY - rect.top;
-      selectedNodeId = null;
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
       for (let node of mapNodes) {
-        const dx = mx - node.x, dy = my - node.y;
-        if (Math.sqrt(dx*dx+dy*dy) < 20) {
-          selectedNodeId = node.id;
-          break;
+        const dx = mx - (node.x + viewOffsetX);
+        const dy = my - (node.y + viewOffsetY);
+        if (Math.sqrt(dx*dx + dy*dy) < 20) {
+          openView('level', node.id);
+          return;
         }
       }
-      drawGraph(ctx, canvas);
-      if (e.detail === 2 && selectedNodeId) openView('level', selectedNodeId);
     };
     document.getElementById('fullscreenMapBtn').addEventListener('click', () => {
       if (canvas.requestFullscreen) canvas.requestFullscreen();
     });
+    document.getElementById('resetViewBtn').addEventListener('click', () => {
+      viewOffsetX = 0; viewOffsetY = 0;
+      drawMap(ctx, canvas);
+    });
   }
 
-  function drawGraph(ctx, canvas) {
+  function drawMap(ctx, canvas) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.strokeStyle = '#4a4a5a';
     ctx.lineWidth = 2;
@@ -843,15 +859,15 @@
       const to = mapNodes.find(n => n.id === edge.to);
       if (from && to) {
         ctx.beginPath();
-        ctx.moveTo(from.x, from.y);
-        ctx.lineTo(to.x, to.y);
+        ctx.moveTo(from.x + viewOffsetX, from.y + viewOffsetY);
+        ctx.lineTo(to.x + viewOffsetX, to.y + viewOffsetY);
         ctx.stroke();
       }
     });
     mapNodes.forEach(node => {
       ctx.beginPath();
-      ctx.arc(node.x, node.y, 16, 0, 2*Math.PI);
-      ctx.fillStyle = node.id === window._selectedNodeId ? '#c9a86c' : '#2c2c38';
+      ctx.arc(node.x + viewOffsetX, node.y + viewOffsetY, 16, 0, 2*Math.PI);
+      ctx.fillStyle = node.id === selectedNodeId ? '#c9a86c' : '#2c2c38';
       ctx.fill();
       ctx.strokeStyle = '#b8974c';
       ctx.lineWidth = 2;
@@ -860,7 +876,7 @@
       ctx.font = '12px Segoe UI';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(node.id, node.x, node.y);
+      ctx.fillText(node.id, node.x + viewOffsetX, node.y + viewOffsetY);
     });
   }
 
