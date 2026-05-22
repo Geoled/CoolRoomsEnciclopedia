@@ -1,0 +1,25 @@
+{
+  "type": "level",
+  "id": "0",
+  "title": "Тихая Прихожая",
+  "cluster": "Основные",
+  "cls": "0",
+  "tags": [],
+  "stats": {
+    "safety": 5,
+    "stability": 4,
+    "entities": 1,
+    "resources": 4,
+    "mental": 1,
+    "navigation": 1
+  },
+  "desc": "...",
+  "food": "...",
+  "ent": [
+    "Кот-Проводник"
+  ],
+  "in": "...",
+  "out": "...",
+  "thumbnail": "",
+  "images": []
+}
