@@ -200,9 +200,38 @@
     .card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; }
     .card-id { font-weight:600; color:#c9a86c; }
     .class-icon { font-size:1.2rem; }
-    .survival-bar { display:flex; gap:0.3rem; margin:0.5rem 0; }
-    .survival-segment { height:6px; border-radius:3px; flex:1; }
-    .segment-safe { background:#6a9a6a; } .segment-stable { background:#5a7a9a; } .segment-entity { background:#b9774a; }
+
+    /* Новые стили для характеристик */
+    .stat-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin: 0.2rem 0;
+      font-size: 0.75rem;
+    }
+    .stat-label-mini {
+      width: 80px;
+      color: #8c8c9a;
+      text-align: right;
+    }
+    .stat-bar {
+      flex: 1;
+      height: 6px;
+      background: #2a2a35;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .stat-fill {
+      height: 100%;
+      border-radius: 3px;
+      width: 0%;
+    }
+    .stat-value {
+      width: 20px;
+      text-align: center;
+      color: #c9b896;
+      font-weight: 500;
+    }
     .card-desc { font-size:0.85rem; color:#a0a0b0; margin-top:0.3rem; line-height: 1.7; }
     .modal {
       display:none; position:fixed; top:0; left:0; width:100%; height:100%;
@@ -229,19 +258,18 @@
     .view-section div {
       line-height: 1.8;
     }
-    /* Галерея с увеличением при наведении */
+    /* Галерея с увеличением при наведении в 1.2 раза */
     .gallery { 
       display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.5rem; 
     }
     .gallery img { 
       width:80px; height:80px; object-fit:cover; border-radius:8px; cursor:pointer; 
-      border:1px solid #3a3a4a; transition: transform 0.25s ease; 
-      position: relative; z-index: 1;
+      border:1px solid #3a3a4a; transition: transform 0.2s ease; 
     }
     .gallery img:hover {
-      transform: scale(3);
+      transform: scale(1.2);
       z-index: 10;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
     }
     .lightbox {
       position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9);
@@ -296,6 +324,16 @@
     "5": { icon:"⛔", color:"#8b0000", name:"Смертельный" }
   };
 
+  // Цвета для полосок характеристик
+  const statColors = {
+    safety: '#6a9a6a',
+    stability: '#5a7a9a',
+    entities: '#b9774a',
+    resources: '#6a9a6a',
+    mental: '#9a6a9a',
+    navigation: '#5a9a9a'
+  };
+
   const tree = document.getElementById('tree');
   const breadcrumbs = document.getElementById('breadcrumbs');
   const contentArea = document.getElementById('contentArea');
@@ -321,9 +359,35 @@
     } catch(e) { return []; }
   }
 
+  // Обеспечиваем наличие всех полей stats
+  function normalizeLevelStats(level) {
+    if (!level.stats) {
+      level.stats = {
+        safety: level.survival?.safety || 3,
+        stability: level.survival?.stability || 3,
+        entities: level.survival?.entities || 3,
+        resources: 3,
+        mental: 3,
+        navigation: 3
+      };
+    } else {
+      level.stats.safety = level.stats.safety || 3;
+      level.stats.stability = level.stats.stability || 3;
+      level.stats.entities = level.stats.entities || 3;
+      level.stats.resources = level.stats.resources || 3;
+      level.stats.mental = level.stats.mental || 3;
+      level.stats.navigation = level.stats.navigation || 3;
+    }
+    return level;
+  }
+
   async function loadAllData() {
     levels = await fetchJSON('levels.json') || [];
-    if (!levels.length) levels.push({ id:"0", title:"Тихая Прихожая", cluster:"Основные", cls:"0", desc:"Уютная анфилада комнат...", food:"Хлеб, сыр...", ent:["Кот-Проводник"], in:"...", out:"...", survival:{safety:5, stability:4, entities:1}, thumbnail:"", images:[] });
+    if (!levels.length) {
+      const defaultLevel = { id:"0", title:"Тихая Прихожая", cluster:"Основные", cls:"0", desc:"Уютная анфилада комнат...", food:"Хлеб, сыр...", ent:["Кот-Проводник"], in:"...", out:"...", stats:{safety:5, stability:4, entities:1, resources:4, mental:1, navigation:1}, thumbnail:"", images:[] };
+      levels.push(defaultLevel);
+    }
+    levels.forEach(l => normalizeLevelStats(l));
     entities = await fetchJSON('entities.json') || [];
     items = await fetchJSON('items.json') || [];
     foodItems = await fetchJSON('food.json') || [];
@@ -437,18 +501,34 @@
     document.getElementById('sortSelectField').addEventListener('change', () => renderContent());
   }
 
+  function renderStatsHTML(stats) {
+    const labels = {
+      safety: 'Безопасность',
+      stability: 'Стабильность',
+      entities: 'Заселённость',
+      resources: 'Ресурсы',
+      mental: 'Психика',
+      navigation: 'Навигация'
+    };
+    return Object.entries(labels).map(([key, label]) => {
+      const val = stats[key] || 3;
+      const color = statColors[key] || '#777';
+      return `<div class="stat-row">
+        <span class="stat-label-mini">${label}</span>
+        <div class="stat-bar"><div class="stat-fill" style="width:${val*20}%; background:${color};"></div></div>
+        <span class="stat-value">${val}/5</span>
+      </div>`;
+    }).join('');
+  }
+
   function renderLevelCard(l) {
-    const survival = l.survival || {safety:3, stability:3, entities:3};
+    const stats = l.stats || { safety:3, stability:3, entities:3, resources:3, mental:3, navigation:3 };
     const thumb = l.thumbnail ? `<img class="card-img" src="${l.thumbnail}" onerror="this.style.display='none'">` : '';
     return `<div class="card" data-type="level" data-id="${l.id}">
       ${thumb}
       <div class="card-header"><span class="card-id">${l.id}</span><span class="class-icon">${getClassIcon(l.cls)}</span></div>
       <div style="font-weight:500;">${l.title}</div>
-      <div class="survival-bar">
-        <div class="survival-segment segment-safe" style="flex:${survival.safety}"></div>
-        <div class="survival-segment segment-stable" style="flex:${survival.stability}"></div>
-        <div class="survival-segment segment-entity" style="flex:${survival.entities}"></div>
-      </div>
+      <div style="margin:0.3rem 0;">${renderStatsHTML(stats)}</div>
       <div class="card-desc">${l.desc?.substring(0,80)||''}...</div>
     </div>`;
   }
@@ -525,15 +605,11 @@
     const thumb = obj.thumbnail ? `<img src="${obj.thumbnail}" style="max-width:300px; border-radius:12px; margin-bottom:1rem;" onerror="this.style.display='none'">` : '';
     const gallery = (obj.images||[]).map(img => `<img src="${img.url}" alt="${img.description||''}">`).join('');
     if (type === 'level') {
-      const survival = obj.survival || {safety:3, stability:3, entities:3};
+      const stats = obj.stats || { safety:3, stability:3, entities:3, resources:3, mental:3, navigation:3 };
       return `<h2>Уровень ${obj.id} — «${obj.title}»</h2>
         ${thumb}
         <p><strong>Класс:</strong> ${obj.cls} ${getClassIcon(obj.cls)}</p>
-        <div class="survival-bar">
-          <div class="survival-segment segment-safe" style="flex:${survival.safety}"></div>
-          <div class="survival-segment segment-stable" style="flex:${survival.stability}"></div>
-          <div class="survival-segment segment-entity" style="flex:${survival.entities}"></div>
-        </div>
+        <div style="margin:1rem 0;">${renderStatsHTML(stats)}</div>
         <div class="view-section"><p>${obj.desc}</p></div>
         <p><strong>Пища:</strong> ${obj.food}</p>
         <p><strong>Сущности:</strong> ${(obj.ent||[]).map(e => `<span class="entity-link" data-entity="${e}">${e}</span>`).join(', ') || '—'}</p>
@@ -576,7 +652,7 @@
   }
 
   function openEditLevelModal(level=null) {
-    const lvl = level || { id:'', title:'', cluster:'', cls:'0', desc:'', food:'', ent:[], in:'', out:'', survival:{safety:3,stability:3,entities:3}, thumbnail:'', images:[] };
+    const lvl = level || { id:'', title:'', cluster:'', cls:'0', desc:'', food:'', ent:[], in:'', out:'', stats:{safety:3,stability:3,entities:3,resources:3,mental:3,navigation:3}, thumbnail:'', images:[] };
     const classOptions = [0,1,2,3,4,5].map(i => `<option value="${i}" ${lvl.cls == i ? 'selected' : ''}>${i} - ${classStyles[i]?.name || 'Класс '+i}</option>`).join('');
     editContent.innerHTML = `
       <h3>${level?'Редактировать':'Новый'} уровень</h3>
@@ -584,9 +660,14 @@
       <div class="form-group"><label>Название</label><input id="editTitle" value="${lvl.title}"></div>
       <div class="form-group"><label>Кластер</label><input id="editCluster" value="${lvl.cluster||''}"></div>
       <div class="form-group"><label>Класс</label><select id="editClass">${classOptions}</select></div>
-      <div class="form-group"><label>Безопасность (1-5)</label><input type="number" id="editSafety" value="${lvl.survival?.safety||3}" min="1" max="5"></div>
-      <div class="form-group"><label>Стабильность (1-5)</label><input type="number" id="editStability" value="${lvl.survival?.stability||3}" min="1" max="5"></div>
-      <div class="form-group"><label>Заселённость (1-5)</label><input type="number" id="editEntities" value="${lvl.survival?.entities||3}" min="1" max="5"></div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
+        <div class="form-group"><label>Безопасность</label><input type="number" id="editSafety" value="${lvl.stats.safety}" min="1" max="5"></div>
+        <div class="form-group"><label>Стабильность</label><input type="number" id="editStability" value="${lvl.stats.stability}" min="1" max="5"></div>
+        <div class="form-group"><label>Заселённость</label><input type="number" id="editEntities" value="${lvl.stats.entities}" min="1" max="5"></div>
+        <div class="form-group"><label>Ресурсы</label><input type="number" id="editResources" value="${lvl.stats.resources}" min="1" max="5"></div>
+        <div class="form-group"><label>Психика</label><input type="number" id="editMental" value="${lvl.stats.mental}" min="1" max="5"></div>
+        <div class="form-group"><label>Навигация</label><input type="number" id="editNavigation" value="${lvl.stats.navigation}" min="1" max="5"></div>
+      </div>
       <div class="form-group"><label>Описание</label><textarea id="editDesc">${lvl.desc}</textarea></div>
       <div class="form-group"><label>Пища</label><input id="editFood" value="${lvl.food}"></div>
       <div class="form-group"><label>Сущности (через запятую)</label><input id="editEnt" value="${(lvl.ent||[]).join(', ')}"></div>
@@ -615,10 +696,13 @@
         title: document.getElementById('editTitle').value,
         cluster: document.getElementById('editCluster').value,
         cls: document.getElementById('editClass').value,
-        survival: {
+        stats: {
           safety: +document.getElementById('editSafety').value,
           stability: +document.getElementById('editStability').value,
-          entities: +document.getElementById('editEntities').value
+          entities: +document.getElementById('editEntities').value,
+          resources: +document.getElementById('editResources').value,
+          mental: +document.getElementById('editMental').value,
+          navigation: +document.getElementById('editNavigation').value
         },
         desc: document.getElementById('editDesc').value,
         food: document.getElementById('editFood').value,
@@ -847,7 +931,6 @@
     renderContent();
   }
 
-  // Делаем функции глобальными, чтобы onclick на главной странице работал
   window.switchSection = switchSection;
   window.openView = openView;
 
