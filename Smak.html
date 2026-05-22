@@ -203,7 +203,7 @@
     .survival-bar { display:flex; gap:0.3rem; margin:0.5rem 0; }
     .survival-segment { height:6px; border-radius:3px; flex:1; }
     .segment-safe { background:#6a9a6a; } .segment-stable { background:#5a7a9a; } .segment-entity { background:#b9774a; }
-    .card-desc { font-size:0.85rem; color:#a0a0b0; margin-top:0.3rem; }
+    .card-desc { font-size:0.85rem; color:#a0a0b0; margin-top:0.3rem; line-height: 1.7; }
     .modal {
       display:none; position:fixed; top:0; left:0; width:100%; height:100%;
       background:rgba(0,0,0,0.7); backdrop-filter:blur(6px); align-items:center;
@@ -220,8 +220,29 @@
       width:100%; padding:0.7rem; background:#14141b; border:1px solid #3a3a48;
       border-radius:10px; color:#d0d0d0; font-size:0.9rem; outline:none;
     }
-    .gallery { display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.5rem; }
-    .gallery img { width:80px; height:80px; object-fit:cover; border-radius:8px; cursor:pointer; border:1px solid #3a3a4a; }
+    /* Улучшенная читаемость описания */
+    .view-section p {
+      line-height: 1.9;
+      margin-bottom: 1.2rem;
+      color: #cbcbd4;
+    }
+    .view-section div {
+      line-height: 1.8;
+    }
+    /* Галерея с увеличением при наведении */
+    .gallery { 
+      display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.5rem; 
+    }
+    .gallery img { 
+      width:80px; height:80px; object-fit:cover; border-radius:8px; cursor:pointer; 
+      border:1px solid #3a3a4a; transition: transform 0.25s ease; 
+      position: relative; z-index: 1;
+    }
+    .gallery img:hover {
+      transform: scale(3);
+      z-index: 10;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+    }
     .lightbox {
       position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9);
       display:none; align-items:center; justify-content:center; z-index:200;
@@ -513,7 +534,7 @@
           <div class="survival-segment segment-stable" style="flex:${survival.stability}"></div>
           <div class="survival-segment segment-entity" style="flex:${survival.entities}"></div>
         </div>
-        <p>${obj.desc}</p>
+        <div class="view-section"><p>${obj.desc}</p></div>
         <p><strong>Пища:</strong> ${obj.food}</p>
         <p><strong>Сущности:</strong> ${(obj.ent||[]).map(e => `<span class="entity-link" data-entity="${e}">${e}</span>`).join(', ') || '—'}</p>
         <p><strong>Входы:</strong> ${obj.in}</p>
@@ -524,20 +545,20 @@
         ${thumb}
         <p><strong>Класс:</strong> ${obj.cls}</p>
         <p><strong>Среда:</strong> ${obj.habitat}</p>
-        <p>${obj.desc}</p>
+        <div class="view-section"><p>${obj.desc}</p></div>
         ${obj.behavior ? `<p><strong>Поведение:</strong> ${obj.behavior}</p>` : ''}
         ${obj.survival ? `<p><strong>Выживание:</strong> ${obj.survival}</p>` : ''}
         <div class="gallery">${gallery}</div>`;
     } else if (type === 'item') {
       return `<h2>Предмет ${obj.id} — «${obj.name}»</h2>
         ${thumb}
-        <p>${obj.desc}</p>
+        <div class="view-section"><p>${obj.desc}</p></div>
         ${obj.props ? `<p><strong>Свойства:</strong> ${obj.props}</p>` : ''}
         <div class="gallery">${gallery}</div>`;
     } else if (type === 'food') {
       return `<h2>Еда ${obj.id} — «${obj.name}»</h2>
         ${thumb}
-        <p>${obj.desc}</p>
+        <div class="view-section"><p>${obj.desc}</p></div>
         ${obj.effect ? `<p><strong>Эффект:</strong> ${obj.effect}</p>` : ''}
         <div class="gallery">${gallery}</div>`;
     }
@@ -825,6 +846,10 @@
     renderTree();
     renderContent();
   }
+
+  // Делаем функции глобальными, чтобы onclick на главной странице работал
+  window.switchSection = switchSection;
+  window.openView = openView;
 
   document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => switchSection(b.dataset.tab)));
   document.getElementById('settingsBtn').addEventListener('click', () => {
