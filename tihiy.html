@@ -395,6 +395,7 @@
             <h1>Tihie Rooms Enciclopedia</h1>
         </div>
         <div class="actions">
+            <button class="btn" id="refreshBtn"><span class="color-dot dot-blue"></span> Обновить</button>
             <button class="btn" id="settingsBtn"><span class="color-dot dot-blue"></span> Настройки GitHub</button>
             <button class="btn primary" id="addLevelBtn"><span class="color-dot dot-green"></span> Новый уровень</button>
         </div>
@@ -473,6 +474,7 @@
         const editModal = document.getElementById('editModal');
 
         const addBtn = document.getElementById('addLevelBtn');
+        const refreshBtn = document.getElementById('refreshBtn');
         const settingsBtn = document.getElementById('settingsBtn');
         const settingsPanel = document.getElementById('settingsPanel');
         const saveSettingsBtn = document.getElementById('saveSettingsBtn');
@@ -528,14 +530,15 @@
             settingsPanel.style.display = settingsPanel.style.display === 'none' ? 'flex' : 'none';
         });
 
+        // Обновлённая загрузка (без кэша, с timestamp)
         async function fetchLevels() {
             const owner = localStorage.getItem('gh_owner');
             const repo = localStorage.getItem('gh_repo');
             const path = localStorage.getItem('gh_path') || 'levels.json';
             if (!owner || !repo) return [defaultLevel0];
             try {
-                const url = `https://raw.githubusercontent.com/${owner}/${repo}/main/${path}`;
-                const resp = await fetch(url);
+                const url = `https://raw.githubusercontent.com/${owner}/${repo}/main/${path}?t=${Date.now()}`;
+                const resp = await fetch(url, { cache: 'no-store' });
                 if (!resp.ok) throw new Error('not found');
                 const data = await resp.json();
                 return Array.isArray(data) && data.length ? data : [defaultLevel0];
@@ -657,35 +660,96 @@
             };
         }
 
+        // Улучшенная отправка с актуальным SHA и обработкой конфликтов
         async function commitToGitHub(newLevels) {
-            const o=localStorage.getItem('gh_owner'), r=localStorage.getItem('gh_repo'), p=localStorage.getItem('gh_path')||'levels.json', t=localStorage.getItem('gh_token');
-            if(!o||!r||!t) { alert('Заполните настройки GitHub.'); return false; }
-            const url=`https://api.github.com/repos/${o}/${r}/contents/${p}`;
-            const content=btoa(unescape(encodeURIComponent(JSON.stringify(newLevels,null,2))));
-            let sha=null;
-            try { const g=await fetch(url,{headers:{Authorization:`token ${t}`}}); if(g.ok) sha=(await g.json()).sha; } catch(e){}
-            const resp=await fetch(url,{method:'PUT',headers:{Authorization:`token ${t}`,'Content-Type':'application/json'},body:JSON.stringify({message:`Update levels ${new Date().toISOString()}`,content,branch:'main',...(sha?{sha}:{})})});
-            if(!resp.ok) { alert('Ошибка GitHub: '+((await resp.json()).message||'')); return false; }
+            const owner = localStorage.getItem('gh_owner');
+            const repo = localStorage.getItem('gh_repo');
+            const path = localStorage.getItem('gh_path') || 'levels.json';
+            const token = localStorage.getItem('gh_token');
+            if (!owner || !repo || !token) {
+                alert('Заполните настройки GitHub (owner, repo, token).');
+                return false;
+            }
+            const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+            const content = btoa(unescape(encodeURIComponent(JSON.stringify(newLevels, null, 2))));
+
+            let sha = null;
+            try {
+                const getResp = await fetch(url, {
+                    headers: { Authorization: `token ${token}` },
+                    cache: 'no-store'
+                });
+                if (getResp.ok) {
+                    const data = await getResp.json();
+                    sha = data.sha;
+                }
+            } catch (e) {}
+
+            const body = {
+                message: `Update levels ${new Date().toISOString()}`,
+                content: content,
+                branch: 'main'
+            };
+            if (sha) body.sha = sha;
+
+            const resp = await fetch(url, {
+                method: 'PUT',
+                headers: {
+                    Authorization: `token ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(body)
+            });
+
+            if (!resp.ok) {
+                const err = await resp.json();
+                if (err.message && err.message.includes('SHA')) {
+                    alert('Конфликт: кто-то изменил данные, пока вы редактировали. Перезагрузите страницу и попробуйте снова.');
+                } else {
+                    alert('Ошибка GitHub: ' + (err.message || 'Неизвестная ошибка'));
+                }
+                return false;
+            }
             return true;
         }
 
         saveLevelBtn.addEventListener('click', async ()=>{
-            const data=gatherFormData();
-            if(!data.id||!data.title) { alert('ID и Название обязательны.'); return; }
-            if(editingId) { const i=levels.findIndex(l=>l.id===editingId); if(i!==-1) levels[i]=data; }
-            else levels.push(data);
-            if(await commitToGitHub(levels)) {
-                alert('Сохранено. Сайт обновится через минуту.');
-                closeEditModal(); updateClusterFilter(); renderCards();
-            } else { levels = await fetchLevels(); updateClusterFilter(); renderCards(); }
+            const data = gatherFormData();
+            if (!data.id || !data.title) { alert('ID и Название обязательны.'); return; }
+            if (editingId) {
+                const i = levels.findIndex(l => l.id === editingId);
+                if (i !== -1) levels[i] = data;
+            } else {
+                levels.push(data);
+            }
+            if (await commitToGitHub(levels)) {
+                alert('Сохранено. Нажмите «Обновить», чтобы увидеть изменения.');
+                closeEditModal();
+                updateClusterFilter();
+                renderCards();
+            } else {
+                levels = await fetchLevels();
+                updateClusterFilter();
+                renderCards();
+            }
         });
 
         addBtn.addEventListener('click', ()=> openEditModal(null));
+        refreshBtn.addEventListener('click', async ()=> {
+            levels = await fetchLevels();
+            updateClusterFilter();
+            renderCards();
+            alert('Данные обновлены.');
+        });
         searchInput.addEventListener('input', renderCards);
         clusterFilter.addEventListener('change', renderCards);
         sortSelect.addEventListener('change', renderCards);
 
-        (async ()=>{ levels = await fetchLevels(); updateClusterFilter(); renderCards(); })();
+        (async ()=>{
+            levels = await fetchLevels();
+            updateClusterFilter();
+            renderCards();
+        })();
     })();
 </script>
 </body>
