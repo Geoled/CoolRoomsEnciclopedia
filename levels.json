@@ -32,5 +32,24 @@
         "description": "Рыжий кот"
       }
     ]
+  },
+  {
+    "id": "1",
+    "title": "1",
+    "cluster": "Основной",
+    "cls": "5",
+    "desc": "смак",
+    "food": "смак",
+    "ent": [
+      "смак"
+    ],
+    "in": "смак",
+    "out": "смак",
+    "images": [
+      {
+        "url": "https://i.pinimg.com/736x/53/c3/c5/53c3c5896f0ffc52d51785745cf196ce.jpg",
+        "description": "3"
+      }
+    ]
   }
 ]
