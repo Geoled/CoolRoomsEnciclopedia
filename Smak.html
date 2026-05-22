@@ -16,7 +16,7 @@
       overflow: hidden;
     }
     .sidebar {
-      width: 260px;
+      width: 270px;
       background: #1a1a22;
       border-right: 1px solid #2e2e3a;
       display: flex;
@@ -30,11 +30,8 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
-    }
-    .sidebar-header h3 {
+      font-weight: 600;
       color: #c9b896;
-      font-weight: 500;
-      font-size: 1rem;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
@@ -54,6 +51,7 @@
     .tree-item:hover { background:#2a2a35; color:#e8dcc8; }
     .tree-item.active { background:#2c2c38; color:#c9a86c; font-weight:500; }
     .tree-folder { font-weight:600; color:#b8974c; }
+    .tree-children { display: block; }
     .main {
       flex:1; display:flex; flex-direction:column; overflow:hidden;
     }
@@ -97,6 +95,7 @@
     .survival-bar { display:flex; gap:0.3rem; margin:0.5rem 0; }
     .survival-segment { height:6px; border-radius:3px; flex:1; }
     .segment-safe { background:#6a9a6a; } .segment-stable { background:#5a7a9a; } .segment-entity { background:#b9774a; }
+    .card-desc { font-size:0.85rem; color:#a0a0b0; margin-top:0.3rem; }
     .modal {
       display:none; position:fixed; top:0; left:0; width:100%; height:100%;
       background:rgba(0,0,0,0.7); backdrop-filter:blur(6px); align-items:center;
@@ -128,7 +127,7 @@
 </head>
 <body>
 <div class="sidebar" id="sidebar">
-  <div class="sidebar-header"><span>◈</span><h3>Tihie Rooms</h3></div>
+  <div class="sidebar-header"><span>◈</span> Tihie Rooms</div>
   <div class="tree" id="tree"></div>
 </div>
 <div class="main">
@@ -137,7 +136,7 @@
     <div class="actions">
       <button class="btn" id="refreshBtn">🔄 Обновить</button>
       <button class="btn" id="settingsBtn">⚙️ Классы</button>
-      <button class="btn primary" id="addBtn">➕ Новый</button>
+      <button class="btn primary" id="addBtn">➕ Новый уровень</button>
     </div>
   </div>
   <div class="content-area" id="contentArea">
@@ -164,7 +163,7 @@
 <script>
 (function() {
   // Состояние
-  let currentTab = 'levels'; // levels, entities, items
+  let currentTab = 'levels';
   let levels = [], entities = [], items = [];
   let classStyles = JSON.parse(localStorage.getItem('classStyles')) || {
     "0": { icon:"🟢", color:"#6a9a6a", name:"Безопасный" },
@@ -205,14 +204,14 @@
 
   async function loadData() {
     levels = await fetchJSON('levels.json');
-    if (!levels.length) levels = [{ id:"0", title:"Тихая Прихожая", cluster:"Основные", cls:"0", desc:"...", food:"...", ent:["Кот-Проводник"], in:"...", out:"...", survival:{safety:5, stability:4, entities:1}, images:[] }];
+    if (!levels.length) levels = [{ id:"0", title:"Тихая Прихожая", cluster:"Основные", cls:"0", desc:"Уютная анфилада комнат...", food:"Хлеб, сыр...", ent:["Кот-Проводник"], in:"...", out:"...", survival:{safety:5, stability:4, entities:1}, images:[] }];
     entities = await fetchJSON('entities.json');
     items = await fetchJSON('items.json');
     renderTree();
     renderContent();
   }
 
-  // Древовидная навигация
+  // Древовидная навигация (исправлено)
   function buildTree() {
     if (currentTab === 'levels') {
       const clusters = {};
@@ -232,39 +231,41 @@
   }
 
   function renderTree() {
-    const data = buildTree();
     tree.innerHTML = '';
-    data.forEach(node => renderTreeNode(node, 0));
+    const data = buildTree();
+    data.forEach(node => renderTreeNode(node, tree, 0));
   }
 
-  function renderTreeNode(node, depth) {
+  function renderTreeNode(node, parentContainer, depth) {
     const div = document.createElement('div');
     div.className = 'tree-item';
-    div.style.paddingLeft = (depth*1.2 + 1) + 'rem';
+    div.style.paddingLeft = (depth * 1.2 + 1) + 'rem';
     if (node.type === 'folder') {
       div.classList.add('tree-folder');
       div.textContent = '📁 ' + node.name;
-      div.onclick = () => {
-        const childContainer = div.nextElementSibling;
-        if (childContainer && childContainer.classList.contains('tree-children')) {
-          childContainer.style.display = childContainer.style.display === 'none' ? 'block' : 'none';
-        }
-      };
-      tree.appendChild(div);
       const childContainer = document.createElement('div');
       childContainer.className = 'tree-children';
-      childContainer.style.display = 'block';
-      node.children.forEach(child => renderTreeNode(child, depth+1));
-      tree.appendChild(childContainer);
+      childContainer.style.display = 'block'; // изначально открыты
+      // Добавляем папку и затем контейнер для детей
+      parentContainer.appendChild(div);
+      parentContainer.appendChild(childContainer);
+      // Обработчик клика для сворачивания/разворачивания
+      div.addEventListener('click', (e) => {
+        e.stopPropagation();
+        childContainer.style.display = childContainer.style.display === 'none' ? 'block' : 'none';
+      });
+      // Рекурсивно добавляем детей в childContainer
+      node.children.forEach(child => renderTreeNode(child, childContainer, depth + 1));
     } else {
+      // Лист (уровень/сущность/предмет)
       div.innerHTML = `<span class="class-icon">${getClassIcon(node.type==='level' ? levels.find(l=>l.id===node.id)?.cls : '')}</span> ${node.title || node.id}`;
-      div.onclick = (e) => {
+      div.addEventListener('click', (e) => {
         e.stopPropagation();
         if (node.type === 'level') openView('level', node.id);
         else if (node.type === 'entity') openView('entity', node.id);
         else if (node.type === 'item') openView('item', node.id);
-      };
-      tree.appendChild(div);
+      });
+      parentContainer.appendChild(div);
     }
   }
 
@@ -300,21 +301,25 @@
   function renderLevelCard(l) {
     const survival = l.survival || {safety:3, stability:3, entities:3};
     return `<div class="card" data-type="level" data-id="${l.id}">
-      <div class="card-header"><span class="card-id">${l.id}</span><span class="class-icon">${getClassIcon(l.cls)}</span></div>
-      <div class="card-title">${l.title}</div>
-      <div class="survival-bar">
-        <div class="survival-segment segment-safe" style="flex:${survival.safety}"></div>
-        <div class="survival-segment segment-stable" style="flex:${survival.stability}"></div>
-        <div class="survival-segment segment-entity" style="flex:${survival.entities}"></div>
+      <div class="card-header">
+        <span class="card-id">${l.id}</span>
+        <span class="class-icon" title="${classStyles[l.cls]?.name || 'Класс '+l.cls}">${getClassIcon(l.cls)}</span>
       </div>
-      <div class="card-desc">${l.desc?.substring(0,80)}...</div>
+      <div class="card-title" style="font-weight:500; margin-bottom:0.3rem;">${l.title}</div>
+      <div class="survival-bar">
+        <div class="survival-segment segment-safe" style="flex:${survival.safety}" title="Безопасность: ${survival.safety}"></div>
+        <div class="survival-segment segment-stable" style="flex:${survival.stability}" title="Стабильность: ${survival.stability}"></div>
+        <div class="survival-segment segment-entity" style="flex:${survival.entities}" title="Заселённость: ${survival.entities}"></div>
+      </div>
+      <div class="card-desc">${l.desc?.substring(0,80) || 'Описание отсутствует'}...</div>
+      <div style="font-size:0.75rem; color:#7a7a8a; margin-top:0.5rem;">Кластер: ${l.cluster || '—'}</div>
     </div>`;
   }
 
   function renderEntityCard(e) {
     return `<div class="card" data-type="entity" data-id="${e.id}">
       <div class="card-header"><span class="card-id">Entity ${e.id}</span></div>
-      <div class="card-title">${e.name}</div>
+      <div class="card-title" style="font-weight:500;">${e.name}</div>
       <div>Класс: ${e.cls||'?'}</div>
     </div>`;
   }
@@ -322,8 +327,8 @@
   function renderItemCard(i) {
     return `<div class="card" data-type="item" data-id="${i.id}">
       <div class="card-header"><span class="card-id">Item ${i.id}</span></div>
-      <div class="card-title">${i.name}</div>
-      <div>${i.desc?.substring(0,60)}</div>
+      <div class="card-title" style="font-weight:500;">${i.name}</div>
+      <div>${i.desc?.substring(0,60) || ''}</div>
     </div>`;
   }
 
@@ -395,15 +400,18 @@
 
   viewModal.addEventListener('click', e => { if (e.target === viewModal) viewModal.classList.remove('active'); });
 
-  // Редактирование (только уровни пока)
+  // Редактирование уровня (с dropdown для класса)
   function openEditModal(level=null) {
     const lvl = level || { id:'', title:'', cluster:'', cls:'0', desc:'', food:'', ent:[], in:'', out:'', survival:{safety:3,stability:3,entities:3}, images:[] };
+    const classOptions = [0,1,2,3,4,5].map(i => `<option value="${i}" ${lvl.cls == i ? 'selected' : ''}>${i} - ${classStyles[i]?.name || 'Класс '+i}</option>`).join('');
     editContent.innerHTML = `
       <h3>${level?'Редактировать':'Новый'} уровень</h3>
       <div class="form-group"><label>ID</label><input id="editId" value="${lvl.id}"></div>
       <div class="form-group"><label>Название</label><input id="editTitle" value="${lvl.title}"></div>
       <div class="form-group"><label>Кластер</label><input id="editCluster" value="${lvl.cluster||''}"></div>
-      <div class="form-group"><label>Класс</label><input id="editClass" value="${lvl.cls}"></div>
+      <div class="form-group"><label>Класс</label>
+        <select id="editClass">${classOptions}</select>
+      </div>
       <div class="form-group"><label>Безопасность (1-5)</label><input type="number" id="editSafety" value="${lvl.survival?.safety||3}" min="1" max="5"></div>
       <div class="form-group"><label>Стабильность (1-5)</label><input type="number" id="editStability" value="${lvl.survival?.stability||3}" min="1" max="5"></div>
       <div class="form-group"><label>Заселённость (1-5)</label><input type="number" id="editEntities" value="${lvl.survival?.entities||3}" min="1" max="5"></div>
