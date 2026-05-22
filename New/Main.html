@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Tihie Rooms Enciclopedia</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
+      background: #0f1115;
+      color: #e0e0e0;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .sidebar {
+      width: 280px;
+      background: #15171e;
+      border-right: 1px solid #2a2d35;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow-y: auto;
+      transition: width 0.2s;
+    }
+    .sidebar-header {
+      padding: 1.2rem 1rem;
+      border-bottom: 1px solid #2a2d35;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 600;
+      color: #c9a86c;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 0.9rem;
+    }
+    .sidebar-header span { font-size: 1.4rem; }
+    .tree {
+      flex:1; overflow-y:auto; padding:0.5rem 0;
+      scrollbar-width: thin; scrollbar-color: #3a3d45 #1a1c24;
+    }
+    .tree-item {
+      padding: 0.6rem 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #b0b0be;
+      font-size: 0.9rem;
+      transition: 0.15s;
+      border-left: 3px solid transparent;
+    }
+    .tree-item:hover { background:#232530; color:#e8dcc8; }
+    .tree-item.active { background:#252835; color:#c9a86c; border-left-color: #c9a86c; }
+    .tree-folder { font-weight:600; color:#b8974c; }
+    .tree-children { margin-left: 0.8rem; border-left: 1px dashed #3a3d45; }
+    .main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+    .top-bar {
+      background: #15171e; border-bottom:1px solid #2a2d35;
+      padding:0.7rem 1.5rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap;
+    }
+    .tabs { display:flex; gap:0.4rem; margin-right:auto; }
+    .tab-btn {
+      background:transparent; border:1px solid transparent; color:#8c8c9a;
+      padding:0.4rem 0.9rem; border-radius:18px; font-size:0.85rem; cursor:pointer; transition:0.2s;
+    }
+    .tab-btn.active { background:#252835; border-color:#c9a86c; color:#c9a86c; }
+    .breadcrumbs { font-size:0.85rem; color:#8c8c9a; }
+    .breadcrumbs span { color:#bca07c; cursor:pointer; }
+    .actions { display:flex; gap:0.5rem; }
+    .btn {
+      background:#1e2028; border:1px solid #3a3d45; color:#cacaca;
+      padding:0.5rem 1rem; border-radius:20px; font-size:0.85rem; cursor:pointer;
+      transition:0.2s; display:inline-flex; align-items:center; gap:0.3rem;
+    }
+    .btn:hover { background:#2a2d35; border-color:#c9a86c; color:#e8dcc8; }
+    .btn.primary { background:#2c2a1f; border-color:#b8974c; color:#e5c97a; }
+    .content-area { flex:1; overflow-y:auto; padding:1.5rem; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px,1fr)); gap:1.2rem; }
+    .card {
+      background:#1a1c24; border:1px solid #2a2d35; border-radius:16px;
+      padding:1.2rem; cursor:pointer; transition:0.2s;
+    }
+    .card:hover { transform:translateY(-3px); border-color:#c9a86c; }
+    .card-img { width:100%; height:120px; object-fit:cover; border-radius:10px; margin-bottom:0.5rem; background:#252835; border:1px solid #3a3d45; }
+    .card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem; }
+    .card-id { font-weight:600; color:#c9a86c; }
+    .class-icon { font-size:1.2rem; }
+    .stat-row { display:flex; align-items:center; gap:0.3rem; margin:0.2rem 0; font-size:0.75rem; }
+    .stat-label-mini { width:70px; color:#8c8c9a; text-align:right; }
+    .stat-bar { flex:1; height:6px; background:#252835; border-radius:3px; overflow:hidden; }
+    .stat-fill { height:100%; border-radius:3px; }
+    .stat-value { width:24px; text-align:center; color:#c9a86c; font-weight:500; }
+    .card-desc { font-size:0.85rem; color:#a0a0b0; margin-top:0.3rem; line-height:1.5; }
+    .tag { display:inline-block; background:#252835; color:#bca07c; padding:0.1rem 0.6rem; border-radius:12px; font-size:0.7rem; margin-right:0.3rem; }
+    .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); backdrop-filter:blur(6px); align-items:center; justify-content:center; z-index:100; padding:1rem; }
+    .modal.active { display:flex; }
+    .modal-content { background:#1a1c24; border:1px solid #3a3d45; border-radius:20px; padding:2rem; max-width:800px; width:100%; max-height:90vh; overflow-y:auto; }
+    .form-group { margin-bottom:1rem; }
+    .form-group label { display:block; font-size:0.85rem; color:#b0b0be; margin-bottom:0.3rem; }
+    .form-group input, .form-group textarea, .form-group select { width:100%; padding:0.7rem; background:#12141a; border:1px solid #3a3d45; border-radius:10px; color:#d0d0d0; font-size:0.9rem; outline:none; }
+    .gallery { display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.5rem; }
+    .gallery img { width:80px; height:80px; object-fit:cover; border-radius:8px; cursor:pointer; border:1px solid #3a3d45; transition: transform 0.2s ease; }
+    .gallery img:hover { transform: scale(1.5); z-index:10; box-shadow: 0 4px 12px rgba(0,0,0,0.6); }
+    .lightbox { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:none; align-items:center; justify-content:center; z-index:200; }
+    .lightbox img { max-width:90%; max-height:90%; border-radius:12px; }
+    @media (max-width:700px) {
+      body { flex-direction:column; }
+      .sidebar { width:100%; height:40%; }
+    }
+  </style>
+</head>
+<body>
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header"><span>◈</span> Tihie Rooms</div>
+  <div class="tree" id="tree"></div>
+</div>
+<div class="main">
+  <div class="top-bar" id="topBar">
+    <div class="tabs">
+      <span class="tab-btn active" data-tab="home">Главная</span>
+      <span class="tab-btn" data-tab="levels">Уровни</span>
+      <span class="tab-btn" data-tab="entities">Сущности</span>
+      <span class="tab-btn" data-tab="items">Предметы</span>
+      <span class="tab-btn" data-tab="foods">Еда</span>
+    </div>
+    <div class="breadcrumbs" id="breadcrumbs">Главная</div>
+    <div class="actions">
+      <button class="btn" id="luckyBtn">🎲 Повезёт</button>
+      <button class="btn" id="refreshBtn">🔄 Обновить</button>
+      <button class="btn primary" id="addBtn">➕ Создать</button>
+    </div>
+  </div>
+  <div class="content-area" id="contentArea"></div>
+</div>
+
+<div class="modal" id="viewModal"><div class="modal-content" id="viewContent"></div></div>
+<div class="modal" id="editModal"><div class="modal-content" id="editContent"></div></div>
+<div class="lightbox" id="lightbox" onclick="this.style.display='none'"><img id="lightboxImg" src=""></div>
+
+<script>
+(function() {
+  const API = {
+    owner: () => localStorage.getItem('gh_owner'),
+    repo: () => localStorage.getItem('gh_repo'),
+    token: () => localStorage.getItem('gh_token'),
+    headers: () => { const t = API.token(); return t ? { Authorization: `token ${t}` } : {}; },
+    base: () => `https://api.github.com/repos/${API.owner()}/${API.repo()}/contents`,
+    raw: (file) => `https://raw.githubusercontent.com/${API.owner()}/${API.repo()}/main/${file}?t=${Date.now()}`
+  };
+
+  let currentSection = 'home';
+  let data = { levels: [], entities: [], items: [], foods: [] };
+  let classStyles = JSON.parse(localStorage.getItem('classStyles')) || {
+    "0": { icon:"🟢", color:"#6a9a6a", name:"Безопасный" },
+    "1": { icon:"🟡", color:"#c9a64a", name:"Почти безопасный" },
+    "2": { icon:"🟠", color:"#b9774a", name:"Небезопасный" },
+    "3": { icon:"🟤", color:"#8b5a2b", name:"Опасный" },
+    "4": { icon:"🔴", color:"#a95a5a", name:"Очень опасный" },
+    "5": { icon:"⛔", color:"#8b0000", name:"Смертельный" }
+  };
+  const statColors = {
+    safety:'#6a9a6a', stability:'#5a7a9a', entities:'#b9774a', resources:'#6a9a6a', mental:'#9a6a9a', navigation:'#5a9a9a',
+    danger:'#a95a5a', frequency:'#b9774a', intelligence:'#5a7a9a', aggression:'#b95a5a',
+    weight:'#8a8a8a', rarity:'#c9a64a', usefulness:'#6a9a6a', durability:'#5a7a9a',
+    calories:'#c9a64a', availability:'#6a9a6a', taste:'#c9a64a', shelfLife:'#5a7a9a'
+  };
+
+  const tree = document.getElementById('tree');
+  const breadcrumbs = document.getElementById('breadcrumbs');
+  const contentArea = document.getElementById('contentArea');
+  const viewModal = document.getElementById('viewModal');
+  const viewContent = document.getElementById('viewContent');
+  const editModal = document.getElementById('editModal');
+  const editContent = document.getElementById('editContent');
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightboxImg');
+
+  function ensureStats(obj, defaults) {
+    if (!obj.stats) obj.stats = {};
+    Object.keys(defaults).forEach(k => { if (obj.stats[k] === undefined) obj.stats[k] = defaults[k]; });
+    if (!obj.tags) obj.tags = [];
+    return obj;
+  }
+
+  async function fetchFilesInFolder(folder) {
+    if (!API.owner() || !API.repo()) return [];
+    const url = `${API.base()}/${folder}`;
+    try {
+      const resp = await fetch(url, { headers: API.headers(), cache:'no-store' });
+      if (!resp.ok) return [];
+      const items = await resp.json();
+      return Array.isArray(items) ? items.filter(f => f.type === 'file' && f.name.endsWith('.json')) : [];
+    } catch(e) { return []; }
+  }
+
+  async function loadAllData() {
+    const folders = ['levels', 'entities', 'items', 'foods'];
+    data = { levels: [], entities: [], items: [], foods: [] };
+    const downloadPromises = [];
+    for (const folder of folders) {
+      const files = await fetchFilesInFolder(folder);
+      files.forEach(file => {
+        downloadPromises.push((async () => {
+          try {
+            const resp = await fetch(file.download_url, { cache:'no-store' });
+            if (!resp.ok) return;
+            const obj = await resp.json();
+            obj._sha = file.sha;
+            obj._folder = folder;
+            data[folder].push(obj);
+          } catch(e) {}
+        })());
+      });
+    }
+    await Promise.all(downloadPromises);
+    data.levels.forEach(l => ensureStats(l, {safety:3,stability:3,entities:3,resources:3,mental:3,navigation:3}));
+    data.entities.forEach(e => ensureStats(e, {danger:3, frequency:3, intelligence:3, aggression:3}));
+    data.items.forEach(i => ensureStats(i, {weight:3, rarity:3, usefulness:3, durability:3}));
+    data.foods.forEach(f => ensureStats(f, {calories:500, availability:5, taste:3, shelfLife:7}));
+  }
+
+  function getCurrentArray() {
+    if (currentSection === 'levels') return data.levels;
+    if (currentSection === 'entities') return data.entities;
+    if (currentSection === 'items') return data.items;
+    if (currentSection === 'foods') return data.foods;
+    return [];
+  }
+
+  function sortArray(arr, key) {
+    const a = [...arr];
+    switch(key) {
+      case 'id_asc': return a.sort((x,y) => (x.id||'').localeCompare(y.id||'', undefined, {numeric:true}));
+      case 'id_desc': return a.sort((x,y) => (y.id||'').localeCompare(x.id||'', undefined, {numeric:true}));
+      case 'name_asc': return a.sort((x,y) => (x.title||x.name||'').localeCompare(y.title||y.name||''));
+      case 'name_desc': return a.sort((x,y) => (y.title||y.name||'').localeCompare(x.title||x.name||''));
+      case 'class_asc': return a.sort((x,y) => parseInt(x.cls||0) - parseInt(y.cls||0));
+      case 'class_desc': return a.sort((x,y) => parseInt(y.cls||0) - parseInt(x.cls||0));
+      default: return a;
+    }
+  }
+
+  function renderStatsHTML(stats, labels, colors) {
+    return Object.entries(labels).map(([key, label]) => {
+      const val = stats[key] || 0;
+      const maxVal = key==='calories'?2000:key==='shelfLife'?30:(key==='availability'?10:5);
+      const pct = Math.min(100, (val / maxVal) * 100);
+      const color = colors[key] || '#777';
+      return `<div class="stat-row">
+        <span class="stat-label-mini">${label}</span>
+        <div class="stat-bar"><div class="stat-fill" style="width:${pct}%; background:${color};"></div></div>
+        <span class="stat-value">${val}${key==='calories'?' ккал':key==='shelfLife'?' дн.':''}</span>
+      </div>`;
+    }).join('');
+  }
+
+  function renderCards(items, type) {
+    return items.map(obj => {
+      const thumb = obj.thumbnail ? `<img class="card-img" src="${obj.thumbnail}" onerror="this.style.display='none'">` : '';
+      let statsHtml = '';
+      if (type === 'levels') statsHtml = renderStatsHTML(obj.stats, {safety:'Безопасность',stability:'Стабильность',entities:'Заселённость',resources:'Ресурсы',mental:'Психика',navigation:'Навигация'}, statColors);
+      else if (type === 'entities') statsHtml = renderStatsHTML(obj.stats, {danger:'Опасность',frequency:'Частота',intelligence:'Интеллект',aggression:'Агрессия'}, statColors);
+      else if (type === 'items') statsHtml = renderStatsHTML(obj.stats, {weight:'Вес',rarity:'Редкость',usefulness:'Полезность',durability:'Прочность'}, statColors);
+      else if (type === 'foods') statsHtml = renderStatsHTML(obj.stats, {calories:'Насыщение',availability:'Доступность',taste:'Вкус',shelfLife:'Хранение'}, statColors);
+      return `<div class="card" data-type="${type}" data-id="${obj.id}">${thumb}
+        <div class="card-header"><span class="card-id">${obj.id}</span><span class="class-icon">${type==='levels' ? getClassIcon(obj.cls) : ''}</span></div>
+        <div style="font-weight:500;">${obj.title || obj.name}</div>
+        <div style="margin:0.3rem 0;">${statsHtml}</div>
+        <div class="card-desc">${(obj.desc||'').substring(0,80)}...</div>
+        <div style="margin-top:0.3rem;">${(obj.tags||[]).map(t => `<span class="tag">${t}</span>`).join('')}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function getClassIcon(cls) {
+    const num = cls ? cls.toString().match(/^(\d+)/)?.[1] : '?';
+    return classStyles[num]?.icon || '⬜';
+  }
+
+  function renderContent() {
+    if (currentSection === 'home') {
+      contentArea.innerHTML = `<div style="max-width:800px;margin:0 auto;text-align:center;">
+        <h2 style="color:#c9a86c;margin-bottom:1rem;">Добро пожаловать в Tihie Rooms Enciclopedia</h2>
+        <p style="color:#b0b0be;">Исследуйте уровни, существ, предметы и пищу Закулисья.</p>
+        <div style="display:flex;gap:1rem;justify-content:center;margin:2rem 0;">
+          <div class="card" style="min-width:100px;"><div style="font-size:1.8rem;color:#c9a86c;">${data.levels.length}</div><div>Уровней</div></div>
+          <div class="card" style="min-width:100px;"><div style="font-size:1.8rem;color:#c9a86c;">${data.entities.length}</div><div>Сущностей</div></div>
+          <div class="card" style="min-width:100px;"><div style="font-size:1.8rem;color:#c9a86c;">${data.items.length}</div><div>Предметов</div></div>
+          <div class="card" style="min-width:100px;"><div style="font-size:1.8rem;color:#c9a86c;">${data.foods.length}</div><div>Еды</div></div>
+        </div>
+      </div>`;
+      tree.innerHTML = '<div style="padding:1rem;color:#8c8c9a;">Выберите раздел</div>';
+      return;
+    }
+    const arr = getCurrentArray();
+    const search = document.getElementById('searchInputField')?.value?.toLowerCase() || '';
+    const filtered = arr.filter(d => (d.title||d.name||'').toLowerCase().includes(search) || (d.id||'').includes(search));
+    const sort = document.getElementById('sortSelectField')?.value || 'default';
+    const sorted = sortArray(filtered, sort);
+    contentArea.innerHTML = `<div class="filters-bar" style="display:flex;gap:0.8rem;margin-bottom:1.5rem;">
+      <input type="text" id="searchInputField" placeholder="Поиск..." value="${search}">
+      <select id="sortSelectField">
+        <option value="default">По умолчанию</option>
+        <option value="id_asc">ID возр.</option><option value="id_desc">ID убыв.</option>
+        <option value="name_asc">Название А-Я</option><option value="name_desc">Название Я-А</option>
+        <option value="class_asc">Класс (0→5)</option><option value="class_desc">Класс (5→0)</option>
+      </select>
+    </div><div class="grid" id="grid"></div>`;
+    document.getElementById('grid').innerHTML = renderCards(sorted, currentSection);
+    document.querySelectorAll('.card').forEach(card => {
+      card.addEventListener('click', () => openView(card.dataset.type, card.dataset.id));
+    });
+    document.getElementById('searchInputField').addEventListener('input', renderContent);
+    document.getElementById('sortSelectField').addEventListener('change', renderContent);
+  }
+
+  function openView(type, id) {
+    const arr = data[type];
+    const obj = arr.find(o => o.id === id);
+    if (!obj) return;
+    breadcrumbs.innerHTML = `<span onclick="switchSection('home')">Главная</span> > ${type==='levels'?'Уровень':type==='entities'?'Сущность':type==='items'?'Предмет':'Еда'} ${obj.id}`;
+    const thumb = obj.thumbnail ? `<img src="${obj.thumbnail}" style="max-width:300px;border-radius:12px;margin-bottom:1rem;" onerror="this.style.display='none'">` : '';
+    const gallery = (obj.images||[]).map(img => `<img src="${img.url}" alt="${img.description||''}">`).join('');
+    let statsHtml = '';
+    if (type === 'levels') statsHtml = renderStatsHTML(obj.stats, {safety:'Безопасность',stability:'Стабильность',entities:'Заселённость',resources:'Ресурсы',mental:'Психика',navigation:'Навигация'}, statColors);
+    else if (type === 'entities') statsHtml = renderStatsHTML(obj.stats, {danger:'Опасность',frequency:'Частота',intelligence:'Интеллект',aggression:'Агрессия'}, statColors);
+    else if (type === 'items') statsHtml = renderStatsHTML(obj.stats, {weight:'Вес',rarity:'Редкость',usefulness:'Полезность',durability:'Прочность'}, statColors);
+    else if (type === 'foods') statsHtml = renderStatsHTML(obj.stats, {calories:'Насыщение',availability:'Доступность',taste:'Вкус',shelfLife:'Хранение'}, statColors);
+    viewContent.innerHTML = `<h2 style="color:#c9a86c;">${obj.title || obj.name} (${obj.id})</h2>${thumb}
+      <p>Класс: ${obj.cls} ${type==='levels' ? getClassIcon(obj.cls) : ''}</p>
+      <div>${statsHtml}</div>
+      <div style="margin:0.5rem 0;">${(obj.tags||[]).map(t => `<span class="tag">${t}</span>`).join('')}</div>
+      <p>${obj.desc}</p>
+      ${obj.food ? `<p><strong>Пища:</strong> ${obj.food}</p>` : ''}
+      ${obj.ent ? `<p><strong>Сущности:</strong> ${obj.ent.join(', ')}</p>` : ''}
+      ${obj.in ? `<p><strong>Входы:</strong> ${obj.in}</p>` : ''}
+      ${obj.out ? `<p><strong>Выходы:</strong> ${obj.out}</p>` : ''}
+      ${obj.habitat ? `<p><strong>Среда:</strong> ${obj.habitat}</p>` : ''}
+      ${obj.behavior ? `<p><strong>Поведение:</strong> ${obj.behavior}</p>` : ''}
+      ${obj.props ? `<p><strong>Свойства:</strong> ${obj.props}</p>` : ''}
+      ${obj.effect ? `<p><strong>Эффект:</strong> ${obj.effect}</p>` : ''}
+      <div class="gallery">${gallery}</div>
+      <div style="display:flex;justify-content:flex-end;gap:0.7rem;margin-top:1.5rem;border-top:1px solid #3a3d45;padding-top:1rem;">
+        <button class="btn" id="closeViewBtn">Закрыть</button>
+        <button class="btn" id="editFromViewBtn">Редактировать</button>
+        <button class="btn" id="deleteBtn" style="color:#e5a0a0;">🗑️ Удалить</button>
+      </div>`;
+    viewModal.classList.add('active');
+    viewContent.querySelectorAll('.gallery img').forEach(img => img.addEventListener('click', e => { lightboxImg.src = e.target.src; lightbox.style.display = 'flex'; }));
+    document.getElementById('closeViewBtn').addEventListener('click', () => viewModal.classList.remove('active'));
+    document.getElementById('editFromViewBtn').addEventListener('click', () => { viewModal.classList.remove('active'); openEditModal(type, obj); });
+    document.getElementById('deleteBtn').addEventListener('click', () => { if (confirm(`Удалить ${obj.title||obj.name}?`)) deleteItem(type, obj); });
+  }
+
+  async function deleteItem(type, obj) {
+    const folder = type === 'foods' ? 'foods' : type; // папки совпадают
+    const filename = `${folder}/${obj._folder ? '' : folder + '_'}${obj.id}.json`;
+    const url = `${API.base()}/${filename}`;
+    const token = API.token();
+    let sha = obj._sha;
+    if (!sha) {
+      try { const resp = await fetch(url, { headers: { Authorization: `token ${token}` } }); if (resp.ok) sha = (await resp.json()).sha; } catch(e) {}
+    }
+    await fetch(url, { method: 'PUT', headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ message: `Delete ${filename}`, sha, branch: 'main' }) });
+    data[type] = data[type].filter(o => o.id !== obj.id);
+    viewModal.classList.remove('active');
+    renderTree();
+    renderContent();
+  }
+
+  function openEditModal(type, obj = null) {
+    const folder = type === 'foods' ? 'foods' : type;
+    const lvl = obj || { id:'', title:'', cluster:'', cls:'0', desc:'', food:'', ent:[], in:'', out:'', stats:{safety:3,stability:3,entities:3,resources:3,mental:3,navigation:3}, tags:[], thumbnail:'', images:[], _sha:null };
+    editContent.innerHTML = `<h3>${obj?'Редактировать':'Новый'} ${type==='levels'?'уровень':type==='entities'?'сущность':type==='items'?'предмет':'еда'}</h3>
+      <div class="form-group"><label>ID</label><input id="editId" value="${lvl.id}"></div>
+      <div class="form-group"><label>Название</label><input id="editTitle" value="${lvl.title||lvl.name||''}"></div>
+      ${type==='levels' ? `<div class="form-group"><label>Кластер</label><input id="editCluster" value="${lvl.cluster||''}"></div>` : ''}
+      <div class="form-group"><label>Класс</label><select id="editClass">${Object.entries(classStyles).map(([v,s]) => `<option value="${v}" ${lvl.cls==v?'selected':''}>${v} - ${s.name}</option>`).join('')}</select></div>
+      <div class="form-group"><label>Теги</label><input id="editTags" value="${(lvl.tags||[]).join(', ')}"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+        ${type==='levels' ? ` <div><label>Безопасность</label><input type="number" id="editSafety" value="${lvl.stats.safety}" min="1" max="5"></div><div><label>Стабильность</label><input type="number" id="editStability" value="${lvl.stats.stability}" min="1" max="5"></div><div><label>Заселённость</label><input type="number" id="editEntities" value="${lvl.stats.entities}" min="1" max="5"></div><div><label>Ресурсы</label><input type="number" id="editResources" value="${lvl.stats.resources}" min="1" max="5"></div><div><label>Психика</label><input type="number" id="editMental" value="${lvl.stats.mental}" min="1" max="5"></div><div><label>Навигация</label><input type="number" id="editNavigation" value="${lvl.stats.navigation}" min="1" max="5"></div>` : ''}
+        ${type==='entities' ? ` <div><label>Опасность</label><input type="number" id="editDanger" value="${lvl.stats.danger}" min="1" max="5"></div><div><label>Частота</label><input type="number" id="editFrequency" value="${lvl.stats.frequency}" min="1" max="5"></div><div><label>Интеллект</label><input type="number" id="editIntelligence" value="${lvl.stats.intelligence}" min="1" max="5"></div><div><label>Агрессия</label><input type="number" id="editAggression" value="${lvl.stats.aggression}" min="1" max="5"></div>` : ''}
+        ${type==='items' ? ` <div><label>Вес (1-10)</label><input type="number" id="editWeight" value="${lvl.stats.weight}" min="1" max="10"></div><div><label>Редкость</label><input type="number" id="editRarity" value="${lvl.stats.rarity}" min="1" max="5"></div><div><label>Полезность</label><input type="number" id="editUsefulness" value="${lvl.stats.usefulness}" min="1" max="5"></div><div><label>Прочность</label><input type="number" id="editDurability" value="${lvl.stats.durability}" min="1" max="5"></div>` : ''}
+        ${type==='foods' ? ` <div><label>Насыщение</label><input type="number" id="editCalories" value="${lvl.stats.calories}" min="0" max="2000"></div><div><label>Доступность</label><input type="number" id="editAvailability" value="${lvl.stats.availability}" min="1" max="10"></div><div><label>Вкус</label><input type="number" id="editTaste" value="${lvl.stats.taste}" min="1" max="5"></div><div><label>Хранение</label><input type="number" id="editShelfLife" value="${lvl.stats.shelfLife}" min="1" max="365"></div>` : ''}
+      </div>
+      <div class="form-group"><label>Описание</label><textarea id="editDesc">${lvl.desc||''}</textarea></div>
+      ${type==='levels' ? `<div class="form-group"><label>Пища</label><input id="editFood" value="${lvl.food||''}"></div><div class="form-group"><label>Сущности</label><input id="editEnt" value="${(lvl.ent||[]).join(', ')}"></div><div class="form-group"><label>Входы</label><input id="editIn" value="${lvl.in||''}"></div><div class="form-group"><label>Выходы</label><input id="editOut" value="${lvl.out||''}"></div>` : ''}
+      ${type==='entities' ? `<div class="form-group"><label>Среда обитания</label><input id="editHabitat" value="${lvl.habitat||''}"></div><div class="form-group"><label>Поведение</label><textarea id="editBehavior">${lvl.behavior||''}</textarea></div><div class="form-group"><label>Выживание</label><textarea id="editSurvival">${lvl.survival||''}</textarea></div>` : ''}
+      ${type==='items' ? `<div class="form-group"><label>Свойства</label><textarea id="editProps">${lvl.props||''}</textarea></div>` : ''}
+      ${type==='foods' ? `<div class="form-group"><label>Эффект</label><textarea id="editEffect">${lvl.effect||''}</textarea></div>` : ''}
+      <div class="form-group"><label>Главное изображение</label><input id="editThumbnail" value="${lvl.thumbnail||''}"></div>
+      <div id="imagesContainer">${(lvl.images||[]).map(img => `<div class="image-entry"><input class="image-url" value="${img.url}"><input class="image-desc" value="${img.description||''}"><button class="btn remove-image">✕</button></div>`).join('')}</div>
+      <button class="btn" id="addImageBtn">+ Изображение</button>
+      <div style="margin-top:1rem;"><button class="btn primary" id="saveBtn">Сохранить</button> <button class="btn" onclick="editModal.classList.remove('active')">Отмена</button></div>`;
+    editModal.classList.add('active');
+    addImageListeners();
+    document.getElementById('saveBtn').addEventListener('click', async () => {
+      const images = []; document.querySelectorAll('#imagesContainer .image-entry').forEach(e => { const u=e.querySelector('.image-url').value.trim(), d=e.querySelector('.image-desc').value.trim(); if(u) images.push({url:u,description:d}); });
+      const newObj = {
+        id: document.getElementById('editId').value,
+        title: document.getElementById('editTitle').value,
+        cluster: type==='levels' ? document.getElementById('editCluster')?.value : undefined,
+        cls: document.getElementById('editClass').value,
+        tags: document.getElementById('editTags').value.split(',').map(s=>s.trim()).filter(Boolean),
+        stats: {},
+        desc: document.getElementById('editDesc').value,
+        thumbnail: document.getElementById('editThumbnail').value,
+        images
+      };
+      if (type==='levels') {
+        newObj.stats = { safety:+document.getElementById('editSafety').value, stability:+document.getElementById('editStability').value, entities:+document.getElementById('editEntities').value, resources:+document.getElementById('editResources').value, mental:+document.getElementById('editMental').value, navigation:+document.getElementById('editNavigation').value };
+        newObj.food = document.getElementById('editFood').value;
+        newObj.ent = document.getElementById('editEnt').value.split(',').map(s=>s.trim()).filter(Boolean);
+        newObj.in = document.getElementById('editIn').value;
+        newObj.out = document.getElementById('editOut').value;
+      } else if (type==='entities') {
+        newObj.name = newObj.title; delete newObj.title;
+        newObj.stats = { danger:+document.getElementById('editDanger').value, frequency:+document.getElementById('editFrequency').value, intelligence:+document.getElementById('editIntelligence').value, aggression:+document.getElementById('editAggression').value };
+        newObj.habitat = document.getElementById('editHabitat').value;
+        newObj.behavior = document.getElementById('editBehavior').value;
+        newObj.survival = document.getElementById('editSurvival').value;
+      } else if (type==='items') {
+        newObj.name = newObj.title; delete newObj.title;
+        newObj.stats = { weight:+document.getElementById('editWeight').value, rarity:+document.getElementById('editRarity').value, usefulness:+document.getElementById('editUsefulness').value, durability:+document.getElementById('editDurability').value };
+        newObj.props = document.getElementById('editProps').value;
+      } else if (type==='foods') {
+        newObj.name = newObj.title; delete newObj.title;
+        newObj.stats = { calories:+document.getElementById('editCalories').value, availability:+document.getElementById('editAvailability').value, taste:+document.getElementById('editTaste').value, shelfLife:+document.getElementById('editShelfLife').value };
+        newObj.effect = document.getElementById('editEffect').value;
+      }
+      const folder = type === 'foods' ? 'foods' : type;
+      const filename = `${folder}/${type}_${newObj.id}.json`;
+      await commitFile(filename, newObj, obj?._sha);
+      if (obj) {
+        const idx = data[type].findIndex(o => o.id === obj.id);
+        if (idx !== -1) data[type][idx] = newObj;
+      } else data[type].push(newObj);
+      editModal.classList.remove('active');
+      renderTree();
+      renderContent();
+    });
+  }
+
+  async function commitFile(filename, content, sha) {
+    const token = API.token();
+    const url = `${API.base()}/${filename}`;
+    const body = {
+      message: `Update ${filename}`,
+      content: btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2)))),
+      branch: 'main'
+    };
+    if (sha) body.sha = sha;
+    await fetch(url, { method: 'PUT', headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  }
+
+  function addImageListeners() {
+    document.getElementById('addImageBtn')?.addEventListener('click', () => {
+      const container = document.getElementById('imagesContainer');
+      const entry = document.createElement('div'); entry.className='image-entry';
+      entry.innerHTML = `<input class="image-url" placeholder="URL"><input class="image-desc" placeholder="Описание"><button class="btn remove-image">✕</button>`;
+      container.appendChild(entry);
+      entry.querySelector('.remove-image').addEventListener('click', () => entry.remove());
+    });
+    document.querySelectorAll('#imagesContainer .remove-image').forEach(b => b.addEventListener('click', e => e.target.closest('.image-entry').remove()));
+  }
+
+  function renderTree() {
+    if (currentSection === 'home') { tree.innerHTML = '<div style="padding:1rem;color:#8c8c9a;">Выберите раздел</div>'; return; }
+    const arr = getCurrentArray();
+    if (currentSection === 'levels') {
+      const clusters = {};
+      arr.forEach(l => { const c = l.cluster || 'Без кластера'; if (!clusters[c]) clusters[c] = []; clusters[c].push(l); });
+      tree.innerHTML = '';
+      Object.entries(clusters).forEach(([name, items]) => {
+        const folder = document.createElement('div'); folder.className='tree-item tree-folder'; folder.textContent='📁 '+name;
+        const childContainer = document.createElement('div'); childContainer.className='tree-children'; childContainer.style.display='block';
+        folder.addEventListener('click', (e) => { e.stopPropagation(); childContainer.style.display = childContainer.style.display === 'none' ? 'block' : 'none'; });
+        tree.appendChild(folder); tree.appendChild(childContainer);
+        items.forEach(l => {
+          const item = document.createElement('div'); item.className='tree-item'; item.style.paddingLeft='2rem';
+          item.innerHTML = `<span class="class-icon">${getClassIcon(l.cls)}</span> ${l.title}`;
+          item.addEventListener('click', (e) => { e.stopPropagation(); openView('levels', l.id); });
+          childContainer.appendChild(item);
+        });
+      });
+    } else {
+      tree.innerHTML = '';
+      arr.forEach(d => {
+        const item = document.createElement('div'); item.className='tree-item';
+        item.textContent = (d.title || d.name);
+        item.addEventListener('click', () => openView(currentSection, d.id));
+        tree.appendChild(item);
+      });
+    }
+  }
+
+  async function switchSection(section) {
+    currentSection = section;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === section));
+    breadcrumbs.innerHTML = section === 'home' ? 'Главная' : `<span onclick="switchSection('home')">Главная</span> > ${section==='levels'?'Уровни':section==='entities'?'Сущности':section==='items'?'Предметы':'Еда'}`;
+    if (section !== 'home') {
+      await loadAllData();
+    }
+    renderTree();
+    renderContent();
+  }
+
+  window.switchSection = switchSection;
+
+  // Рандомизатор
+  document.getElementById('luckyBtn').addEventListener('click', async () => {
+    const all = [...data.levels, ...data.entities, ...data.items, ...data.foods];
+    if (!all.length) return alert('База данных пуста');
+    const randomObj = all[Math.floor(Math.random() * all.length)];
+    const type = data.levels.includes(randomObj) ? 'levels' : data.entities.includes(randomObj) ? 'entities' : data.items.includes(randomObj) ? 'items' : 'foods';
+    await switchSection(type);
+    openView(type, randomObj.id);
+  });
+
+  document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => switchSection(b.dataset.tab)));
+  document.getElementById('refreshBtn').addEventListener('click', async () => { await loadAllData(); renderTree(); renderContent(); });
+  document.getElementById('addBtn').addEventListener('click', () => {
+    if (currentSection === 'home') return alert('Перейдите в нужный раздел');
+    openEditModal(currentSection);
+  });
+  viewModal.addEventListener('click', e => { if (e.target === viewModal) viewModal.classList.remove('active'); });
+  editModal.addEventListener('click', e => { if (e.target === editModal) editModal.classList.remove('active'); });
+
+  (async () => { await loadAllData(); switchSection('home'); })();
+})();
+</script>
+</body>
+</html>
