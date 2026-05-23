@@ -1,0 +1,181 @@
+{
+  "hp": 100,
+  "hunger": 100,
+  "thirst": 100,
+  "sleep": 100,
+  "temperature": 36.6,
+  "sanity": 100,
+  "currentLevelId": "1",
+  "inventory": [],
+  "playTime": 1,
+  "dayTime": 1,
+  "levelsVisited": [
+    "1"
+  ],
+  "entitiesKilled": 0,
+  "itemsFound": 0,
+  "map": {
+    "grid": [
+      [
+        {
+          "explored": true,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        }
+      ],
+      [
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "exit"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        }
+      ],
+      [
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        }
+      ],
+      [
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        }
+      ],
+      [
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        }
+      ],
+      [
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        }
+      ]
+    ],
+    "width": 6,
+    "height": 6
+  },
+  "playerX": 0,
+  "playerY": 0
+}
