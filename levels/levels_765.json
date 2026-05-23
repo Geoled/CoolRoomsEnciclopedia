@@ -1,0 +1,29 @@
+{
+  "id": "765",
+  "title": "Тень бурмалды",
+  "cluster": "Основной",
+  "cls": "0",
+  "tags": [
+    "Уютненько"
+  ],
+  "stats": {
+    "safety": 3,
+    "stability": 3,
+    "entities": 3,
+    "resources": 3,
+    "mental": 3,
+    "navigation": 3
+  },
+  "desc": "",
+  "thumbnail": "https://i.pinimg.com/736x/07/f6/73/07f67305f0e915b70dd1375e96f0a8ce.jpg",
+  "images": [],
+  "ent": [
+    "6"
+  ],
+  "foodIds": [
+    "55"
+  ],
+  "itemIds": [],
+  "in": "69",
+  "out": "0"
+}
