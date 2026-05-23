@@ -1,14 +1,14 @@
 {
   "hp": 100,
-  "hunger": 92,
-  "thirst": 88,
-  "sleep": 96,
+  "hunger": 89,
+  "thirst": 83.5,
+  "sleep": 94.5,
   "temperature": 36.6,
   "sanity": 100,
   "currentLevelId": "1",
   "inventory": [],
-  "playTime": 6,
-  "dayTime": 6,
+  "playTime": 7,
+  "dayTime": 7,
   "levelsVisited": [
     "1"
   ],
@@ -134,7 +134,7 @@
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
@@ -160,11 +160,11 @@
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
@@ -177,5 +177,5 @@
     "height": 6
   },
   "playerX": 4,
-  "playerY": 4
+  "playerY": 5
 }
