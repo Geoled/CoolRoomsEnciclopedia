@@ -1,8 +1,8 @@
 {
   "hp": 100,
-  "hunger": 93,
-  "thirst": 89.5,
-  "sleep": 96.5,
+  "hunger": 91,
+  "thirst": 86.5,
+  "sleep": 95.5,
   "temperature": 36.6,
   "sanity": 100,
   "currentLevelId": "5",
@@ -26,8 +26,8 @@
       "effect": "у"
     }
   ],
-  "playTime": 4,
-  "dayTime": 4,
+  "playTime": 5,
+  "dayTime": 5,
   "levelsVisited": [
     "5"
   ],
@@ -104,11 +104,11 @@
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
@@ -202,6 +202,6 @@
     "width": 6,
     "height": 6
   },
-  "playerX": 5,
+  "playerX": 3,
   "playerY": 2
 }
