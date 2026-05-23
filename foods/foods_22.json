@@ -1,0 +1,18 @@
+{
+  "id": "22",
+  "cls": "dish",
+  "tags": [
+    "Выпечка"
+  ],
+  "stats": {
+    "calories": 1250,
+    "availability": 5,
+    "taste": 3,
+    "shelfLife": 7
+  },
+  "desc": "Будто только кем-то выпеченный ржаной хлеб",
+  "thumbnail": "https://main-cdn.sbermegamarket.ru/big2/hlr-system/-11/721/772/387/311/259/100069977068b1.jpg",
+  "images": [],
+  "name": "Ржаной хлеб",
+  "effect": "Насыщение"
+}
