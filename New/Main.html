@@ -265,11 +265,10 @@
     data[section] = arr;
   }
 
+  // Загрузка всех разделов для главной страницы
   async function loadAllData() {
-    // Загружаем только данные для текущего раздела (лениво)
-    if (currentSection === 'levels' || currentSection === 'entities' || currentSection === 'items' || currentSection === 'foods') {
-      await loadSectionData(currentSection);
-    }
+    const sections = ['levels', 'entities', 'items', 'foods'];
+    await Promise.all(sections.map(s => loadSectionData(s)));
   }
 
   function getCurrentArray() {
@@ -705,7 +704,7 @@
   document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => switchSection(b.dataset.tab)));
   document.getElementById('refreshBtn').addEventListener('click', async () => { 
     fileIndexCache = {}; // сброс кэша индекса
-    if (currentSection !== 'home') await loadSectionData(currentSection); 
+    await loadAllData(); // загружаем всё для главной
     renderTree(); renderContent(); 
   });
   document.getElementById('addBtn').addEventListener('click', () => {
@@ -715,9 +714,11 @@
   viewModal.addEventListener('click', e => { if (e.target === viewModal) viewModal.classList.remove('active'); });
   editModal.addEventListener('click', e => { if (e.target === editModal) editModal.classList.remove('active'); });
 
+  // Старт: загружаем все разделы для главной страницы
   (async () => { 
-    // Начальная загрузка: только главная страница
-    await switchSection('home'); 
+    await loadAllData();
+    renderTree();
+    renderContent();
   })();
 })();
 </script>
