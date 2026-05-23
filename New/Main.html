@@ -95,9 +95,9 @@
     </div>
     <div class="breadcrumbs" id="breadcrumbs">Главная</div>
     <div class="actions">
-      <button class="btn" id="luckyBtn"> Лаки-Блок</button>
-      <button class="btn" id="refreshBtn"> Обновить</button>
-      <button class="btn primary" id="addBtn">➕ Создать</button>
+      <button class="btn" id="luckyBtn">Лаки-Блок</button>
+      <button class="btn" id="refreshBtn">Обновить</button>
+      <button class="btn primary" id="addBtn">Создать</button>
     </div>
   </div>
   <div class="content-area" id="contentArea"></div>
@@ -132,7 +132,6 @@
 
   let currentSection = 'home';
   let data = { levels: [], entities: [], items: [], foods: [] };
-  // Кэш индекса файлов для каждого раздела
   let fileIndexCache = {};
   let classStyles = JSON.parse(localStorage.getItem('classStyles')) || {
     "0": { icon:"🟢", color:"#6a9a6a", name:"Безопасный" },
@@ -227,13 +226,11 @@
       if (!resp.ok) return [];
       const items = await resp.json();
       const files = Array.isArray(items) ? items.filter(f => f.type === 'file' && f.name.endsWith('.json')) : [];
-      // Сохраняем индекс
       fileIndexCache[folder] = files.map(f => ({ name: f.name, sha: f.sha, download_url: f.download_url }));
       return fileIndexCache[folder];
     } catch(e) { return []; }
   }
 
-  // ── Загрузка данных только одного раздела ─────
   async function loadSectionData(section) {
     const folder = section;
     const files = await fetchFileIndex(folder);
@@ -250,7 +247,6 @@
       } catch(e) {}
     })());
     await Promise.all(downloadPromises);
-    // Нормализация
     arr.forEach(obj => {
       if (section === 'levels') ensureStats(obj, {safety:3,stability:3,entities:3,resources:3,mental:3,navigation:3});
       else if (section === 'entities') ensureStats(obj, {danger:3, frequency:3, intelligence:3, aggression:3});
@@ -265,7 +261,6 @@
     data[section] = arr;
   }
 
-  // Загрузка всех разделов для главной страницы
   async function loadAllData() {
     const sections = ['levels', 'entities', 'items', 'foods'];
     await Promise.all(sections.map(s => loadSectionData(s)));
@@ -383,37 +378,37 @@
 
     let linkedHtml = '';
     if (type === 'levels') {
-      linkedHtml += renderLinkedCards((obj.ent||[]).map(id => data.entities.find(e => e.id === id)).filter(Boolean), 'entity', '👾 Сущности');
-      linkedHtml += renderLinkedCards((obj.foodIds||[]).map(id => data.foods.find(f => f.id === id)).filter(Boolean), 'food', '🍞 Еда');
-      linkedHtml += renderLinkedCards((obj.itemIds||[]).map(id => data.items.find(i => i.id === id)).filter(Boolean), 'level', '📦 Предметы');
+      linkedHtml += renderLinkedCards((obj.ent||[]).map(id => data.entities.find(e => e.id === id)).filter(Boolean), 'entity', 'Сущности');
+      linkedHtml += renderLinkedCards((obj.foodIds||[]).map(id => data.foods.find(f => f.id === id)).filter(Boolean), 'food', 'Еда');
+      linkedHtml += renderLinkedCards((obj.itemIds||[]).map(id => data.items.find(i => i.id === id)).filter(Boolean), 'level', 'Предметы');
       const inIds = obj.in ? obj.in.split(',').map(s => s.trim()).filter(Boolean) : [];
       const outIds = obj.out ? obj.out.split(',').map(s => s.trim()).filter(Boolean) : [];
-      linkedHtml += renderLinkedCards(inIds.map(id => data.levels.find(l => l.id === id)).filter(Boolean), 'level', '🚪 Входы');
-      linkedHtml += renderLinkedCards(outIds.map(id => data.levels.find(l => l.id === id)).filter(Boolean), 'level', '🏃 Выходы');
+      linkedHtml += renderLinkedCards(inIds.map(id => data.levels.find(l => l.id === id)).filter(Boolean), 'level', 'Входы');
+      linkedHtml += renderLinkedCards(outIds.map(id => data.levels.find(l => l.id === id)).filter(Boolean), 'level', 'Выходы');
     } else {
       const linkedLevels = data.levels.filter(level => {
         if (type === 'entities') return (level.ent||[]).includes(id);
         if (type === 'items') return (level.itemIds||[]).includes(id);
         if (type === 'foods') return (level.foodIds||[]).includes(id);
       });
-      linkedHtml += renderLinkedCards(linkedLevels, 'level', '📍 Встречается на уровнях');
+      linkedHtml += renderLinkedCards(linkedLevels, 'level', 'Встречается на уровнях');
     }
 
     viewContent.innerHTML = `<h2 style="color:#c9a86c;">${obj.title || obj.name} (${obj.id})</h2>${thumb}
       <p>Класс: ${getClassStylesForType(type)[obj.cls]?.name || obj.cls} ${getClassIcon(type, obj.cls)}</p>
       <div class="view-section">${statsHtml}</div>
       <div style="margin:0.5rem 0;">${(obj.tags||[]).map(t => `<span class="tag">${t}</span>`).join('')}</div>
-      <div class="view-section"><h3> Описание</h3><p>${obj.desc}</p></div>
+      <div class="view-section"><h3>Описание</h3><p>${obj.desc}</p></div>
       ${linkedHtml}
-      ${obj.habitat ? `<div class="view-section"><h3> Среда обитания</h3><p>${obj.habitat}</p></div>` : ''}
-      ${obj.behavior ? `<div class="view-section"><h3> Поведение</h3><p>${obj.behavior}</p></div>` : ''}
-      ${obj.props ? `<div class="view-section"><h3> Свойства</h3><p>${obj.props}</p></div>` : ''}
-      ${obj.effect ? `<div class="view-section"><h3> Эффект</h3><p>${obj.effect}</p></div>` : ''}
+      ${obj.habitat ? `<div class="view-section"><h3>Среда обитания</h3><p>${obj.habitat}</p></div>` : ''}
+      ${obj.behavior ? `<div class="view-section"><h3>Поведение</h3><p>${obj.behavior}</p></div>` : ''}
+      ${obj.props ? `<div class="view-section"><h3>Свойства</h3><p>${obj.props}</p></div>` : ''}
+      ${obj.effect ? `<div class="view-section"><h3>Эффект</h3><p>${obj.effect}</p></div>` : ''}
       <div class="gallery">${gallery}</div>
       <div style="display:flex;justify-content:flex-end;gap:0.7rem;margin-top:1.5rem;border-top:1px solid #3a3d45;padding-top:1rem;">
         <button class="btn" id="closeViewBtn">Закрыть</button>
         <button class="btn" id="editFromViewBtn">Редактировать</button>
-        <button class="btn" id="deleteBtn" style="color:#e5a0a0;">🗑️ Удалить</button>
+        <button class="btn" id="deleteBtn" style="color:#e5a0a0;">Удалить</button>
       </div>`;
     viewModal.classList.add('active');
     viewContent.querySelectorAll('.gallery img').forEach(img => img.addEventListener('click', e => { lightboxImg.src = e.target.src; lightbox.style.display = 'flex'; }));
@@ -659,7 +654,7 @@
       arr.forEach(l => { const c = l.cluster || 'Без кластера'; if (!clusters[c]) clusters[c] = []; clusters[c].push(l); });
       tree.innerHTML = '';
       Object.entries(clusters).forEach(([name, items]) => {
-        const folder = document.createElement('div'); folder.className='tree-item tree-folder'; folder.textContent='📁 '+name;
+        const folder = document.createElement('div'); folder.className='tree-item tree-folder'; folder.textContent= name;
         const childContainer = document.createElement('div'); childContainer.className='tree-children'; childContainer.style.display='block';
         folder.addEventListener('click', (e) => { e.stopPropagation(); childContainer.style.display = childContainer.style.display === 'none' ? 'block' : 'none'; });
         tree.appendChild(folder); tree.appendChild(childContainer);
@@ -703,8 +698,8 @@
 
   document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => switchSection(b.dataset.tab)));
   document.getElementById('refreshBtn').addEventListener('click', async () => { 
-    fileIndexCache = {}; // сброс кэша индекса
-    await loadAllData(); // загружаем всё для главной
+    fileIndexCache = {};
+    await loadAllData();
     renderTree(); renderContent(); 
   });
   document.getElementById('addBtn').addEventListener('click', () => {
@@ -714,7 +709,6 @@
   viewModal.addEventListener('click', e => { if (e.target === viewModal) viewModal.classList.remove('active'); });
   editModal.addEventListener('click', e => { if (e.target === editModal) editModal.classList.remove('active'); });
 
-  // Старт: загружаем все разделы для главной страницы
   (async () => { 
     await loadAllData();
     renderTree();
