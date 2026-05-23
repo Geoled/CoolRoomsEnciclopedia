@@ -120,7 +120,11 @@
     .modal-content { background:#1a1c24; border:1px solid #3a3d45; border-radius:20px; padding:2rem; max-width:800px; width:100%; max-height:90vh; overflow-y:auto; }
     .form-group { margin-bottom:1rem; }
     .form-group label { display:block; font-size:0.85rem; color:#b0b0be; margin-bottom:0.3rem; }
-    .form-group input, .form-group textarea, .form-group select { width:100%; padding:0.7rem; background:#12141a; border:1px solid #3a3d45; border-radius:10px; color:#d0d0d0; font-size:0.9rem; outline:none; }
+    .form-group input, .form-group textarea, .form-group select {
+      width:100%; padding:0.7rem; background:#ffffff; border:1px solid #555; border-radius:10px;
+      color:#000000; font-size:0.9rem; outline:none;
+    }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color:#c9a86c; }
     .gallery { display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.5rem; }
     .gallery img { width:80px; height:80px; object-fit:cover; border-radius:8px; cursor:pointer; border:1px solid #3a3d45; transition: transform 0.2s ease; }
     .gallery img:hover { transform: scale(1.5); z-index:10; box-shadow: 0 4px 12px rgba(0,0,0,0.6); }
@@ -187,23 +191,24 @@
     "4": { icon:"🔴", color:"#a95a5a", name:"Очень опасный" },
     "5": { icon:"⛔", color:"#8b0000", name:"Смертельный" }
   };
-  // Отдельные стили классов для сущностей, предметов и еды (можно настраивать)
   let entityClassStyles = JSON.parse(localStorage.getItem('entityClassStyles')) || {
     "0": { icon:"👻", color:"#6a9a6a", name:"Безвредный" },
     "1": { icon:"🐾", color:"#c9a64a", name:"Условно безопасный" },
     "2": { icon:"⚠️", color:"#b9774a", name:"Опасный" },
     "3": { icon:"💀", color:"#a95a5a", name:"Смертельно опасный" }
   };
+  // Новые классы предметов
   let itemClassStyles = JSON.parse(localStorage.getItem('itemClassStyles')) || {
-    "0": { icon:"🔹", color:"#6a9a6a", name:"Обычный" },
-    "1": { icon:"🔸", color:"#c9a64a", name:"Необычный" },
-    "2": { icon:"🔶", color:"#b9774a", name:"Редкий" },
-    "3": { icon:"💠", color:"#a95a5a", name:"Уникальный" }
+    "cold_weapon": { icon:"🔪", color:"#6a9a6a", name:"Холодное оружие" },
+    "firearm": { icon:"🔫", color:"#c9a64a", name:"Огнестрел" },
+    "tool": { icon:"🔧", color:"#5a7a9a", name:"Инструмент" },
+    "other": { icon:"📦", color:"#8a8a8a", name:"Прочее" }
   };
+  // Новые классы еды
   let foodClassStyles = JSON.parse(localStorage.getItem('foodClassStyles')) || {
-    "0": { icon:"🍎", color:"#6a9a6a", name:"Обычная" },
-    "1": { icon:"🍲", color:"#c9a64a", name:"Питательная" },
-    "2": { icon:"🧪", color:"#b9774a", name:"Особая" }
+    "drink": { icon:"🥤", color:"#6a9a6a", name:"Напитки" },
+    "dish": { icon:"🍲", color:"#c9a64a", name:"Блюдо" },
+    "plant": { icon:"🌱", color:"#5a7a9a", name:"Растительное" }
   };
 
   const statColors = {
@@ -232,8 +237,8 @@
 
   function getClassIcon(type, cls) {
     const styles = getClassStylesForType(type);
-    const num = cls ? cls.toString().match(/^(\d+)/)?.[1] : '?';
-    return styles[num]?.icon || '⬜';
+    if (styles[cls]) return styles[cls].icon;
+    return '⬜';
   }
 
   function ensureStats(obj, defaults) {
@@ -321,8 +326,8 @@
       let statsHtml = '';
       if (type === 'levels') statsHtml = renderStatsHTML(obj.stats, {safety:'Безопасность',stability:'Стабильность',entities:'Заселённость',resources:'Ресурсы',mental:'Психика',navigation:'Навигация'}, statColors);
       else if (type === 'entities') statsHtml = renderStatsHTML(obj.stats, {danger:'Опасность',frequency:'Частота',intelligence:'Интеллект',aggression:'Агрессия'}, statColors);
-      else if (type === 'items') statsHtml = renderStatsHTML(obj.stats, {weight:'Вес',rarity:'Редкость',usefulness:'Полезность',durability:'Прочность'}, statColors);
-      else if (type === 'foods') statsHtml = renderStatsHTML(obj.stats, {calories:'Насыщение',availability:'Доступность',taste:'Вкус',shelfLife:'Хранение'}, statColors);
+      else if (type === 'items') statsHtml = renderStatsHTML(obj.stats, {weight:'Вес (кг)',rarity:'Редкость',usefulness:'Полезность',durability:'Прочность'}, statColors);
+      else if (type === 'foods') statsHtml = renderStatsHTML(obj.stats, {calories:'Насыщение (ккал)',availability:'Доступность',taste:'Вкус',shelfLife:'Хранение (дни)'}, statColors);
       return `<div class="card" data-type="${type}" data-id="${obj.id}">${thumb}
         <div class="card-header"><span class="card-id">${obj.id}</span><span class="class-icon">${getClassIcon(type, obj.cls)}</span></div>
         <div style="font-weight:500;">${obj.title || obj.name}</div>
@@ -354,8 +359,8 @@
     const sort = document.getElementById('sortSelectField')?.value || 'default';
     const sorted = sortArray(filtered, sort);
     contentArea.innerHTML = `<div class="filters-bar" style="display:flex;gap:0.8rem;margin-bottom:1.5rem;">
-      <input type="text" id="searchInputField" placeholder="Поиск..." value="${search}">
-      <select id="sortSelectField">
+      <input type="text" id="searchInputField" placeholder="Поиск..." value="${search}" style="background:#fff;color:#000;">
+      <select id="sortSelectField" style="background:#fff;color:#000;">
         <option value="default">По умолчанию</option>
         <option value="id_asc">ID возр.</option><option value="id_desc">ID убыв.</option>
         <option value="name_asc">Название А-Я</option><option value="name_desc">Название Я-А</option>
@@ -380,10 +385,10 @@
     let statsHtml = '';
     if (type === 'levels') statsHtml = renderStatsHTML(obj.stats, {safety:'Безопасность',stability:'Стабильность',entities:'Заселённость',resources:'Ресурсы',mental:'Психика',navigation:'Навигация'}, statColors);
     else if (type === 'entities') statsHtml = renderStatsHTML(obj.stats, {danger:'Опасность',frequency:'Частота',intelligence:'Интеллект',aggression:'Агрессия'}, statColors);
-    else if (type === 'items') statsHtml = renderStatsHTML(obj.stats, {weight:'Вес',rarity:'Редкость',usefulness:'Полезность',durability:'Прочность'}, statColors);
-    else if (type === 'foods') statsHtml = renderStatsHTML(obj.stats, {calories:'Насыщение',availability:'Доступность',taste:'Вкус',shelfLife:'Хранение'}, statColors);
+    else if (type === 'items') statsHtml = renderStatsHTML(obj.stats, {weight:'Вес (кг)',rarity:'Редкость',usefulness:'Полезность',durability:'Прочность'}, statColors);
+    else if (type === 'foods') statsHtml = renderStatsHTML(obj.stats, {calories:'Насыщение (ккал)',availability:'Доступность',taste:'Вкус',shelfLife:'Хранение (дни)'}, statColors);
     viewContent.innerHTML = `<h2 style="color:#c9a86c;">${obj.title || obj.name} (${obj.id})</h2>${thumb}
-      <p>Класс: ${obj.cls} ${getClassIcon(type, obj.cls)}</p>
+      <p>Класс: ${getClassStylesForType(type)[obj.cls]?.name || obj.cls} ${getClassIcon(type, obj.cls)}</p>
       <div>${statsHtml}</div>
       <div style="margin:0.5rem 0;">${(obj.tags||[]).map(t => `<span class="tag">${t}</span>`).join('')}</div>
       <p>${obj.desc}</p>
@@ -427,8 +432,9 @@
   function openEditModal(type, obj = null) {
     const folder = type;
     const styles = getClassStylesForType(type);
-    const lvl = obj || { id:'', title:'', cluster:'', cls:'0', desc:'', food:'', ent:[], in:'', out:'', stats:{}, tags:[], thumbnail:'', images:[], _sha:null };
-    const classOptions = Object.entries(styles).map(([v,s]) => `<option value="${v}" ${(obj?.cls||'0')==v?'selected':''}>${v} - ${s.name}</option>`).join('');
+    const defaultCls = type === 'levels' ? '0' : type === 'entities' ? '0' : type === 'items' ? 'cold_weapon' : 'drink';
+    const lvl = obj || { id:'', title:'', cluster:'', cls:defaultCls, desc:'', food:'', ent:[], in:'', out:'', stats:{}, tags:[], thumbnail:'', images:[], _sha:null };
+    const classOptions = Object.entries(styles).map(([v,s]) => `<option value="${v}" ${(obj?.cls||defaultCls)==v?'selected':''}>${s.name}</option>`).join('');
     editContent.innerHTML = `<h3>${obj?'Редактировать':'Новый'} ${type==='levels'?'уровень':type==='entities'?'сущность':type==='items'?'предмет':'еда'}</h3>
       <div class="form-group"><label>ID</label><input id="editId" value="${lvl.id}"></div>
       <div class="form-group"><label>Название</label><input id="editTitle" value="${lvl.title||lvl.name||''}"></div>
@@ -438,8 +444,8 @@
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
         ${type==='levels' ? ` <div><label>Безопасность</label><input type="number" id="editSafety" value="${lvl.stats.safety||3}" min="1" max="5"></div><div><label>Стабильность</label><input type="number" id="editStability" value="${lvl.stats.stability||3}" min="1" max="5"></div><div><label>Заселённость</label><input type="number" id="editEntities" value="${lvl.stats.entities||3}" min="1" max="5"></div><div><label>Ресурсы</label><input type="number" id="editResources" value="${lvl.stats.resources||3}" min="1" max="5"></div><div><label>Психика</label><input type="number" id="editMental" value="${lvl.stats.mental||3}" min="1" max="5"></div><div><label>Навигация</label><input type="number" id="editNavigation" value="${lvl.stats.navigation||3}" min="1" max="5"></div>` : ''}
         ${type==='entities' ? ` <div><label>Опасность</label><input type="number" id="editDanger" value="${lvl.stats.danger||3}" min="1" max="5"></div><div><label>Частота</label><input type="number" id="editFrequency" value="${lvl.stats.frequency||3}" min="1" max="5"></div><div><label>Интеллект</label><input type="number" id="editIntelligence" value="${lvl.stats.intelligence||3}" min="1" max="5"></div><div><label>Агрессия</label><input type="number" id="editAggression" value="${lvl.stats.aggression||3}" min="1" max="5"></div>` : ''}
-        ${type==='items' ? ` <div><label>Вес (1-10)</label><input type="number" id="editWeight" value="${lvl.stats.weight||3}" min="1" max="10"></div><div><label>Редкость</label><input type="number" id="editRarity" value="${lvl.stats.rarity||3}" min="1" max="5"></div><div><label>Полезность</label><input type="number" id="editUsefulness" value="${lvl.stats.usefulness||3}" min="1" max="5"></div><div><label>Прочность</label><input type="number" id="editDurability" value="${lvl.stats.durability||3}" min="1" max="5"></div>` : ''}
-        ${type==='foods' ? ` <div><label>Насыщение</label><input type="number" id="editCalories" value="${lvl.stats.calories||500}" min="0" max="2000"></div><div><label>Доступность</label><input type="number" id="editAvailability" value="${lvl.stats.availability||5}" min="1" max="10"></div><div><label>Вкус</label><input type="number" id="editTaste" value="${lvl.stats.taste||3}" min="1" max="5"></div><div><label>Хранение</label><input type="number" id="editShelfLife" value="${lvl.stats.shelfLife||7}" min="1" max="365"></div>` : ''}
+        ${type==='items' ? ` <div><label>Вес (кг, без ограничений)</label><input type="number" id="editWeight" value="${lvl.stats.weight||3}" step="any"></div><div><label>Редкость</label><input type="number" id="editRarity" value="${lvl.stats.rarity||3}" min="1" max="5"></div><div><label>Полезность</label><input type="number" id="editUsefulness" value="${lvl.stats.usefulness||3}" min="1" max="5"></div><div><label>Прочность</label><input type="number" id="editDurability" value="${lvl.stats.durability||3}" min="1" max="5"></div>` : ''}
+        ${type==='foods' ? ` <div><label>Насыщение (ккал, без ограничений)</label><input type="number" id="editCalories" value="${lvl.stats.calories||500}" step="any"></div><div><label>Доступность</label><input type="number" id="editAvailability" value="${lvl.stats.availability||5}" min="1" max="10"></div><div><label>Вкус</label><input type="number" id="editTaste" value="${lvl.stats.taste||3}" min="1" max="5"></div><div><label>Хранение (дни)</label><input type="number" id="editShelfLife" value="${lvl.stats.shelfLife||7}" min="1" max="365"></div>` : ''}
       </div>
       <div class="form-group"><label>Описание</label><textarea id="editDesc">${lvl.desc||''}</textarea></div>
       ${type==='levels' ? `<div class="form-group"><label>Пища</label><input id="editFood" value="${lvl.food||''}"></div><div class="form-group"><label>Сущности</label><input id="editEnt" value="${(lvl.ent||[]).join(', ')}"></div><div class="form-group"><label>Входы</label><input id="editIn" value="${lvl.in||''}"></div><div class="form-group"><label>Выходы</label><input id="editOut" value="${lvl.out||''}"></div>` : ''}
