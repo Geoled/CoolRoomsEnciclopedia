@@ -1,8 +1,8 @@
 {
   "hp": 100,
-  "hunger": 91,
-  "thirst": 86.5,
-  "sleep": 95.5,
+  "hunger": 89,
+  "thirst": 83.5,
+  "sleep": 94.5,
   "temperature": 36.6,
   "sanity": 100,
   "currentLevelId": "5",
@@ -24,10 +24,28 @@
       "images": [],
       "name": "Ебактуль",
       "effect": "у"
+    },
+    {
+      "id": "55",
+      "cls": "other",
+      "tags": [
+        "Уютненько"
+      ],
+      "stats": {
+        "calories": 51300,
+        "availability": 5,
+        "taste": 3,
+        "shelfLife": 7
+      },
+      "desc": "ц",
+      "thumbnail": "https://i.pinimg.com/736x/b3/d2/45/b3d2459257d773afe6a4a679866e457c.jpg",
+      "images": [],
+      "name": "Ебактуль",
+      "effect": "у"
     }
   ],
-  "playTime": 5,
-  "dayTime": 5,
+  "playTime": 6,
+  "dayTime": 6,
   "levelsVisited": [
     "5"
   ],
@@ -95,12 +113,12 @@
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "food",
           "itemId": "55"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
@@ -202,6 +220,6 @@
     "width": 6,
     "height": 6
   },
-  "playerX": 3,
+  "playerX": 1,
   "playerY": 2
 }
