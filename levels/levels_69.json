@@ -1,0 +1,32 @@
+{
+  "id": "69",
+  "title": "Тихий смрат",
+  "cluster": "Основной",
+  "cls": "1",
+  "tags": [
+    "Лаборатория",
+    "Оружие"
+  ],
+  "stats": {
+    "safety": 3,
+    "stability": 3,
+    "entities": 3,
+    "resources": 5,
+    "mental": 3,
+    "navigation": 3
+  },
+  "desc": "страшное местечко",
+  "thumbnail": "",
+  "images": [],
+  "ent": [
+    "6",
+    "1"
+  ],
+  "foodIds": [
+    "55",
+    "1"
+  ],
+  "itemIds": [],
+  "in": "через уровень 0",
+  "out": ""
+}
