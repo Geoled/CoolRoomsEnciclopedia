@@ -18,62 +18,83 @@
     .game-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
     .top-bar {
       background: #15171e; border-bottom: 1px solid #2a2d35;
-      padding: 0.7rem 1.5rem; display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1.5rem; display: flex; align-items: center; justify-content: space-between;
       flex-wrap: wrap; gap: 1rem;
     }
-    .level-info { display: flex; align-items: center; gap: 1rem; }
-    .level-img {
-      width: 100px; height: 100px; object-fit: cover; border-radius: 12px;
-      border: 1px solid #3a3d45; cursor: pointer;
-    }
-    .level-name {
-      font-weight: 600; color: #c9a86c; font-size: 1.2rem; cursor: pointer;
-    }
+    .level-info { display: flex; align-items: center; gap: 0.8rem; }
+    .level-img { width: 80px; height: 80px; object-fit: cover; border-radius: 10px; border: 1px solid #3a3d45; cursor: pointer; }
+    .level-name { font-weight: 600; color: #c9a86c; font-size: 1.1rem; cursor: pointer; }
     .level-name:hover { text-decoration: underline; }
-    .level-class { font-size: 0.85rem; color: #8c8c9a; }
-    .timers {
-      display: flex; gap: 1.5rem; font-size: 0.85rem; color: #8c8c9a;
-    }
+    .level-class { font-size: 0.8rem; color: #8c8c9a; }
+    .timers { display: flex; gap: 1.2rem; font-size: 0.85rem; color: #8c8c9a; }
     .timer-item { display: flex; flex-direction: column; align-items: center; }
     .timer-value { font-weight: 600; color: #c9a86c; }
-    .stats-panel { display: flex; gap: 1.5rem; flex-wrap: wrap; }
-    .stat-item { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; }
-    .stat-label { font-size: 0.7rem; text-transform: uppercase; color: #8c8c9a; }
-    .stat-value { font-weight: 600; font-size: 1rem; color: #c9a86c; }
-    .stat-bar { width: 70px; height: 6px; background: #252835; border-radius: 3px; overflow: hidden; }
+    .stats-panel { display: flex; gap: 1.2rem; flex-wrap: wrap; }
+    .stat-item { display: flex; flex-direction: column; align-items: center; gap: 0.1rem; }
+    .stat-label { font-size: 0.65rem; text-transform: uppercase; color: #8c8c9a; }
+    .stat-value { font-weight: 600; font-size: 0.9rem; color: #c9a86c; }
+    .stat-bar { width: 60px; height: 5px; background: #252835; border-radius: 3px; overflow: hidden; }
     .stat-fill { height: 100%; border-radius: 3px; }
-    .game-content {
-      flex: 1; display: flex; overflow: hidden; padding: 1rem; gap: 1rem;
+    .game-content { flex: 1; display: flex; padding: 1rem; gap: 1rem; overflow: hidden; }
+    .map-panel {
+      flex: 2; background: #1a1c24; border: 1px solid #2a2d35;
+      border-radius: 16px; padding: 1rem; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+    }
+    .map-grid {
+      display: grid;
+      gap: 4px;
+      background: #0f1115;
+      padding: 8px;
+      border-radius: 8px;
+      user-select: none;
+    }
+    .map-cell {
+      width: 60px; height: 60px;
+      background: #252835;
+      border: 2px solid #3a3d45;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.2s;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+      position: relative;
+    }
+    .map-cell.explored { background: #1e2028; border-color: #5a5d65; }
+    .map-cell.current { border-color: #c9a86c; box-shadow: 0 0 8px #c9a86c; }
+    .map-cell.unknown { background: #12141a; cursor: not-allowed; border-style: dashed; }
+    .map-cell .icon { font-size: 1.8rem; }
+    .side-panel {
+      flex: 1; display: flex; flex-direction: column; gap: 0.8rem; overflow-y: auto;
     }
     .log-panel {
-      flex: 2; background: #1a1c24; border: 1px solid #2a2d35;
-      border-radius: 16px; padding: 1rem; overflow-y: auto; font-size: 0.9rem; line-height: 1.6;
+      background: #1a1c24; border: 1px solid #2a2d35;
+      border-radius: 12px; padding: 0.8rem; overflow-y: auto; font-size: 0.85rem; line-height: 1.5;
+      max-height: 200px;
     }
-    .log-entry {
-      margin-bottom: 0.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid #2a2d35;
-    }
-    .log-entry img { vertical-align: middle; margin-right: 0.3rem; border-radius: 4px; width: 30px; height: 30px; object-fit: cover; }
+    .log-entry { margin-bottom: 0.3rem; padding-bottom: 0.3rem; border-bottom: 1px solid #2a2d35; }
     .log-entry .clickable { cursor: pointer; color: #c9a86c; font-weight: 500; }
     .log-entry .clickable:hover { text-decoration: underline; }
     .inventory-panel {
-      flex: 1; background: #1a1c24; border: 1px solid #2a2d35;
-      border-radius: 16px; padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; overflow-y: auto;
+      background: #1a1c24; border: 1px solid #2a2d35;
+      border-radius: 12px; padding: 0.8rem; flex: 1; overflow-y: auto;
     }
-    .inv-title { font-weight: 600; color: #c9a86c; margin-bottom: 0.5rem; }
+    .inv-title { font-weight: 600; color: #c9a86c; margin-bottom: 0.4rem; }
     .inv-item {
-      display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem;
+      display: flex; align-items: center; gap: 0.4rem; padding: 0.3rem;
       background: #232530; border-radius: 8px; cursor: pointer; transition: 0.2s;
+      margin-bottom: 0.3rem;
     }
     .inv-item:hover { background: #2a2d35; }
-    .inv-item img { width: 40px; height: 40px; object-fit: cover; border-radius: 6px; }
-    .inv-item-name { font-size: 0.85rem; color: #e0e0e0; }
+    .inv-item img { width: 30px; height: 30px; object-fit: cover; border-radius: 4px; }
+    .inv-item-name { font-size: 0.8rem; }
     .actions-bar {
       background: #15171e; border-top: 1px solid #2a2d35;
-      padding: 0.7rem 1.5rem; display: flex; gap: 0.5rem; flex-wrap: wrap;
+      padding: 0.5rem 1.5rem; display: flex; gap: 0.5rem; flex-wrap: wrap;
     }
     .btn {
       background: #1e2028; border: 1px solid #3a3d45; color: #cacaca;
-      padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; cursor: pointer;
+      padding: 0.4rem 0.9rem; border-radius: 18px; font-size: 0.8rem; cursor: pointer;
       transition: 0.2s; display: inline-flex; align-items: center; gap: 0.3rem;
     }
     .btn:hover { background: #2a2d35; border-color: #c9a86c; color: #e8dcc8; }
@@ -86,15 +107,15 @@
     }
     .modal.active { display: flex; }
     .modal-content {
-      background: #1a1c24; border: 1px solid #3a3d45; border-radius: 20px;
-      padding: 1.5rem; max-width: 500px; width: 100%; max-height: 80vh; overflow-y: auto;
+      background: #1a1c24; border: 1px solid #3a3d45; border-radius: 16px;
+      padding: 1.5rem; max-width: 450px; width: 100%; max-height: 80vh; overflow-y: auto;
     }
-    .modal-content h3 { color: #c9a86c; margin-bottom: 1rem; }
+    .modal-content h3 { color: #c9a86c; margin-bottom: 0.8rem; }
     .modal-content p { margin-bottom: 0.5rem; }
     .modal-actions { display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1rem; }
     .night-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,40,0.4); pointer-events: none; z-index: 50; display: none;
+      background: rgba(0,0,40,0.35); pointer-events: none; z-index: 50; display: none;
     }
     .nickname-modal {
       display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -108,11 +129,7 @@
       padding: 0.7rem; background: #12141a; border: 1px solid #3a3d45;
       border-radius: 10px; color: #e0e0e0; font-size: 1rem; margin: 1rem 0; width: 200px; text-align: center;
     }
-    .stat-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;
-    }
-    .stat-grid .stat-item { flex-direction: row; justify-content: space-between; }
-    @media (max-width: 800px) { .game-content { flex-direction: column; } }
+    @media (max-width: 800px) { .game-content { flex-direction: column; } .map-cell { width: 45px; height: 45px; } }
   </style>
 </head>
 <body>
@@ -142,16 +159,19 @@
       <div class="stats-panel" id="statsPanel"></div>
     </div>
     <div class="game-content">
-      <div class="log-panel" id="logPanel"></div>
-      <div class="inventory-panel" id="inventoryPanel">
-        <div class="inv-title">🎒 Инвентарь</div>
-        <div id="invList"></div>
+      <div class="map-panel">
+        <div id="mapContainer"></div>
+      </div>
+      <div class="side-panel">
+        <div class="log-panel" id="logPanel"></div>
+        <div class="inventory-panel">
+          <div class="inv-title">🎒 Инвентарь</div>
+          <div id="invList"></div>
+        </div>
       </div>
     </div>
     <div class="actions-bar">
-      <button class="btn" id="btnExplore">🔍 Исследовать</button>
       <button class="btn" id="btnRest">💤 Отдых</button>
-      <button class="btn" id="btnSearchExit">🚪 Искать выход</button>
       <button class="btn primary" id="btnNewGame">🔄 Новая игра</button>
       <button class="btn danger" id="btnResetSave">🗑️ Сбросить прогресс</button>
     </div>
@@ -194,7 +214,7 @@
 <div class="modal" id="infoModal">
   <div class="modal-content">
     <h3 id="infoTitle"></h3>
-    <img id="infoThumb" src="" style="max-width:100%; border-radius:10px; margin-bottom:1rem;" onerror="this.style.display='none'">
+    <img id="infoThumb" src="" style="max-width:100%; border-radius:10px; margin-bottom:0.8rem;" onerror="this.style.display='none'">
     <p id="infoClass"></p>
     <p id="infoDesc"></p>
     <div class="modal-actions">
@@ -218,7 +238,8 @@
   let gameState = {
     hp: 100, hunger: 100, thirst: 100, sleep: 100, temperature: 36.6, sanity: 100,
     currentLevelId: null, inventory: [], playTime: 0, dayTime: 0,
-    levelsVisited: [], entitiesKilled: 0, itemsFound: 0
+    levelsVisited: [], entitiesKilled: 0, itemsFound: 0,
+    map: null, playerX: 0, playerY: 0
   };
   let playerNickname = '';
   let gameInterval = null;
@@ -234,16 +255,10 @@
   function addLog(msg, imgUrl = null, clickableId = null, clickableType = null) {
     const div = document.createElement('div');
     div.className = 'log-entry';
-    if (imgUrl) {
-      div.innerHTML = `<img src="${imgUrl}" onerror="this.style.display='none'"> ${msg}`;
-    } else if (clickableId) {
-      div.innerHTML = `<span class="clickable" data-id="${clickableId}" data-type="${clickableType}">${msg}</span>`;
-    } else {
-      div.textContent = msg;
-    }
-    if (clickableId) {
-      div.querySelector('.clickable').addEventListener('click', () => showInfoModal(clickableType, clickableId));
-    }
+    if (imgUrl) div.innerHTML = `<img src="${imgUrl}" onerror="this.style.display='none'" style="width:20px;height:20px;object-fit:cover;border-radius:4px;vertical-align:middle;"> ${msg}`;
+    else if (clickableId) div.innerHTML = `<span class="clickable" data-id="${clickableId}" data-type="${clickableType}">${msg}</span>`;
+    else div.textContent = msg;
+    if (clickableId) div.querySelector('.clickable').addEventListener('click', () => showInfoModal(clickableType, clickableId));
     logPanel.appendChild(div);
     logPanel.scrollTop = logPanel.scrollHeight;
   }
@@ -259,11 +274,7 @@
     ];
     statsPanel.innerHTML = stats.map(s => {
       const pct = Math.min(100, (s.value / s.max) * 100);
-      return `<div class="stat-item">
-        <div class="stat-label">${s.label}</div>
-        <div class="stat-value">${s.value}${s.unit||''}</div>
-        <div class="stat-bar"><div class="stat-fill" style="width:${pct}%; background:${s.color};"></div></div>
-      </div>`;
+      return `<div class="stat-item"><div class="stat-label">${s.label}</div><div class="stat-value">${s.value}${s.unit||''}</div><div class="stat-bar"><div class="stat-fill" style="width:${pct}%; background:${s.color};"></div></div></div>`;
     }).join('');
   }
 
@@ -277,17 +288,11 @@
   }
 
   function updateInventory() {
-    inventoryList.innerHTML = '';
-    if (gameState.inventory.length === 0) {
-      inventoryList.innerHTML = '<div style="color:#8c8c9a; font-size:0.85rem;">Пусто</div>';
-      return;
-    }
+    inventoryList.innerHTML = gameState.inventory.length === 0 ? '<div style="color:#8c8c9a; font-size:0.8rem;">Пусто</div>' : '';
     gameState.inventory.forEach((item, index) => {
       const div = document.createElement('div');
       div.className = 'inv-item';
-      div.innerHTML = `
-        ${item.thumbnail ? `<img src="${item.thumbnail}" onerror="this.style.display='none'">` : '<div style="width:40px;height:40px;background:#252835;border-radius:6px;"></div>'}
-        <span class="inv-item-name">${item.name || item.title}</span>`;
+      div.innerHTML = `${item.thumbnail ? `<img src="${item.thumbnail}" onerror="this.style.display='none'">` : '<div style="width:30px;height:30px;background:#252835;border-radius:4px;"></div>'}<span class="inv-item-name">${item.name || item.title}</span>`;
       div.addEventListener('click', () => showItemModal(item, index));
       inventoryList.appendChild(div);
     });
@@ -305,8 +310,7 @@
   function useItem(item, index) {
     const food = data.foods.find(f => f.id === item.id);
     if (food) {
-      const calories = food.stats?.calories || 200;
-      gameState.hunger = Math.min(100, gameState.hunger + calories / 10);
+      gameState.hunger = Math.min(100, gameState.hunger + (food.stats?.calories || 200) / 10);
       if (food.cls === 'drink') gameState.thirst = Math.min(100, gameState.thirst + 40);
       else if (food.cls === 'dish') gameState.thirst = Math.min(100, gameState.thirst + 10);
       else gameState.thirst = Math.min(100, gameState.thirst + 5);
@@ -326,60 +330,6 @@
     addLog('Нельзя использовать этот предмет.');
   }
 
-  function getEnvironmentModifiers() {
-    const level = data.levels.find(l => l.id === gameState.currentLevelId);
-    if (!level || !level.environment) return { tempChange: 0, thirstRate: 1, sanityRate: 1 };
-    const env = level.environment;
-    let tempChange = 0, thirstRate = 1, sanityRate = 1;
-    if (env.temperature === 'cold') tempChange = -0.5;
-    if (env.temperature === 'hot') tempChange = 0.5;
-    if (env.humidity === 'high') thirstRate = 0.5;
-    if (env.humidity === 'dry') thirstRate = 2;
-    if (env.radiation) sanityRate = 1.5;
-    return { tempChange, thirstRate, sanityRate };
-  }
-
-  function passiveTick() {
-    const { tempChange, thirstRate, sanityRate } = getEnvironmentModifiers();
-    gameState.playTime++;
-    gameState.dayTime = (gameState.dayTime + 1) % 1200;
-    gameState.hunger = Math.max(0, gameState.hunger - 0.1);
-    gameState.thirst = Math.max(0, gameState.thirst - 0.15 * thirstRate);
-    gameState.sleep = Math.max(0, gameState.sleep - 0.05);
-    gameState.temperature += tempChange;
-    gameState.temperature = Math.max(34, Math.min(42, gameState.temperature));
-    gameState.sanity = Math.max(0, gameState.sanity - 0.02 * sanityRate);
-    if (gameState.hunger <= 0 || gameState.thirst <= 0) {
-      gameState.hp = Math.max(0, gameState.hp - 1);
-    }
-    if (gameState.sleep <= 0) gameState.hp = Math.max(0, gameState.hp - 0.5);
-    if (gameState.temperature < 35 || gameState.temperature > 40) gameState.hp = Math.max(0, gameState.hp - 0.5);
-    if (gameState.hp <= 0) {
-      gameState.hp = 0;
-      addLog('Вы погибли.');
-      clearInterval(gameInterval);
-      showDeathStats();
-    }
-    updateStats();
-    updateTimers();
-    autoSave();
-  }
-
-  function showDeathStats() {
-    document.getElementById('deathStats').innerHTML = `
-      <div class="stat-grid">
-        <div class="stat-item"><span class="stat-label">Прожито:</span> <span class="stat-value">${Math.floor(gameState.playTime/60)}м ${gameState.playTime%60}с</span></div>
-        <div class="stat-item"><span class="stat-label">Пройдено уровней:</span> <span class="stat-value">${gameState.levelsVisited.length}</span></div>
-        <div class="stat-item"><span class="stat-label">Убито сущностей:</span> <span class="stat-value">${gameState.entitiesKilled}</span></div>
-        <div class="stat-item"><span class="stat-label">Найдено предметов:</span> <span class="stat-value">${gameState.itemsFound}</span></div>
-      </div>`;
-    document.getElementById('deathModal').classList.add('active');
-    document.getElementById('restartBtn').onclick = () => {
-      document.getElementById('deathModal').classList.remove('active');
-      startNewGame();
-    };
-  }
-
   function showInfoModal(type, id) {
     let obj;
     if (type === 'level') obj = data.levels.find(l => l.id === id);
@@ -390,112 +340,122 @@
     document.getElementById('infoTitle').textContent = obj.title || obj.name || id;
     document.getElementById('infoClass').textContent = `Класс: ${obj.cls || '—'}`;
     document.getElementById('infoDesc').textContent = obj.desc || 'Нет описания';
-    if (obj.thumbnail) {
-      document.getElementById('infoThumb').src = obj.thumbnail;
-      document.getElementById('infoThumb').style.display = 'block';
-    } else document.getElementById('infoThumb').style.display = 'none';
+    if (obj.thumbnail) { document.getElementById('infoThumb').src = obj.thumbnail; document.getElementById('infoThumb').style.display = 'block'; }
+    else document.getElementById('infoThumb').style.display = 'none';
     document.getElementById('infoModal').classList.add('active');
     document.getElementById('infoCloseBtn').onclick = () => document.getElementById('infoModal').classList.remove('active');
   }
 
-  function autoSave() {
-    if (!playerNickname) return;
-    const filename = `saves/${playerNickname}.json`;
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify(gameState, null, 2))));
-    const token = API.token();
-    const url = `${API.base()}/${filename}`;
-    fetch(url, { headers: { Authorization: `token ${token}` } }).then(resp => resp.json()).then(data => {
-      return fetch(url, { method: 'PUT', headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ message: `Save ${filename}`, content, sha: data.sha, branch: 'main' }) });
-    }).catch(() => {
-      fetch(url, { method: 'PUT', headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ message: `Save ${filename}`, content, branch: 'main' }) });
-    });
-  }
-
-  function loadSave() {
-    if (!playerNickname) return;
-    const url = `https://raw.githubusercontent.com/${API.owner()}/${API.repo()}/main/saves/${playerNickname}.json`;
-    fetch(url).then(resp => resp.json()).then(data => {
-      gameState = data;
-      const level = data.levels.find(l => l.id === gameState.currentLevelId);
-      if (level) updateLevelDisplay(level);
-      updateStats(); updateInventory(); updateTimers();
-      addLog('Прогресс загружен.');
-    }).catch(() => {});
-  }
-
-  function resetSave() {
-    if (!confirm('Удалить всё сохранение?')) return;
-    const filename = `saves/${playerNickname}.json`;
-    const token = API.token();
-    const url = `${API.base()}/${filename}`;
-    fetch(url, { headers: { Authorization: `token ${token}` } }).then(resp => resp.json()).then(data => {
-      return fetch(url, { method: 'PUT', headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ message: `Delete ${filename}`, content: '', sha: data.sha, branch: 'main' }) });
-    }).then(() => { alert('Сохранение удалено.'); location.reload(); }).catch(() => alert('Ошибка удаления.'));
-  }
-
-  function startNewGame() {
-    if (data.levels.length === 0) { addLog('Нет уровней.'); return; }
-    const randomLevel = data.levels[Math.floor(Math.random() * data.levels.length)];
-    gameState = {
-      hp: 100, hunger: 100, thirst: 100, sleep: 100, temperature: 36.6, sanity: 100,
-      currentLevelId: randomLevel.id, inventory: [], playTime: 0, dayTime: 0,
-      levelsVisited: [randomLevel.id], entitiesKilled: 0, itemsFound: 0
-    };
-    logPanel.innerHTML = '';
-    updateLevelDisplay(randomLevel);
-    addLog(`Вы очнулись на уровне "${randomLevel.title}".`);
-    addLog(`Класс опасности: ${randomLevel.cls}.`);
-    updateStats(); updateInventory(); updateTimers();
-    if (gameInterval) clearInterval(gameInterval);
-    gameInterval = setInterval(passiveTick, 1000);
-  }
-
-  function updateLevelDisplay(level) {
-    levelNameEl.textContent = level.title || level.name;
-    levelClassEl.textContent = `Класс: ${level.cls}`;
-    if (level.thumbnail) { levelThumb.src = level.thumbnail; levelThumb.style.display = 'block'; }
-    else levelThumb.style.display = 'none';
-    levelNameEl.onclick = () => showInfoModal('level', level.id);
-    levelThumb.onclick = () => showInfoModal('level', level.id);
-  }
-
-  function explore() {
+  function generateMap(width = 6, height = 6) {
+    const grid = Array(height).fill().map(() => Array(width).fill().map(() => ({ explored: false, type: 'empty' })));
+    // Размещаем выход
+    const exitX = Math.floor(Math.random() * width);
+    const exitY = Math.floor(Math.random() * height);
+    if (exitX !== 0 || exitY !== 0) grid[exitY][exitX] = { explored: false, type: 'exit' };
+    // Размещаем предметы/еду
     const level = data.levels.find(l => l.id === gameState.currentLevelId);
-    if (!level) return;
-    const roll = Math.random();
-    addLog('Вы осматриваетесь...');
-    const resourceChance = (level.stats?.resources || 3) / 10;
-    if (roll < resourceChance) {
-      const possibleItems = data.items.filter(i => level.itemIds?.includes(i.id));
-      if (possibleItems.length > 0) {
-        const item = possibleItems[Math.floor(Math.random() * possibleItems.length)];
-        gameState.inventory.push(item);
-        gameState.itemsFound++;
-        addLog(`Найдено: ${item.name}.`, item.thumbnail);
-        updateInventory();
-      }
-    } else if (roll < resourceChance * 2) {
-      const possibleFoods = data.foods.filter(f => level.foodIds?.includes(f.id));
-      if (possibleFoods.length > 0) {
-        const food = possibleFoods[Math.floor(Math.random() * possibleFoods.length)];
-        gameState.inventory.push(food);
-        addLog(`Найдена еда: ${food.name}.`, food.thumbnail);
-        updateInventory();
-      }
-    } else if (roll < 0.7) {
-      const possibleEntities = data.entities.filter(e => level.ent?.includes(e.id));
-      if (possibleEntities.length > 0) {
-        const entity = possibleEntities[Math.floor(Math.random() * possibleEntities.length)];
-        addLog(`Вы столкнулись с сущностью: ${entity.name}.`, entity.thumbnail, entity.id, 'entity');
-        const danger = parseInt(entity.cls) || 0;
-        if (danger >= 2) startBattle(entity);
-        else addLog('Сущность не агрессивна.');
+    const possibleItems = data.items.filter(i => level?.itemIds?.includes(i.id));
+    const possibleFoods = data.foods.filter(f => level?.foodIds?.includes(f.id));
+    const possibleEntities = data.entities.filter(e => level?.ent?.includes(e.id));
+    for (let i = 0; i < width * height * 0.3; i++) {
+      const x = Math.floor(Math.random() * width);
+      const y = Math.floor(Math.random() * height);
+      if ((x === 0 && y === 0) || (x === exitX && y === exitY)) continue;
+      if (grid[y][x].type !== 'empty') continue;
+      const r = Math.random();
+      if (r < 0.4 && possibleItems.length) grid[y][x] = { explored: false, type: 'item', itemId: possibleItems[Math.floor(Math.random() * possibleItems.length)].id };
+      else if (r < 0.7 && possibleFoods.length) grid[y][x] = { explored: false, type: 'food', itemId: possibleFoods[Math.floor(Math.random() * possibleFoods.length)].id };
+      else if (r < 0.85 && possibleEntities.length) grid[y][x] = { explored: false, type: 'entity', entityId: possibleEntities[Math.floor(Math.random() * possibleEntities.length)].id };
+    }
+    return { grid, width, height };
+  }
+
+  function renderMap() {
+    if (!gameState.map) return;
+    const container = document.getElementById('mapContainer');
+    container.innerHTML = '';
+    const gridDiv = document.createElement('div');
+    gridDiv.className = 'map-grid';
+    gridDiv.style.gridTemplateColumns = `repeat(${gameState.map.width}, 1fr)`;
+    for (let y = 0; y < gameState.map.height; y++) {
+      for (let x = 0; x < gameState.map.width; x++) {
+        const cell = gameState.map.grid[y][x];
+        const div = document.createElement('div');
+        div.className = 'map-cell';
+        const isCurrent = (x === gameState.playerX && y === gameState.playerY);
+        if (isCurrent) div.classList.add('current');
+        if (cell.explored || isCurrent) {
+          div.classList.add('explored');
+          if (cell.type === 'exit') div.innerHTML = '<span class="icon">🚪</span>';
+          else if (cell.type === 'item') div.innerHTML = '<span class="icon">📦</span>';
+          else if (cell.type === 'food') div.innerHTML = '<span class="icon">🍎</span>';
+          else if (cell.type === 'entity') div.innerHTML = '<span class="icon">👾</span>';
+        } else {
+          div.classList.add('unknown');
+          div.innerHTML = '<span class="icon">❓</span>';
+        }
+        div.addEventListener('click', () => movePlayer(x, y));
+        gridDiv.appendChild(div);
       }
     }
-    gameState.hunger = Math.max(0, gameState.hunger - 5);
-    gameState.thirst = Math.max(0, gameState.thirst - 7);
-    gameState.sleep = Math.max(0, gameState.sleep - 4);
+    container.appendChild(gridDiv);
+  }
+
+  function movePlayer(targetX, targetY) {
+    if (!gameState.map) return;
+    const dx = Math.abs(targetX - gameState.playerX);
+    const dy = Math.abs(targetY - gameState.playerY);
+    if (dx + dy !== 1) { addLog('Можно перемещаться только на соседнюю клетку.'); return; }
+    gameState.playerX = targetX;
+    gameState.playerY = targetY;
+    const cell = gameState.map.grid[targetY][targetX];
+    if (!cell.explored) {
+      cell.explored = true;
+      if (cell.type === 'empty') addLog('Пустая комната.');
+      else if (cell.type === 'item') {
+        const item = data.items.find(i => i.id === cell.itemId);
+        if (item) { gameState.inventory.push(item); gameState.itemsFound++; addLog(`Найден предмет: ${item.name}.`, item.thumbnail); updateInventory(); }
+      } else if (cell.type === 'food') {
+        const food = data.foods.find(f => f.id === cell.itemId);
+        if (food) { gameState.inventory.push(food); addLog(`Найдена еда: ${food.name}.`, food.thumbnail); updateInventory(); }
+      } else if (cell.type === 'entity') {
+        const entity = data.entities.find(e => e.id === cell.entityId);
+        if (entity) {
+          addLog(`Вы столкнулись с сущностью: ${entity.name}.`, entity.thumbnail, entity.id, 'entity');
+          const danger = parseInt(entity.cls) || 0;
+          if (danger >= 2) startBattle(entity);
+          else addLog('Сущность не агрессивна.');
+        }
+      } else if (cell.type === 'exit') {
+        addLog('Вы нашли выход!');
+        const level = data.levels.find(l => l.id === gameState.currentLevelId);
+        const outIds = level?.out ? level.out.split(',').map(s => s.trim()).filter(Boolean) : [];
+        if (outIds.length) {
+          const nextId = outIds[Math.floor(Math.random() * outIds.length)];
+          const nextLevel = data.levels.find(l => l.id === nextId);
+          if (nextLevel) {
+            gameState.currentLevelId = nextLevel.id;
+            gameState.levelsVisited.push(nextLevel.id);
+            gameState.map = generateMap();
+            gameState.playerX = 0; gameState.playerY = 0;
+            gameState.map.grid[0][0].explored = true;
+            updateLevelDisplay(nextLevel);
+            addLog(`Вы перешли на уровень "${nextLevel.title}".`);
+          }
+        }
+      }
+    } else {
+      if (cell.type === 'exit') {
+        addLog('Вы уже нашли выход, можете уйти.');
+      }
+    }
+    // Расход ресурсов за перемещение
+    gameState.hunger = Math.max(0, gameState.hunger - 1);
+    gameState.thirst = Math.max(0, gameState.thirst - 1.5);
+    gameState.sleep = Math.max(0, gameState.sleep - 0.5);
+    if (gameState.hp <= 0) { gameState.hp = 0; addLog('Вы погибли.'); clearInterval(gameInterval); showDeathStats(); }
     updateStats();
+    renderMap();
   }
 
   function startBattle(entity) {
@@ -531,24 +491,72 @@
     updateStats();
   }
 
-  function searchExit() {
-    const level = data.levels.find(l => l.id === gameState.currentLevelId);
-    if (!level) return;
-    const outIds = level.out ? level.out.split(',').map(s=>s.trim()).filter(Boolean) : [];
-    if (!outIds.length) { addLog('Выходов нет.'); return; }
-    const chance = 0.2 + (level.stats?.navigation||1)*0.1;
-    if (Math.random() < chance) {
-      const nextId = outIds[Math.floor(Math.random()*outIds.length)];
-      const nextLevel = data.levels.find(l => l.id === nextId);
-      if (nextLevel) {
-        gameState.currentLevelId = nextLevel.id;
-        gameState.levelsVisited.push(nextLevel.id);
-        updateLevelDisplay(nextLevel);
-        addLog(`Перешли на уровень "${nextLevel.title}".`);
-        gameState.sanity = Math.min(100, gameState.sanity + 10);
-      }
-    } else addLog('Выход не найден.');
-    updateStats();
+  function showDeathStats() {
+    document.getElementById('deathStats').innerHTML = `
+      <div class="stat-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+        <div class="stat-item"><span class="stat-label">Прожито:</span> <span class="stat-value">${Math.floor(gameState.playTime/60)}м ${gameState.playTime%60}с</span></div>
+        <div class="stat-item"><span class="stat-label">Пройдено уровней:</span> <span class="stat-value">${gameState.levelsVisited.length}</span></div>
+        <div class="stat-item"><span class="stat-label">Убито сущностей:</span> <span class="stat-value">${gameState.entitiesKilled}</span></div>
+        <div class="stat-item"><span class="stat-label">Найдено предметов:</span> <span class="stat-value">${gameState.itemsFound}</span></div>
+      </div>`;
+    document.getElementById('deathModal').classList.add('active');
+    document.getElementById('restartBtn').onclick = () => { document.getElementById('deathModal').classList.remove('active'); startNewGame(); };
+  }
+
+  function autoSave() {
+    if (!playerNickname) return;
+    const filename = `saves/${playerNickname}.json`;
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(gameState, null, 2))));
+    const token = API.token();
+    const url = `${API.base()}/${filename}`;
+    fetch(url, { headers: { Authorization: `token ${token}` } }).then(resp => resp.json()).then(data => {
+      return fetch(url, { method: 'PUT', headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ message: `Save ${filename}`, content, sha: data.sha, branch: 'main' }) });
+    }).catch(() => fetch(url, { method: 'PUT', headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ message: `Save ${filename}`, content, branch: 'main' }) }));
+  }
+
+  function loadSave() {
+    if (!playerNickname) return;
+    const url = `https://raw.githubusercontent.com/${API.owner()}/${API.repo()}/main/saves/${playerNickname}.json`;
+    fetch(url).then(resp => resp.json()).then(data => {
+      gameState = data;
+      const level = data.levels.find(l => l.id === gameState.currentLevelId);
+      if (level) updateLevelDisplay(level);
+      if (!gameState.map) { gameState.map = generateMap(); gameState.playerX = 0; gameState.playerY = 0; gameState.map.grid[0][0].explored = true; }
+      updateStats(); updateInventory(); updateTimers(); renderMap();
+      addLog('Прогресс загружен.');
+    }).catch(() => {});
+  }
+
+  function startNewGame() {
+    if (data.levels.length === 0) { addLog('Нет уровней.'); return; }
+    const randomLevel = data.levels[Math.floor(Math.random() * data.levels.length)];
+    gameState = {
+      hp: 100, hunger: 100, thirst: 100, sleep: 100, temperature: 36.6, sanity: 100,
+      currentLevelId: randomLevel.id, inventory: [], playTime: 0, dayTime: 0,
+      levelsVisited: [randomLevel.id], entitiesKilled: 0, itemsFound: 0,
+      map: generateMap(), playerX: 0, playerY: 0
+    };
+    gameState.map.grid[0][0].explored = true;
+    logPanel.innerHTML = '';
+    updateLevelDisplay(randomLevel);
+    addLog(`Вы очнулись на уровне "${randomLevel.title}".`);
+    updateStats(); updateInventory(); updateTimers(); renderMap();
+    if (gameInterval) clearInterval(gameInterval);
+    gameInterval = setInterval(() => {
+      gameState.playTime++;
+      gameState.dayTime = (gameState.dayTime + 1) % 1200;
+      updateTimers();
+      autoSave();
+    }, 1000);
+  }
+
+  function updateLevelDisplay(level) {
+    levelNameEl.textContent = level.title || level.name;
+    levelClassEl.textContent = `Класс: ${level.cls}`;
+    if (level.thumbnail) { levelThumb.src = level.thumbnail; levelThumb.style.display = 'block'; }
+    else levelThumb.style.display = 'none';
+    levelNameEl.onclick = () => showInfoModal('level', level.id);
+    levelThumb.onclick = () => showInfoModal('level', level.id);
   }
 
   async function fetchFilesInFolder(folder) {
@@ -592,19 +600,29 @@
     setTimeout(() => {
       if (!gameState.currentLevelId) startNewGame();
       else {
-        const level = data.levels.find(l => l.id === gameState.currentLevelId);
-        if (level) updateLevelDisplay(level);
-        updateStats(); updateInventory(); updateTimers();
-        gameInterval = setInterval(passiveTick, 1000);
+        if (!gameState.map) { gameState.map = generateMap(); gameState.playerX = 0; gameState.playerY = 0; gameState.map.grid[0][0].explored = true; }
+        updateStats(); updateInventory(); updateTimers(); renderMap();
+        gameInterval = setInterval(() => {
+          gameState.playTime++;
+          gameState.dayTime = (gameState.dayTime + 1) % 1200;
+          updateTimers();
+          autoSave();
+        }, 1000);
       }
     }, 500);
   });
 
-  document.getElementById('btnExplore').addEventListener('click', explore);
   document.getElementById('btnRest').addEventListener('click', rest);
-  document.getElementById('btnSearchExit').addEventListener('click', searchExit);
   document.getElementById('btnNewGame').addEventListener('click', startNewGame);
-  document.getElementById('btnResetSave').addEventListener('click', resetSave);
+  document.getElementById('btnResetSave').addEventListener('click', () => {
+    if (!confirm('Удалить сохранение?')) return;
+    const filename = `saves/${playerNickname}.json`;
+    const token = API.token();
+    const url = `${API.base()}/${filename}`;
+    fetch(url, { headers: { Authorization: `token ${token}` } }).then(resp => resp.json()).then(data => {
+      return fetch(url, { method: 'PUT', headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ message: `Delete ${filename}`, content: '', sha: data.sha, branch: 'main' }) });
+    }).then(() => { alert('Сохранение удалено.'); location.reload(); }).catch(() => alert('Ошибка удаления.'));
+  });
 })();
 </script>
 </body>
