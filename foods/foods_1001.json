@@ -1,0 +1,18 @@
+{
+  "id": "1001",
+  "cls": "plant",
+  "tags": [
+    "Фрукт"
+  ],
+  "stats": {
+    "calories": 350,
+    "availability": 2,
+    "taste": 5,
+    "shelfLife": 7
+  },
+  "desc": "Полупрозрачные плоды, растущие на парящих платформах. Удивительно сочные, утоляют и голод, и жажду. Вкус напоминает виноград с нотками дыни.",
+  "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_nBdiAWzvn1diTO3gPbJEBz1K1Q8uXWDjzoiUo7HrFurw=s900-c-k-c0x00ffffff-no-rj",
+  "images": [],
+  "name": "Небесное яблоко",
+  "effect": "Насыщение, Утоление жажды"
+}
