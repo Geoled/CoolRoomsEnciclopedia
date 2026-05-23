@@ -1,0 +1,19 @@
+{
+  "id": "26",
+  "cls": "dish",
+  "tags": [
+    "Печенье",
+    "Хрючево"
+  ],
+  "stats": {
+    "calories": 112,
+    "availability": 7,
+    "taste": 1,
+    "shelfLife": 215
+  },
+  "desc": "Очень твердые галеты, безвкусные, но часто встречаются на уровнях",
+  "thumbnail": "https://avatars.mds.yandex.net/i?id=aa9874037383e48e6f5bb12fe850dd4d_l-13015018-images-thumbs&n=13",
+  "images": [],
+  "name": "«Каменный хлеб»",
+  "effect": "Насыщение"
+}
