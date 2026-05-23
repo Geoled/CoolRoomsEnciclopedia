@@ -1,8 +1,8 @@
 {
   "hp": 100,
-  "hunger": 74,
-  "thirst": 61,
-  "sleep": 87,
+  "hunger": 68,
+  "thirst": 52,
+  "sleep": 84,
   "temperature": 36.6,
   "sanity": 100,
   "currentLevelId": "5",
@@ -98,8 +98,8 @@
       "effect": "у"
     }
   ],
-  "playTime": 18,
-  "dayTime": 18,
+  "playTime": 20,
+  "dayTime": 20,
   "levelsVisited": [
     "5"
   ],
@@ -217,19 +217,19 @@
       ],
       [
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
@@ -248,11 +248,11 @@
           "itemId": "55"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
@@ -274,6 +274,6 @@
     "width": 6,
     "height": 6
   },
-  "playerX": 3,
-  "playerY": 5
+  "playerX": 0,
+  "playerY": 4
 }
