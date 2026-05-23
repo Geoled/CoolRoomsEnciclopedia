@@ -68,96 +68,16 @@
     .entity-card img, .food-card img, .level-card img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; margin-bottom: 0.3rem; }
     .entity-card-name, .food-card-name, .level-card-name { font-size: 0.8rem; color: #c9a86c; }
 
-    /* Switch-кнопка */
-    .switch {
-      display: inline-block;
-      background-color: black;
-      width: 55px;
-      height: 70px;
-      box-shadow: 0 0 10px 2px rgba(0,0,0,0.2), 0 0 1px 2px black, inset 0 2px 2px -2px white, inset 0 0 2px 15px #47434c, inset 0 0 2px 22px black;
-      border-radius: 5px;
-      padding: 10px 5px;
-      perspective: 300px;
-      cursor: pointer;
-      position: relative;
-      vertical-align: middle;
-    }
-    .switch input { display: none; }
-    .switch .button {
-      display: block;
-      transition: all 0.3s cubic-bezier(1,0,1,1);
-      transform-origin: center center -20px;
-      transform: translateZ(20px) rotateX(-25deg);
-      transform-style: preserve-3d;
-      background-color: #9b0621;
-      height: 100%;
-      width: 100%;
-      position: relative;
-      cursor: pointer;
-      background: linear-gradient(#980000 0%, #6f0000 30%, #6f0000 70%, #980000 100%);
-      border-radius: 2px;
-    }
-    .switch .button::before {
-      content: "";
-      background: linear-gradient(rgba(255,255,255,0.8) 10%, rgba(255,255,255,0.3) 30%, #650000 75%, #320000) 50% 50%/97% 97%, #b10000;
-      width: 100%;
-      height: 20px;
-      transform-origin: top;
-      transform: rotateX(-90deg);
-      position: absolute;
-      top: 0;
-    }
-    .switch .button::after {
-      content: "";
-      background-image: linear-gradient(#650000, #320000);
-      width: 100%;
-      height: 20px;
-      transform-origin: top;
-      transform: translateY(30px) rotateX(-90deg);
-      position: absolute;
-      bottom: 0;
-      box-shadow: 0 30px 8px 0px black, 0 50px 20px 0px rgba(0,0,0,0.5);
-    }
-    .switch .light {
-      opacity: 0;
-      animation: light-off 1s;
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background-image: radial-gradient(#ffc97e, #ff1818 40%, transparent 70%);
-    }
-    .switch .dots {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background-image: radial-gradient(transparent 30%, rgba(101,0,0,0.7) 70%);
-      background-size: 4px 4px;
-    }
-    .switch .characters {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(white, white) 50% 20%/5% 20%, radial-gradient(circle, transparent 50%, white 52%, white 70%, transparent 72%) 50% 80%/33% 25%;
-      background-repeat: no-repeat;
-    }
-    .switch .shine {
-      transition: all 0.3s cubic-bezier(1,0,1,1);
-      opacity: 0.3;
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(white, transparent 3%) 50% 50%/97% 97%, linear-gradient(rgba(255,255,255,0.5), transparent 50%, transparent 80%, rgba(255,255,255,0.5)) 50% 50%/97% 97%;
-      background-repeat: no-repeat;
-    }
-    .switch .shadow {
-      transition: all 0.3s cubic-bezier(1,0,1,1);
-      opacity: 1;
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(transparent 70%, rgba(0,0,0,0.8));
-      background-repeat: no-repeat;
-    }
+    /* Стили для выпадающих списков */
+    .dropdown-search { position: relative; }
+    .dropdown-search .selected-items { display: flex; flex-wrap: wrap; gap: 0.3rem; min-height: 40px; align-items: center; padding: 0.3rem; background: #12141a; border: 1px solid #3a3d45; border-radius: 10px; }
+    .selected-item { background: #2c2c38; padding: 0.2rem 0.5rem; border-radius: 10px; font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem; }
+    .selected-item .remove { cursor: pointer; color: #a95a5a; }
+    .dropdown-search input { width: 100%; margin-top: 0.3rem; }
+    .dropdown-search .dropdown-list { position: absolute; top: 100%; left: 0; width: 100%; background: #1a1c24; border: 1px solid #3a3d45; border-radius: 10px; max-height: 180px; overflow-y: auto; z-index: 50; display: none; }
+    .dropdown-list .dropdown-item { padding: 0.5rem; cursor: pointer; color: #d0d0d0; }
+    .dropdown-list .dropdown-item:hover { background: #2a2d35; }
+
     @media (max-width:700px) { body { flex-direction:column; } .sidebar { width:100%; height:40%; } }
   </style>
 </head>
@@ -177,16 +97,8 @@
     </div>
     <div class="breadcrumbs" id="breadcrumbs">Главная</div>
     <div class="actions">
-      <label class="switch" title="Мини-игра" id="gameSwitch">
-        <input type="checkbox" id="gameToggle">
-        <div class="button">
-          <div class="light"></div>
-          <div class="dots"></div>
-          <div class="characters"></div>
-          <div class="shine"></div>
-          <div class="shadow"></div>
-        </div>
-      </label>
+      <button class="btn" id="luckyBtn">🎲 Повезёт</button>
+      <button class="btn" id="gameBtn">🎮 Игра</button>
       <button class="btn" id="refreshBtn">🔄 Обновить</button>
       <button class="btn primary" id="addBtn">➕ Создать</button>
     </div>
@@ -255,12 +167,9 @@
   const lightbox = document.getElementById('lightbox');
   const lightboxImg = document.getElementById('lightboxImg');
 
-  // Обработчик переключателя игры
-  document.getElementById('gameToggle').addEventListener('change', function(e) {
-    if (e.target.checked) {
-      window.open('game.html', 'Закулисье', 'width=460,height=500,left=200,top=100');
-      e.target.checked = false;
-    }
+  // Кнопки
+  document.getElementById('gameBtn').addEventListener('click', () => {
+    window.open('game.html', 'Закулисье', 'width=460,height=500,left=200,top=100');
   });
 
   function getClassStylesForType(type) {
@@ -322,6 +231,13 @@
       if (!Array.isArray(level.ent)) level.ent = [];
       if (!Array.isArray(level.foodIds)) level.foodIds = [];
       if (!Array.isArray(level.itemIds)) level.itemIds = [];
+      // Преобразование старых текстовых полей in/out в строки ID (если нужно)
+      if (typeof level.in === 'string' && level.in.includes(',')) {
+        // уже может быть ID, ничего не делаем
+      }
+      if (typeof level.out === 'string' && level.out.includes(',')) {
+        // уже может быть ID
+      }
     });
   }
 
@@ -440,6 +356,11 @@
       linkedHtml += renderLinkedCards((obj.ent||[]).map(id => data.entities.find(e => e.id === id)).filter(Boolean), 'entity', '👾 Сущности');
       linkedHtml += renderLinkedCards((obj.foodIds||[]).map(id => data.foods.find(f => f.id === id)).filter(Boolean), 'food', '🍞 Еда');
       linkedHtml += renderLinkedCards((obj.itemIds||[]).map(id => data.items.find(i => i.id === id)).filter(Boolean), 'level', '📦 Предметы');
+      // Входы и выходы
+      const inIds = obj.in ? obj.in.split(',').map(s => s.trim()).filter(Boolean) : [];
+      const outIds = obj.out ? obj.out.split(',').map(s => s.trim()).filter(Boolean) : [];
+      linkedHtml += renderLinkedCards(inIds.map(id => data.levels.find(l => l.id === id)).filter(Boolean), 'level', '🚪 Входы');
+      linkedHtml += renderLinkedCards(outIds.map(id => data.levels.find(l => l.id === id)).filter(Boolean), 'level', '🏃 Выходы');
     } else {
       const linkedLevels = data.levels.filter(level => {
         if (type === 'entities') return (level.ent||[]).includes(id);
@@ -455,8 +376,6 @@
       <div style="margin:0.5rem 0;">${(obj.tags||[]).map(t => `<span class="tag">${t}</span>`).join('')}</div>
       <div class="view-section"><h3>📖 Описание</h3><p>${obj.desc}</p></div>
       ${linkedHtml}
-      ${obj.in ? `<div class="view-section"><h3>🚪 Входы</h3><p>${obj.in}</p></div>` : ''}
-      ${obj.out ? `<div class="view-section"><h3>🏃 Выходы</h3><p>${obj.out}</p></div>` : ''}
       ${obj.habitat ? `<div class="view-section"><h3>🌍 Среда обитания</h3><p>${obj.habitat}</p></div>` : ''}
       ${obj.behavior ? `<div class="view-section"><h3>🧠 Поведение</h3><p>${obj.behavior}</p></div>` : ''}
       ${obj.props ? `<div class="view-section"><h3>⚙️ Свойства</h3><p>${obj.props}</p></div>` : ''}
@@ -559,9 +478,13 @@
     const entityContainerId = 'entity_' + Date.now();
     const foodContainerId = 'food_' + Date.now();
     const itemContainerId = 'item_' + Date.now();
+    const inContainerId = 'in_' + Date.now();
+    const outContainerId = 'out_' + Date.now();
     const selectedEntities = obj?.ent ? (Array.isArray(obj.ent) ? obj.ent.join(',') : obj.ent) : '';
     const selectedFoods = obj?.foodIds ? (Array.isArray(obj.foodIds) ? obj.foodIds.join(',') : obj.foodIds) : '';
     const selectedItems = obj?.itemIds ? (Array.isArray(obj.itemIds) ? obj.itemIds.join(',') : obj.itemIds) : '';
+    const selectedIn = obj?.in || '';
+    const selectedOut = obj?.out || '';
 
     editContent.innerHTML = `<h3 style="color:#c9a86c;">${obj?'Редактировать':'Новый'} ${type==='levels'?'уровень':type==='entities'?'сущность':type==='items'?'предмет':'еда'}</h3>
       <div class="form-group"><label>ID</label><input id="editId" value="${lvl.id}"></div>
@@ -580,8 +503,8 @@
         <div class="form-group"><label>Сущности</label>${createDropdown(entityContainerId, data.entities, selectedEntities, 'Выберите сущностей')}</div>
         <div class="form-group"><label>Еда</label>${createDropdown(foodContainerId, data.foods, selectedFoods, 'Выберите еду')}</div>
         <div class="form-group"><label>Предметы</label>${createDropdown(itemContainerId, data.items, selectedItems, 'Выберите предметы')}</div>
-        <div class="form-group"><label>Входы</label><input id="editIn" value="${lvl.in||''}"></div>
-        <div class="form-group"><label>Выходы</label><input id="editOut" value="${lvl.out||''}"></div>
+        <div class="form-group"><label>Входы</label>${createDropdown(inContainerId, data.levels, selectedIn, 'Выберите уровни входа')}</div>
+        <div class="form-group"><label>Выходы</label>${createDropdown(outContainerId, data.levels, selectedOut, 'Выберите уровни выхода')}</div>
       ` : ''}
       ${type==='entities' ? `<div class="form-group"><label>Среда обитания</label><input id="editHabitat" value="${lvl.habitat||''}"></div><div class="form-group"><label>Поведение</label><textarea id="editBehavior">${lvl.behavior||''}</textarea></div><div class="form-group"><label>Выживание</label><textarea id="editSurvival">${lvl.survival||''}</textarea></div>` : ''}
       ${type==='items' ? `<div class="form-group"><label>Свойства</label><textarea id="editProps">${lvl.props||''}</textarea></div>` : ''}
@@ -613,11 +536,13 @@
         const eDrop = document.getElementById(entityContainerId);
         const fDrop = document.getElementById(foodContainerId);
         const iDrop = document.getElementById(itemContainerId);
+        const inDrop = document.getElementById(inContainerId);
+        const outDrop = document.getElementById(outContainerId);
         newObj.ent = (eDrop && eDrop._getSelected) ? eDrop._getSelected().split(',').map(s=>s.trim()).filter(Boolean) : [];
         newObj.foodIds = (fDrop && fDrop._getSelected) ? fDrop._getSelected().split(',').map(s=>s.trim()).filter(Boolean) : [];
         newObj.itemIds = (iDrop && iDrop._getSelected) ? iDrop._getSelected().split(',').map(s=>s.trim()).filter(Boolean) : [];
-        newObj.in = document.getElementById('editIn').value;
-        newObj.out = document.getElementById('editOut').value;
+        newObj.in = (inDrop && inDrop._getSelected) ? inDrop._getSelected() : '';
+        newObj.out = (outDrop && outDrop._getSelected) ? outDrop._getSelected() : '';
       } else if (type==='entities') {
         newObj.name = newObj.title; delete newObj.title;
         newObj.stats = { danger:+document.getElementById('editDanger').value, frequency:+document.getElementById('editFrequency').value, intelligence:+document.getElementById('editIntelligence').value, aggression:+document.getElementById('editAggression').value };
@@ -716,6 +641,15 @@
   }
 
   window.switchSection = switchSection;
+
+  document.getElementById('luckyBtn').addEventListener('click', async () => {
+    const all = [...data.levels, ...data.entities, ...data.items, ...data.foods];
+    if (!all.length) return alert('База данных пуста');
+    const randomObj = all[Math.floor(Math.random() * all.length)];
+    const type = data.levels.includes(randomObj) ? 'levels' : data.entities.includes(randomObj) ? 'entities' : data.items.includes(randomObj) ? 'items' : 'foods';
+    await switchSection(type);
+    openView(type, randomObj.id);
+  });
 
   document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => switchSection(b.dataset.tab)));
   document.getElementById('refreshBtn').addEventListener('click', async () => { await loadAllData(); renderTree(); renderContent(); });
