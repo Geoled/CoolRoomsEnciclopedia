@@ -98,7 +98,6 @@
     <div class="breadcrumbs" id="breadcrumbs">Главная</div>
     <div class="actions">
       <button class="btn" id="luckyBtn">🎲 Повезёт</button>
-      <button class="btn" id="gameBtn">🎮 Игра</button>
       <button class="btn" id="refreshBtn">🔄 Обновить</button>
       <button class="btn primary" id="addBtn">➕ Создать</button>
     </div>
@@ -167,11 +166,6 @@
   const lightbox = document.getElementById('lightbox');
   const lightboxImg = document.getElementById('lightboxImg');
 
-  // Кнопки
-  document.getElementById('gameBtn').addEventListener('click', () => {
-    window.open('game.html', 'Закулисье', 'width=460,height=500,left=200,top=100');
-  });
-
   function getClassStylesForType(type) {
     if (type === 'entities') return entityClassStyles;
     if (type === 'items') return itemClassStyles;
@@ -231,13 +225,6 @@
       if (!Array.isArray(level.ent)) level.ent = [];
       if (!Array.isArray(level.foodIds)) level.foodIds = [];
       if (!Array.isArray(level.itemIds)) level.itemIds = [];
-      // Преобразование старых текстовых полей in/out в строки ID (если нужно)
-      if (typeof level.in === 'string' && level.in.includes(',')) {
-        // уже может быть ID, ничего не делаем
-      }
-      if (typeof level.out === 'string' && level.out.includes(',')) {
-        // уже может быть ID
-      }
     });
   }
 
@@ -356,7 +343,6 @@
       linkedHtml += renderLinkedCards((obj.ent||[]).map(id => data.entities.find(e => e.id === id)).filter(Boolean), 'entity', '👾 Сущности');
       linkedHtml += renderLinkedCards((obj.foodIds||[]).map(id => data.foods.find(f => f.id === id)).filter(Boolean), 'food', '🍞 Еда');
       linkedHtml += renderLinkedCards((obj.itemIds||[]).map(id => data.items.find(i => i.id === id)).filter(Boolean), 'level', '📦 Предметы');
-      // Входы и выходы
       const inIds = obj.in ? obj.in.split(',').map(s => s.trim()).filter(Boolean) : [];
       const outIds = obj.out ? obj.out.split(',').map(s => s.trim()).filter(Boolean) : [];
       linkedHtml += renderLinkedCards(inIds.map(id => data.levels.find(l => l.id === id)).filter(Boolean), 'level', '🚪 Входы');
