@@ -1,0 +1,23 @@
+{
+  "id": "00000002",
+  "title": "Луна",
+  "cluster": "Млечный путь",
+  "cls": "5",
+  "tags": [],
+  "stats": {
+    "safety": 1,
+    "stability": 1,
+    "entities": 0,
+    "resources": 2,
+    "mental": 4,
+    "navigation": 1
+  },
+  "desc": "Луна - единственный естественный спутник Земли, второй по яркости объект на земном небосводе после Солнца и ближайшее к нам космическое тело.",
+  "thumbnail": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/FullMoon2010.jpg/330px-FullMoon2010.jpg",
+  "images": [],
+  "ent": [],
+  "foodIds": [],
+  "itemIds": [],
+  "in": "00000001",
+  "out": ""
+}
