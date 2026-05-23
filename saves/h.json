@@ -1,8 +1,8 @@
 {
   "hp": 100,
-  "hunger": 67,
-  "thirst": 50.5,
-  "sleep": 83.5,
+  "hunger": 66,
+  "thirst": 49,
+  "sleep": 83,
   "temperature": 36.6,
   "sanity": 100,
   "currentLevelId": "5",
@@ -116,8 +116,8 @@
       "effect": "у"
     }
   ],
-  "playTime": 21,
-  "dayTime": 21,
+  "playTime": 22,
+  "dayTime": 22,
   "levelsVisited": [
     "5"
   ],
@@ -293,5 +293,5 @@
     "height": 6
   },
   "playerX": 0,
-  "playerY": 5
+  "playerY": 4
 }
