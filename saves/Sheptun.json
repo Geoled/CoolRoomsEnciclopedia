@@ -1,0 +1,17 @@
+{
+  "hp": 100,
+  "hunger": 99.9,
+  "thirst": 99.85,
+  "sleep": 99.95,
+  "temperature": 36.6,
+  "sanity": 99.98,
+  "currentLevelId": "69",
+  "inventory": [],
+  "playTime": 1,
+  "dayTime": 1,
+  "levelsVisited": [
+    "69"
+  ],
+  "entitiesKilled": 0,
+  "itemsFound": 0
+}
