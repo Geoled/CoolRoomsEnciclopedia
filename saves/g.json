@@ -1,8 +1,8 @@
 {
   "hp": 100,
-  "hunger": 65,
-  "thirst": 47.5,
-  "sleep": 82.5,
+  "hunger": 63,
+  "thirst": 44.5,
+  "sleep": 81.5,
   "temperature": 36.6,
   "sanity": 100,
   "currentLevelId": "0",
@@ -98,8 +98,8 @@
       "effect": "освежает, утоляет жажду"
     }
   ],
-  "playTime": 33,
-  "dayTime": 33,
+  "playTime": 34,
+  "dayTime": 34,
   "levelsVisited": [
     "765",
     "0"
@@ -233,7 +233,7 @@
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
@@ -260,7 +260,7 @@
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
@@ -276,6 +276,6 @@
     "width": 6,
     "height": 6
   },
-  "playerX": 4,
-  "playerY": 5
+  "playerX": 3,
+  "playerY": 4
 }
