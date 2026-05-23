@@ -1,0 +1,18 @@
+{
+  "id": "601",
+  "cls": "plant",
+  "tags": [
+    "Овосчь"
+  ],
+  "stats": {
+    "calories": 351,
+    "availability": 4,
+    "taste": 2,
+    "shelfLife": 54
+  },
+  "desc": "Сладковатый Картофель , но на удивление без какого либо крахмала , после жарки становится еще слаще",
+  "thumbnail": "https://main-cdn.sbermegamarket.ru/big1/hlr-system/496/632/203/112/714/31/100072032200b0.jpg",
+  "images": [],
+  "name": "Клубни из Ям",
+  "effect": "Насыщение"
+}
