@@ -121,8 +121,8 @@
     .form-group { margin-bottom:1rem; }
     .form-group label { display:block; font-size:0.85rem; color:#b0b0be; margin-bottom:0.3rem; }
     .form-group input, .form-group textarea, .form-group select {
-      width:100%; padding:0.7rem; background:#ffffff; border:1px solid #555; border-radius:10px;
-      color:#000000; font-size:0.9rem; outline:none;
+      width:100%; padding:0.7rem; background:#14151b; border:1px solid #3a3d45; border-radius:10px;
+      color:#e0e0e0; font-size:0.9rem; outline:none;
     }
     .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color:#c9a86c; }
     .gallery { display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.5rem; }
@@ -130,6 +130,11 @@
     .gallery img:hover { transform: scale(1.5); z-index:10; box-shadow: 0 4px 12px rgba(0,0,0,0.6); }
     .lightbox { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:none; align-items:center; justify-content:center; z-index:200; }
     .lightbox img { max-width:90%; max-height:90%; border-radius:12px; }
+    /* унифицируем цвет полей в фильтрах */
+    .filters-bar input, .filters-bar select {
+      background:#14151b; border:1px solid #3a3d45; color:#e0e0e0;
+    }
+    .filters-bar input:focus, .filters-bar select:focus { border-color:#c9a86c; }
     @media (max-width:700px) {
       body { flex-direction:column; }
       .sidebar { width:100%; height:40%; }
@@ -197,14 +202,12 @@
     "2": { icon:"⚠️", color:"#b9774a", name:"Опасный" },
     "3": { icon:"💀", color:"#a95a5a", name:"Смертельно опасный" }
   };
-  // Новые классы предметов
   let itemClassStyles = JSON.parse(localStorage.getItem('itemClassStyles')) || {
     "cold_weapon": { icon:"🔪", color:"#6a9a6a", name:"Холодное оружие" },
     "firearm": { icon:"🔫", color:"#c9a64a", name:"Огнестрел" },
     "tool": { icon:"🔧", color:"#5a7a9a", name:"Инструмент" },
     "other": { icon:"📦", color:"#8a8a8a", name:"Прочее" }
   };
-  // Новые классы еды
   let foodClassStyles = JSON.parse(localStorage.getItem('foodClassStyles')) || {
     "drink": { icon:"🥤", color:"#6a9a6a", name:"Напитки" },
     "dish": { icon:"🍲", color:"#c9a64a", name:"Блюдо" },
@@ -300,8 +303,8 @@
       case 'id_desc': return a.sort((x,y) => (y.id||'').localeCompare(x.id||'', undefined, {numeric:true}));
       case 'name_asc': return a.sort((x,y) => (x.title||x.name||'').localeCompare(y.title||y.name||''));
       case 'name_desc': return a.sort((x,y) => (y.title||y.name||'').localeCompare(x.title||x.name||''));
-      case 'class_asc': return a.sort((x,y) => parseInt(x.cls||0) - parseInt(y.cls||0));
-      case 'class_desc': return a.sort((x,y) => parseInt(y.cls||0) - parseInt(x.cls||0));
+      case 'class_asc': return a.sort((x,y) => (x.cls||'').localeCompare(y.cls||''));
+      case 'class_desc': return a.sort((x,y) => (y.cls||'').localeCompare(x.cls||''));
       default: return a;
     }
   }
@@ -359,12 +362,12 @@
     const sort = document.getElementById('sortSelectField')?.value || 'default';
     const sorted = sortArray(filtered, sort);
     contentArea.innerHTML = `<div class="filters-bar" style="display:flex;gap:0.8rem;margin-bottom:1.5rem;">
-      <input type="text" id="searchInputField" placeholder="Поиск..." value="${search}" style="background:#fff;color:#000;">
-      <select id="sortSelectField" style="background:#fff;color:#000;">
+      <input type="text" id="searchInputField" placeholder="Поиск..." value="${search}">
+      <select id="sortSelectField">
         <option value="default">По умолчанию</option>
         <option value="id_asc">ID возр.</option><option value="id_desc">ID убыв.</option>
         <option value="name_asc">Название А-Я</option><option value="name_desc">Название Я-А</option>
-        <option value="class_asc">Класс (0→5)</option><option value="class_desc">Класс (5→0)</option>
+        <option value="class_asc">Класс (возр.)</option><option value="class_desc">Класс (убыв.)</option>
       </select>
     </div><div class="grid" id="grid"></div>`;
     document.getElementById('grid').innerHTML = renderCards(sorted, currentSection);
