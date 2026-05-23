@@ -67,6 +67,17 @@
     .entity-card:hover, .food-card:hover, .level-card:hover { border-color: #c9a86c; }
     .entity-card img, .food-card img, .level-card img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; margin-bottom: 0.3rem; }
     .entity-card-name, .food-card-name, .level-card-name { font-size: 0.8rem; color: #c9a86c; }
+
+    /* Стили для выпадающих списков */
+    .dropdown-search { position: relative; }
+    .dropdown-search .selected-items { display: flex; flex-wrap: wrap; gap: 0.3rem; min-height: 40px; align-items: center; padding: 0.3rem; background: #12141a; border: 1px solid #3a3d45; border-radius: 10px; }
+    .selected-item { background: #2c2c38; padding: 0.2rem 0.5rem; border-radius: 10px; font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem; }
+    .selected-item .remove { cursor: pointer; color: #a95a5a; }
+    .dropdown-search input { width: 100%; margin-top: 0.3rem; }
+    .dropdown-search .dropdown-list { position: absolute; top: 100%; left: 0; width: 100%; background: #1a1c24; border: 1px solid #3a3d45; border-radius: 10px; max-height: 180px; overflow-y: auto; z-index: 50; display: none; }
+    .dropdown-list .dropdown-item { padding: 0.5rem; cursor: pointer; color: #d0d0d0; }
+    .dropdown-list .dropdown-item:hover { background: #2a2d35; }
+
     @media (max-width:700px) { body { flex-direction:column; } .sidebar { width:100%; height:40%; } }
   </style>
 </head>
@@ -380,9 +391,25 @@
     const token = API.token();
     let sha = obj._sha;
     if (!sha) {
-      try { const resp = await fetch(url, { headers: { Authorization: `token ${token}` } }); if (resp.ok) sha = (await resp.json()).sha; } catch(e) {}
+      try {
+        const resp = await fetch(url, { headers: { Authorization: `token ${token}` } });
+        if (!resp.ok) throw new Error('Не удалось получить SHA');
+        sha = (await resp.json()).sha;
+      } catch(e) {
+        alert('Ошибка при получении информации о файле: ' + e.message);
+        return;
+      }
     }
-    await fetch(url, { method: 'PUT', headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ message: `Delete ${filename}`, sha, branch: 'main' }) });
+    const resp = await fetch(url, {
+      method: 'PUT',
+      headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: `Delete ${filename}`, content: '', sha, branch: 'main' })
+    });
+    if (!resp.ok) {
+      const err = await resp.json();
+      alert('Ошибка удаления: ' + (err.message || 'Неизвестная ошибка'));
+      return;
+    }
     data[type] = data[type].filter(o => o.id !== obj.id);
     viewModal.classList.remove('active');
     renderTree();
@@ -390,6 +417,16 @@
   }
 
   function createDropdown(containerId, items, selectedIdsStr, placeholder) {
+    if (!items || items.length === 0) {
+      // fallback: простое текстовое поле
+      setTimeout(() => {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        container.innerHTML = `<input type="text" value="${selectedIdsStr||''}" placeholder="${placeholder}">`;
+        container._getSelected = () => container.querySelector('input').value;
+      }, 10);
+      return `<div class="dropdown-search" id="${containerId}"></div>`;
+    }
     setTimeout(() => {
       const container = document.getElementById(containerId);
       if (!container) return;
@@ -445,7 +482,7 @@
     const selectedEntities = obj?.ent ? (Array.isArray(obj.ent) ? obj.ent.join(',') : obj.ent) : '';
     const selectedFoods = obj?.foodIds ? (Array.isArray(obj.foodIds) ? obj.foodIds.join(',') : obj.foodIds) : '';
     const selectedItems = obj?.itemIds ? (Array.isArray(obj.itemIds) ? obj.itemIds.join(',') : obj.itemIds) : '';
-    
+
     editContent.innerHTML = `<h3>${obj?'Редактировать':'Новый'} ${type==='levels'?'уровень':type==='entities'?'сущность':type==='items'?'предмет':'еда'}</h3>
       <div class="form-group"><label>ID</label><input id="editId" value="${lvl.id}"></div>
       <div class="form-group"><label>Название</label><input id="editTitle" value="${lvl.title||lvl.name||''}"></div>
@@ -514,14 +551,18 @@
         newObj.effect = document.getElementById('editEffect').value;
       }
       const filename = `${folder}/${type}_${newObj.id}.json`;
-      await commitFile(filename, newObj, obj?._sha);
-      if (obj) {
-        const idx = data[type].findIndex(o => o.id === obj.id);
-        if (idx !== -1) data[type][idx] = newObj;
-      } else data[type].push(newObj);
-      editModal.classList.remove('active');
-      renderTree();
-      renderContent();
+      const success = await commitFile(filename, newObj, obj?._sha);
+      if (success) {
+        if (obj) {
+          const idx = data[type].findIndex(o => o.id === obj.id);
+          if (idx !== -1) data[type][idx] = newObj;
+        } else data[type].push(newObj);
+        editModal.classList.remove('active');
+        renderTree();
+        renderContent();
+      } else {
+        alert('Ошибка сохранения. Проверьте токен и права доступа.');
+      }
     });
   }
 
@@ -534,7 +575,18 @@
       branch: 'main'
     };
     if (sha) body.sha = sha;
-    await fetch(url, { method: 'PUT', headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    try {
+      const resp = await fetch(url, { method: 'PUT', headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      if (!resp.ok) {
+        const err = await resp.json();
+        console.error('Save error:', err);
+        return false;
+      }
+      return true;
+    } catch(e) {
+      console.error(e);
+      return false;
+    }
   }
 
   function addImageListeners() {
