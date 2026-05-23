@@ -1,0 +1,18 @@
+{
+  "id": "101",
+  "cls": "drink",
+  "tags": [
+    "Мясной"
+  ],
+  "stats": {
+    "calories": 1300,
+    "availability": 7,
+    "taste": 4,
+    "shelfLife": 650
+  },
+  "desc": "Русская тушёнка , весьма вкусна и широко распространена ",
+  "thumbnail": "https://cdn.metro-cc.ru/ru/ru_pim_544188001001_01.png",
+  "images": [],
+  "name": "Говяжьи консервы",
+  "effect": "Насыщение"
+}
