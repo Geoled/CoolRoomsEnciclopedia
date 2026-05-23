@@ -3,521 +3,651 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>Tihie Rooms · Каталог уровней</title>
+  <title>Tihie Rooms Enciclopedia</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    * { margin:0; padding:0; box-sizing:border-box; }
     body {
-      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-      background: #0b0d12;
-      color: #d0d0d0;
-      line-height: 1.5;
-      min-height: 100vh;
-    }
-
-    /* ───── Header ───── */
-    .site-header {
-      background: linear-gradient(180deg, #11131a 0%, #0d0f14 100%);
-      border-bottom: 1px solid #22252f;
-      padding: 1.2rem 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 1rem;
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      backdrop-filter: blur(8px);
-    }
-
-    .site-title {
-      font-size: 1.6rem;
-      font-weight: 700;
-      color: #c9a86c;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-    }
-
-    .site-nav {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-    }
-
-    .nav-link {
-      background: transparent;
-      border: 1px solid #2a2d37;
-      color: #a0a0b0;
-      padding: 0.5rem 1.2rem;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
-    .nav-link:hover,
-    .nav-link.active {
-      background: #1e212b;
-      border-color: #c9a86c;
-      color: #e0d0a0;
-    }
-
-    .nav-link.primary {
-      background: rgba(201, 168, 108, 0.15);
-      border-color: #c9a86c;
-      color: #e5c97a;
-    }
-
-    /* ───── Hero ───── */
-    .hero {
-      max-width: 1100px;
-      margin: 2.5rem auto 2rem;
-      padding: 0 1.5rem;
-      text-align: center;
-    }
-
-    .hero h2 {
-      font-size: 2.2rem;
-      color: #e0d0a0;
-      margin-bottom: 0.5rem;
-    }
-
-    .hero p {
-      color: #909090;
-      font-size: 1rem;
-      max-width: 650px;
-      margin: 0 auto;
-    }
-
-    /* ───── Search & Filter ───── */
-    .toolbar {
-      max-width: 1100px;
-      margin: 0 auto 2rem;
-      padding: 0 1.5rem;
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-
-    .toolbar input,
-    .toolbar select {
-      padding: 0.7rem 1.2rem;
-      background: #15171f;
-      border: 1px solid #2a2d37;
-      border-radius: 12px;
+      font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
+      background: #0f1115;
       color: #e0e0e0;
-      font-size: 0.9rem;
-      outline: none;
-      transition: 0.2s;
-    }
-
-    .toolbar input:focus,
-    .toolbar select:focus {
-      border-color: #c9a86c;
-    }
-
-    .toolbar input {
-      flex: 2;
-      min-width: 220px;
-    }
-
-    .toolbar select {
-      flex: 1;
-      min-width: 160px;
-    }
-
-    /* ───── Cluster Section ───── */
-    .content {
-      max-width: 1100px;
-      margin: 0 auto 4rem;
-      padding: 0 1.5rem;
-    }
-
-    .cluster {
-      margin-bottom: 2.5rem;
-    }
-
-    .cluster-title {
-      font-size: 1.3rem;
-      font-weight: 600;
-      color: #b8974c;
-      border-bottom: 1px solid #2a2d37;
-      padding-bottom: 0.5rem;
-      margin-bottom: 1rem;
       display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .cluster-count {
-      font-size: 0.8rem;
-      color: #707070;
-      font-weight: 400;
-      margin-left: auto;
-    }
-
-    .level-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 0.8rem;
-    }
-
-    .level-card {
-      background: #12141b;
-      border: 1px solid #1e212b;
-      border-radius: 10px;
-      padding: 0.8rem 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.8rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      text-decoration: none;
-      color: inherit;
-    }
-
-    .level-card:hover {
-      border-color: #c9a86c;
-      background: #181a24;
-      transform: translateY(-2px);
-    }
-
-    .level-icon {
-      width: 40px;
-      height: 40px;
-      background: #1e212b;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-      flex-shrink: 0;
-    }
-
-    .level-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .level-id {
-      font-weight: 600;
-      color: #c9a86c;
-      font-size: 0.9rem;
-    }
-
-    .level-name {
-      font-size: 0.85rem;
-      color: #b0b0b0;
-      white-space: nowrap;
+      height: 100vh;
       overflow: hidden;
-      text-overflow: ellipsis;
     }
+    .sidebar { width: 280px; background: #15171e; border-right: 1px solid #2a2d35; display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; }
+    .sidebar-header { padding: 1.2rem 1rem; border-bottom: 1px solid #2a2d35; display: flex; align-items: center; gap: 0.6rem; font-weight: 600; color: #c9a86c; text-transform: uppercase; letter-spacing: 1px; font-size: 0.9rem; }
+    .tree { flex:1; overflow-y:auto; padding:0.5rem 0; }
+    .tree-item { padding: 0.6rem 1rem; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; color: #b0b0be; font-size: 0.9rem; transition: 0.15s; border-left: 3px solid transparent; }
+    .tree-item:hover { background:#232530; color:#e8dcc8; }
+    .tree-item.active { background:#252835; color:#c9a86c; border-left-color: #c9a86c; }
+    .tree-folder { font-weight:600; color:#b8974c; }
+    .tree-children { margin-left: 0.8rem; border-left: 1px dashed #3a3d45; }
+    .main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+    .top-bar { background: #15171e; border-bottom:1px solid #2a2d35; padding:0.7rem 1.5rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
+    .tabs { display:flex; gap:0.4rem; margin-right:auto; }
+    .tab-btn { background:transparent; border:1px solid transparent; color:#8c8c9a; padding:0.4rem 0.9rem; border-radius:18px; font-size:0.85rem; cursor:pointer; transition:0.2s; }
+    .tab-btn.active { background:#252835; border-color:#c9a86c; color:#c9a86c; }
+    .breadcrumbs { font-size:0.85rem; color:#8c8c9a; }
+    .breadcrumbs span { color:#bca07c; cursor:pointer; }
+    .actions { display:flex; gap:0.5rem; align-items:center; }
+    .btn { background:#1e2028; border:1px solid #3a3d45; color:#cacaca; padding:0.5rem 1rem; border-radius:20px; font-size:0.85rem; cursor:pointer; transition:0.2s; display:inline-flex; align-items:center; gap:0.3rem; }
+    .btn:hover { background:#2a2d35; border-color:#c9a86c; color:#e8dcc8; }
+    .btn.primary { background:#2c2a1f; border-color:#b8974c; color:#e5c97a; }
+    .content-area { flex:1; overflow-y:auto; padding:1.5rem; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px,1fr)); gap:1.2rem; }
+    .card { background:#1a1c24; border:1px solid #2a2d35; border-radius:16px; padding:1.2rem; cursor:pointer; transition:0.2s; }
+    .card:hover { transform:translateY(-3px); border-color:#c9a86c; }
+    .card-img { width:100%; height:120px; object-fit:cover; border-radius:10px; margin-bottom:0.5rem; background:#252835; border:1px solid #3a3d45; }
+    .card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem; }
+    .card-id { font-weight:600; color:#c9a86c; }
+    .class-icon { font-size:1.2rem; }
+    .stat-row { display:flex; align-items:center; gap:0.3rem; margin:0.2rem 0; font-size:0.75rem; }
+    .stat-label-mini { width:70px; color:#8c8c9a; text-align:right; }
+    .stat-bar { flex:1; height:6px; background:#252835; border-radius:3px; overflow:hidden; }
+    .stat-fill { height:100%; border-radius:3px; }
+    .stat-value { width:24px; text-align:center; color:#c9a86c; font-weight:500; }
+    .card-desc { font-size:0.85rem; color:#a0a0b0; margin-top:0.3rem; line-height:1.5; }
+    .tag { display:inline-block; background:#252835; color:#bca07c; padding:0.1rem 0.6rem; border-radius:12px; font-size:0.7rem; margin-right:0.3rem; }
+    .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); backdrop-filter:blur(6px); align-items:center; justify-content:center; z-index:100; padding:1rem; }
+    .modal.active { display:flex; }
+    .modal-content { background:#1a1c24; border:1px solid #3a3d45; border-radius:20px; padding:2rem; max-width:800px; width:100%; max-height:90vh; overflow-y:auto; }
+    .form-group { margin-bottom:1rem; }
+    .form-group label { display:block; font-size:0.85rem; color:#b0b0be; margin-bottom:0.3rem; }
+    .form-group input, .form-group textarea, .form-group select { width:100%; padding:0.7rem; background:#12141a; border:1px solid #3a3d45; border-radius:10px; color:#e0e0e0; font-size:0.9rem; outline:none; }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color:#c9a86c; }
+    .gallery { display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.5rem; }
+    .gallery img { width:80px; height:80px; object-fit:cover; border-radius:8px; cursor:pointer; border:1px solid #3a3d45; transition: transform 0.2s ease; }
+    .gallery img:hover { transform: scale(1.5); z-index:10; box-shadow: 0 4px 12px rgba(0,0,0,0.6); }
+    .lightbox { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:none; align-items:center; justify-content:center; z-index:200; }
+    .lightbox img { max-width:90%; max-height:90%; border-radius:12px; }
+    .view-section { background: #1a1d28; border: 1px solid #2a2e3a; border-radius: 12px; padding: 1.2rem; margin: 1.2rem 0; }
+    .view-section p { line-height: 1.8; margin-bottom: 0.8rem; color: #cbcbd4; }
+    .view-section h3 { margin-bottom: 0.6rem; color: #b8974c; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    .entity-card, .food-card, .level-card { display: inline-block; background: #1e2028; border: 1px solid #3a3d45; border-radius: 12px; padding: 0.8rem; margin: 0.3rem; text-align: center; cursor: pointer; transition: 0.2s; }
+    .entity-card:hover, .food-card:hover, .level-card:hover { border-color: #c9a86c; }
+    .entity-card img, .food-card img, .level-card img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; margin-bottom: 0.3rem; }
+    .entity-card-name, .food-card-name, .level-card-name { font-size: 0.8rem; color: #c9a86c; }
 
-    .level-class-badge {
-      background: #1e212b;
-      padding: 0.2rem 0.6rem;
-      border-radius: 10px;
-      font-size: 0.7rem;
-      color: #909090;
-      flex-shrink: 0;
-    }
+    /* Стили для выпадающих списков */
+    .dropdown-search { position: relative; }
+    .dropdown-search .selected-items { display: flex; flex-wrap: wrap; gap: 0.3rem; min-height: 40px; align-items: center; padding: 0.3rem; background: #12141a; border: 1px solid #3a3d45; border-radius: 10px; }
+    .selected-item { background: #2c2c38; padding: 0.2rem 0.5rem; border-radius: 10px; font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem; }
+    .selected-item .remove { cursor: pointer; color: #a95a5a; }
+    .dropdown-search input { width: 100%; margin-top: 0.3rem; }
+    .dropdown-search .dropdown-list { position: absolute; top: 100%; left: 0; width: 100%; background: #1a1c24; border: 1px solid #3a3d45; border-radius: 10px; max-height: 180px; overflow-y: auto; z-index: 50; display: none; }
+    .dropdown-list .dropdown-item { padding: 0.5rem; cursor: pointer; color: #d0d0d0; }
+    .dropdown-list .dropdown-item:hover { background: #2a2d35; }
 
-    .empty-state {
-      text-align: center;
-      color: #606060;
-      padding: 3rem;
-      font-size: 0.95rem;
-    }
-
-    /* ───── Modal (quick view) ───── */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.65);
-      backdrop-filter: blur(6px);
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-      padding: 1rem;
-    }
-
-    .modal.active {
-      display: flex;
-    }
-
-    .modal-content {
-      background: #15171f;
-      border: 1px solid #2a2d37;
-      border-radius: 16px;
-      padding: 2rem;
-      max-width: 650px;
-      width: 100%;
-      max-height: 85vh;
-      overflow-y: auto;
-    }
-
-    .modal-content h3 {
-      color: #c9a86c;
-      margin-bottom: 0.5rem;
-    }
-
-    .modal-content p {
-      margin-bottom: 0.5rem;
-      font-size: 0.9rem;
-    }
-
-    .modal-actions {
-      display: flex;
-      gap: 0.5rem;
-      justify-content: flex-end;
-      margin-top: 1.5rem;
-    }
-
-    @media (max-width: 700px) {
-      .site-header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .hero h2 {
-        font-size: 1.6rem;
-      }
-    }
+    @media (max-width:700px) { body { flex-direction:column; } .sidebar { width:100%; height:40%; } }
   </style>
 </head>
 <body>
-  <header class="site-header">
-    <div class="site-title">◈ Tihie Rooms</div>
-    <nav class="site-nav">
-      <a class="nav-link active" href="#" data-tab="levels">📊 Уровни</a>
-      <a class="nav-link" href="#" data-tab="entities">👾 Сущности</a>
-      <a class="nav-link" href="#" data-tab="items">📦 Предметы</a>
-      <a class="nav-link" href="#" data-tab="foods">🍎 Еда</a>
-      <a class="nav-link primary" href="#" id="addBtn">➕ Новый уровень</a>
-    </nav>
-  </header>
-
-  <div class="hero">
-    <h2>Каталог уровней</h2>
-    <p>Исследуйте бесконечные комнаты вселенной «Там, где бог покинет нас вновь». Каждый уровень — уникальное пространство со своими законами, сущностями и опасностями.</p>
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header"><span>◈</span> Tihie Rooms</div>
+  <div class="tree" id="tree"></div>
+</div>
+<div class="main">
+  <div class="top-bar" id="topBar">
+    <div class="tabs">
+      <span class="tab-btn active" data-tab="home">Главная</span>
+      <span class="tab-btn" data-tab="levels">Уровни</span>
+      <span class="tab-btn" data-tab="entities">Сущности</span>
+      <span class="tab-btn" data-tab="items">Предметы</span>
+      <span class="tab-btn" data-tab="foods">Еда</span>
+    </div>
+    <div class="breadcrumbs" id="breadcrumbs">Главная</div>
+    <div class="actions">
+      <button class="btn" id="luckyBtn">🎲 Повезёт</button>
+      <button class="btn" id="refreshBtn">🔄 Обновить</button>
+      <button class="btn primary" id="addBtn">➕ Создать</button>
+    </div>
   </div>
+  <div class="content-area" id="contentArea"></div>
+</div>
 
-  <div class="toolbar">
-    <input type="text" id="searchInput" placeholder="Поиск по названию или ID уровня...">
-    <select id="clusterFilter">
-      <option value="">Все кластеры</option>
-    </select>
-    <select id="sortSelect">
-      <option value="default">По умолчанию</option>
-      <option value="id_asc">ID (возр.)</option>
-      <option value="id_desc">ID (убыв.)</option>
-      <option value="name_asc">Название (А–Я)</option>
-      <option value="name_desc">Название (Я–А)</option>
-      <option value="class_asc">Класс (0 → 5)</option>
-      <option value="class_desc">Класс (5 → 0)</option>
-    </select>
-  </div>
+<div class="modal" id="viewModal"><div class="modal-content" id="viewContent"></div></div>
+<div class="modal" id="editModal"><div class="modal-content" id="editContent"></div></div>
+<div class="lightbox" id="lightbox" onclick="this.style.display='none'"><img id="lightboxImg" src=""></div>
 
-  <div class="content" id="contentArea">
-    <div class="empty-state">Загрузка данных...</div>
-  </div>
+<script>
+(function() {
+  const API = {
+    owner: () => localStorage.getItem('gh_owner'),
+    repo: () => localStorage.getItem('gh_repo'),
+    token: () => localStorage.getItem('gh_token'),
+    headers: () => { const t = API.token(); return t ? { Authorization: `token ${t}` } : {}; },
+    base: () => `https://api.github.com/repos/${API.owner()}/${API.repo()}/contents`,
+    raw: (file) => `https://raw.githubusercontent.com/${API.owner()}/${API.repo()}/main/${file}?t=${Date.now()}`
+  };
 
-  <!-- Quick view modal -->
-  <div class="modal" id="quickViewModal">
-    <div class="modal-content" id="quickViewContent"></div>
-  </div>
+  let currentSection = 'home';
+  let data = { levels: [], entities: [], items: [], foods: [] };
+  let classStyles = JSON.parse(localStorage.getItem('classStyles')) || {
+    "0": { icon:"🟢", color:"#6a9a6a", name:"Безопасный" },
+    "1": { icon:"🟡", color:"#c9a64a", name:"Почти безопасный" },
+    "2": { icon:"🟠", color:"#b9774a", name:"Небезопасный" },
+    "3": { icon:"🟤", color:"#8b5a2b", name:"Опасный" },
+    "4": { icon:"🔴", color:"#a95a5a", name:"Очень опасный" },
+    "5": { icon:"⛔", color:"#8b0000", name:"Смертельный" }
+  };
+  let entityClassStyles = JSON.parse(localStorage.getItem('entityClassStyles')) || {
+    "0": { icon:"👻", color:"#6a9a6a", name:"Безвредный" },
+    "1": { icon:"🐾", color:"#c9a64a", name:"Условно безопасный" },
+    "2": { icon:"⚠️", color:"#b9774a", name:"Опасный" },
+    "3": { icon:"💀", color:"#a95a5a", name:"Смертельно опасный" }
+  };
+  let itemClassStyles = JSON.parse(localStorage.getItem('itemClassStyles')) || {
+    "cold_weapon": { icon:"🔪", color:"#6a9a6a", name:"Холодное оружие" },
+    "firearm": { icon:"🔫", color:"#c9a64a", name:"Огнестрел" },
+    "tool": { icon:"🔧", color:"#5a7a9a", name:"Инструмент" },
+    "other": { icon:"📦", color:"#8a8a8a", name:"Прочее" }
+  };
+  let foodClassStyles = JSON.parse(localStorage.getItem('foodClassStyles')) || {
+    "drink": { icon:"🥤", color:"#6a9a6a", name:"Напитки" },
+    "dish": { icon:"🍲", color:"#c9a64a", name:"Блюдо" },
+    "plant": { icon:"🌱", color:"#5a7a9a", name:"Растительное" },
+    "other": { icon:"🍽️", color:"#8a8a8a", name:"Прочее" }
+  };
 
-  <script>
-    (function() {
-      const API = {
-        owner: () => localStorage.getItem('gh_owner'),
-        repo: () => localStorage.getItem('gh_repo'),
-        token: () => localStorage.getItem('gh_token'),
-        headers: () => { const t = API.token(); return t ? { Authorization: `token ${t}` } : {}; },
-        base: () => `https://api.github.com/repos/${API.owner()}/${API.repo()}/contents`,
-        raw: (file) => `https://raw.githubusercontent.com/${API.owner()}/${API.repo()}/main/${file}?t=${Date.now()}`
+  const statColors = {
+    safety:'#6a9a6a', stability:'#5a7a9a', entities:'#b9774a', resources:'#6a9a6a', mental:'#9a6a9a', navigation:'#5a9a9a',
+    danger:'#a95a5a', frequency:'#b9774a', intelligence:'#5a7a9a', aggression:'#b95a5a',
+    weight:'#8a8a8a', rarity:'#c9a64a', usefulness:'#6a9a6a', durability:'#5a7a9a',
+    calories:'#c9a64a', availability:'#6a9a6a', taste:'#c9a64a', shelfLife:'#5a7a9a'
+  };
+
+  const tree = document.getElementById('tree');
+  const breadcrumbs = document.getElementById('breadcrumbs');
+  const contentArea = document.getElementById('contentArea');
+  const viewModal = document.getElementById('viewModal');
+  const viewContent = document.getElementById('viewContent');
+  const editModal = document.getElementById('editModal');
+  const editContent = document.getElementById('editContent');
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightboxImg');
+
+  function getClassStylesForType(type) {
+    if (type === 'entities') return entityClassStyles;
+    if (type === 'items') return itemClassStyles;
+    if (type === 'foods') return foodClassStyles;
+    return classStyles;
+  }
+
+  function getClassIcon(type, cls) {
+    const styles = getClassStylesForType(type);
+    if (styles[cls]) return styles[cls].icon;
+    return '⬜';
+  }
+
+  function ensureStats(obj, defaults) {
+    if (!obj.stats) obj.stats = {};
+    Object.keys(defaults).forEach(k => { if (obj.stats[k] === undefined) obj.stats[k] = defaults[k]; });
+    if (!obj.tags) obj.tags = [];
+    return obj;
+  }
+
+  async function fetchFilesInFolder(folder) {
+    if (!API.owner() || !API.repo()) return [];
+    const url = `${API.base()}/${folder}`;
+    try {
+      const resp = await fetch(url, { headers: API.headers(), cache:'no-store' });
+      if (!resp.ok) return [];
+      const items = await resp.json();
+      return Array.isArray(items) ? items.filter(f => f.type === 'file' && f.name.endsWith('.json')) : [];
+    } catch(e) { return []; }
+  }
+
+  async function loadAllData() {
+    const folders = ['levels', 'entities', 'items', 'foods'];
+    data = { levels: [], entities: [], items: [], foods: [] };
+    const downloadPromises = [];
+    for (const folder of folders) {
+      const files = await fetchFilesInFolder(folder);
+      files.forEach(file => {
+        downloadPromises.push((async () => {
+          try {
+            const resp = await fetch(file.download_url, { cache:'no-store' });
+            if (!resp.ok) return;
+            const obj = await resp.json();
+            obj._sha = file.sha;
+            obj._folder = folder;
+            data[folder].push(obj);
+          } catch(e) {}
+        })());
+      });
+    }
+    await Promise.all(downloadPromises);
+    data.levels.forEach(l => ensureStats(l, {safety:3,stability:3,entities:3,resources:3,mental:3,navigation:3}));
+    data.entities.forEach(e => ensureStats(e, {danger:3, frequency:3, intelligence:3, aggression:3}));
+    data.items.forEach(i => ensureStats(i, {weight:3, rarity:3, usefulness:3, durability:3}));
+    data.foods.forEach(f => ensureStats(f, {calories:500, availability:5, taste:3, shelfLife:7}));
+    data.levels.forEach(level => {
+      if (!Array.isArray(level.ent)) level.ent = [];
+      if (!Array.isArray(level.foodIds)) level.foodIds = [];
+      if (!Array.isArray(level.itemIds)) level.itemIds = [];
+    });
+  }
+
+  function getCurrentArray() {
+    if (currentSection === 'levels') return data.levels;
+    if (currentSection === 'entities') return data.entities;
+    if (currentSection === 'items') return data.items;
+    if (currentSection === 'foods') return data.foods;
+    return [];
+  }
+
+  function sortArray(arr, key) {
+    const a = [...arr];
+    switch(key) {
+      case 'id_asc': return a.sort((x,y) => (x.id||'').localeCompare(y.id||'', undefined, {numeric:true}));
+      case 'id_desc': return a.sort((x,y) => (y.id||'').localeCompare(x.id||'', undefined, {numeric:true}));
+      case 'name_asc': return a.sort((x,y) => (x.title||x.name||'').localeCompare(y.title||y.name||''));
+      case 'name_desc': return a.sort((x,y) => (y.title||y.name||'').localeCompare(x.title||x.name||''));
+      case 'class_asc': return a.sort((x,y) => parseInt(x.cls||0) - parseInt(y.cls||0));
+      case 'class_desc': return a.sort((x,y) => parseInt(y.cls||0) - parseInt(x.cls||0));
+      default: return a;
+    }
+  }
+
+  function renderStatsHTML(stats, labels, colors) {
+    return Object.entries(labels).map(([key, label]) => {
+      const val = stats[key] || 0;
+      const maxVal = key==='calories'?2000:key==='shelfLife'?30:(key==='availability'?10:5);
+      const pct = Math.min(100, (val / maxVal) * 100);
+      const color = colors[key] || '#777';
+      return `<div class="stat-row">
+        <span class="stat-label-mini">${label}</span>
+        <div class="stat-bar"><div class="stat-fill" style="width:${pct}%; background:${color};"></div></div>
+        <span class="stat-value">${val}${key==='calories'?' ккал':key==='shelfLife'?' дн.':''}</span>
+      </div>`;
+    }).join('');
+  }
+
+  function renderCards(items, type) {
+    return items.map(obj => {
+      const thumb = obj.thumbnail ? `<img class="card-img" src="${obj.thumbnail}" onerror="this.style.display='none'">` : '';
+      let statsHtml = '';
+      if (type === 'levels') statsHtml = renderStatsHTML(obj.stats, {safety:'Безопасность',stability:'Стабильность',entities:'Заселённость',resources:'Ресурсы',mental:'Психика',navigation:'Навигация'}, statColors);
+      else if (type === 'entities') statsHtml = renderStatsHTML(obj.stats, {danger:'Опасность',frequency:'Частота',intelligence:'Интеллект',aggression:'Агрессия'}, statColors);
+      else if (type === 'items') statsHtml = renderStatsHTML(obj.stats, {weight:'Вес (кг)',rarity:'Редкость',usefulness:'Полезность',durability:'Прочность'}, statColors);
+      else if (type === 'foods') statsHtml = renderStatsHTML(obj.stats, {calories:'Насыщение (ккал)',availability:'Доступность',taste:'Вкус',shelfLife:'Хранение (дни)'}, statColors);
+      return `<div class="card" data-type="${type}" data-id="${obj.id}">${thumb}
+        <div class="card-header"><span class="card-id">${obj.id}</span><span class="class-icon">${getClassIcon(type, obj.cls)}</span></div>
+        <div style="font-weight:500;">${obj.title || obj.name}</div>
+        <div style="margin:0.3rem 0;">${statsHtml}</div>
+        <div class="card-desc">${(obj.desc||'').substring(0,80)}...</div>
+        <div style="margin-top:0.3rem;">${(obj.tags||[]).map(t => `<span class="tag">${t}</span>`).join('')}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderContent() {
+    if (currentSection === 'home') {
+      contentArea.innerHTML = `<div style="max-width:800px;margin:0 auto;text-align:center;">
+        <h2 style="color:#c9a86c;margin-bottom:1rem;">Добро пожаловать в Tihie Rooms Enciclopedia</h2>
+        <p style="color:#b0b0be;">Исследуйте уровни, существ, предметы и пищу «Там, где бог покинет нас вновь».</p>
+        <div style="display:flex;gap:1rem;justify-content:center;margin:2rem 0;">
+          <div class="card" style="min-width:100px;"><div style="font-size:1.8rem;color:#c9a86c;">${data.levels.length}</div><div>Уровней</div></div>
+          <div class="card" style="min-width:100px;"><div style="font-size:1.8rem;color:#c9a86c;">${data.entities.length}</div><div>Сущностей</div></div>
+          <div class="card" style="min-width:100px;"><div style="font-size:1.8rem;color:#c9a86c;">${data.items.length}</div><div>Предметов</div></div>
+          <div class="card" style="min-width:100px;"><div style="font-size:1.8rem;color:#c9a86c;">${data.foods.length}</div><div>Еды</div></div>
+        </div>
+      </div>`;
+      tree.innerHTML = '<div style="padding:1rem;color:#8c8c9a;">Выберите раздел</div>';
+      return;
+    }
+    const arr = getCurrentArray();
+    const search = document.getElementById('searchInputField')?.value?.toLowerCase() || '';
+    const filtered = arr.filter(d => (d.title||d.name||'').toLowerCase().includes(search) || (d.id||'').includes(search));
+    const sort = document.getElementById('sortSelectField')?.value || 'default';
+    const sorted = sortArray(filtered, sort);
+    contentArea.innerHTML = `<div class="filters-bar" style="display:flex;gap:0.8rem;margin-bottom:1.5rem;">
+      <input type="text" id="searchInputField" placeholder="Поиск..." value="${search}" style="background:#12141a;border:1px solid #3a3d45;color:#e0e0e0;padding:0.6rem 1rem;border-radius:12px;">
+      <select id="sortSelectField" style="background:#12141a;border:1px solid #3a3d45;color:#e0e0e0;padding:0.6rem;border-radius:12px;">
+        <option value="default">По умолчанию</option>
+        <option value="id_asc">ID возр.</option><option value="id_desc">ID убыв.</option>
+        <option value="name_asc">Название А-Я</option><option value="name_desc">Название Я-А</option>
+        <option value="class_asc">Класс (0→5)</option><option value="class_desc">Класс (5→0)</option>
+      </select>
+    </div><div class="grid" id="grid"></div>`;
+    document.getElementById('grid').innerHTML = renderCards(sorted, currentSection);
+    document.querySelectorAll('.card').forEach(card => card.addEventListener('click', () => openView(card.dataset.type, card.dataset.id)));
+    document.getElementById('searchInputField').addEventListener('input', renderContent);
+    document.getElementById('sortSelectField').addEventListener('change', renderContent);
+  }
+
+  function renderLinkedCards(items, type, label) {
+    if (!items.length) return '';
+    const cards = items.map(item => `<div class="${type}-card" data-id="${item.id}">
+      ${item.thumbnail ? `<img src="${item.thumbnail}" onerror="this.style.display='none'">` : '<div style="width:80px;height:80px;background:#252835;border-radius:8px;"></div>'}
+      <div class="${type}-card-name">${item.title || item.name}</div>
+    </div>`).join('');
+    return `<div class="view-section"><h3>${label}</h3><div style="display:flex;flex-wrap:wrap;">${cards}</div></div>`;
+  }
+
+  function openView(type, id) {
+    const arr = data[type];
+    const obj = arr.find(o => o.id === id);
+    if (!obj) return;
+    breadcrumbs.innerHTML = `<span onclick="switchSection('home')">Главная</span> > ${type==='levels'?'Уровень':type==='entities'?'Сущность':type==='items'?'Предмет':'Еда'} ${obj.id}`;
+    const thumb = obj.thumbnail ? `<img src="${obj.thumbnail}" style="max-width:300px;border-radius:12px;margin-bottom:1rem;" onerror="this.style.display='none'">` : '';
+    const gallery = (obj.images||[]).map(img => `<img src="${img.url}" alt="${img.description||''}">`).join('');
+    let statsHtml = '';
+    if (type === 'levels') statsHtml = renderStatsHTML(obj.stats, {safety:'Безопасность',stability:'Стабильность',entities:'Заселённость',resources:'Ресурсы',mental:'Психика',navigation:'Навигация'}, statColors);
+    else if (type === 'entities') statsHtml = renderStatsHTML(obj.stats, {danger:'Опасность',frequency:'Частота',intelligence:'Интеллект',aggression:'Агрессия'}, statColors);
+    else if (type === 'items') statsHtml = renderStatsHTML(obj.stats, {weight:'Вес (кг)',rarity:'Редкость',usefulness:'Полезность',durability:'Прочность'}, statColors);
+    else if (type === 'foods') statsHtml = renderStatsHTML(obj.stats, {calories:'Насыщение (ккал)',availability:'Доступность',taste:'Вкус',shelfLife:'Хранение (дни)'}, statColors);
+
+    let linkedHtml = '';
+    if (type === 'levels') {
+      linkedHtml += renderLinkedCards((obj.ent||[]).map(id => data.entities.find(e => e.id === id)).filter(Boolean), 'entity', '👾 Сущности');
+      linkedHtml += renderLinkedCards((obj.foodIds||[]).map(id => data.foods.find(f => f.id === id)).filter(Boolean), 'food', '🍞 Еда');
+      linkedHtml += renderLinkedCards((obj.itemIds||[]).map(id => data.items.find(i => i.id === id)).filter(Boolean), 'level', '📦 Предметы');
+      const inIds = obj.in ? obj.in.split(',').map(s => s.trim()).filter(Boolean) : [];
+      const outIds = obj.out ? obj.out.split(',').map(s => s.trim()).filter(Boolean) : [];
+      linkedHtml += renderLinkedCards(inIds.map(id => data.levels.find(l => l.id === id)).filter(Boolean), 'level', '🚪 Входы');
+      linkedHtml += renderLinkedCards(outIds.map(id => data.levels.find(l => l.id === id)).filter(Boolean), 'level', '🏃 Выходы');
+    } else {
+      const linkedLevels = data.levels.filter(level => {
+        if (type === 'entities') return (level.ent||[]).includes(id);
+        if (type === 'items') return (level.itemIds||[]).includes(id);
+        if (type === 'foods') return (level.foodIds||[]).includes(id);
+      });
+      linkedHtml += renderLinkedCards(linkedLevels, 'level', '📍 Встречается на уровнях');
+    }
+
+    viewContent.innerHTML = `<h2 style="color:#c9a86c;">${obj.title || obj.name} (${obj.id})</h2>${thumb}
+      <p>Класс: ${getClassStylesForType(type)[obj.cls]?.name || obj.cls} ${getClassIcon(type, obj.cls)}</p>
+      <div class="view-section">${statsHtml}</div>
+      <div style="margin:0.5rem 0;">${(obj.tags||[]).map(t => `<span class="tag">${t}</span>`).join('')}</div>
+      <div class="view-section"><h3>📖 Описание</h3><p>${obj.desc}</p></div>
+      ${linkedHtml}
+      ${obj.habitat ? `<div class="view-section"><h3>🌍 Среда обитания</h3><p>${obj.habitat}</p></div>` : ''}
+      ${obj.behavior ? `<div class="view-section"><h3>🧠 Поведение</h3><p>${obj.behavior}</p></div>` : ''}
+      ${obj.props ? `<div class="view-section"><h3>⚙️ Свойства</h3><p>${obj.props}</p></div>` : ''}
+      ${obj.effect ? `<div class="view-section"><h3>✨ Эффект</h3><p>${obj.effect}</p></div>` : ''}
+      <div class="gallery">${gallery}</div>
+      <div style="display:flex;justify-content:flex-end;gap:0.7rem;margin-top:1.5rem;border-top:1px solid #3a3d45;padding-top:1rem;">
+        <button class="btn" id="closeViewBtn">Закрыть</button>
+        <button class="btn" id="editFromViewBtn">Редактировать</button>
+        <button class="btn" id="deleteBtn" style="color:#e5a0a0;">🗑️ Удалить</button>
+      </div>`;
+    viewModal.classList.add('active');
+    viewContent.querySelectorAll('.gallery img').forEach(img => img.addEventListener('click', e => { lightboxImg.src = e.target.src; lightbox.style.display = 'flex'; }));
+    document.getElementById('closeViewBtn').addEventListener('click', () => viewModal.classList.remove('active'));
+    document.getElementById('editFromViewBtn').addEventListener('click', () => { viewModal.classList.remove('active'); openEditModal(type, obj); });
+    document.getElementById('deleteBtn').addEventListener('click', () => { if (confirm(`Удалить ${obj.title||obj.name}?`)) deleteItem(type, obj); });
+    viewContent.querySelectorAll('.entity-card, .food-card, .level-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const t = card.classList.contains('entity-card') ? 'entities' : card.classList.contains('food-card') ? 'foods' : 'levels';
+        openView(t, card.dataset.id);
+      });
+    });
+  }
+
+  async function deleteItem(type, obj) {
+    const folder = type;
+    const filename = `${folder}/${type}_${obj.id}.json`;
+    const url = `${API.base()}/${filename}`;
+    const token = API.token();
+    let sha = obj._sha;
+    if (!sha) {
+      try { const resp = await fetch(url, { headers: { Authorization: `token ${token}` } }); if (resp.ok) sha = (await resp.json()).sha; } catch(e) {}
+    }
+    await fetch(url, { method: 'PUT', headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ message: `Delete ${filename}`, content: '', sha, branch: 'main' }) });
+    data[type] = data[type].filter(o => o.id !== obj.id);
+    viewModal.classList.remove('active');
+    renderTree();
+    renderContent();
+  }
+
+  function createDropdown(containerId, items, selectedIdsStr, placeholder) {
+    if (!items || items.length === 0) {
+      setTimeout(() => {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        container.innerHTML = `<input type="text" value="${selectedIdsStr||''}" placeholder="${placeholder}" style="background:#12141a;color:#e0e0e0;border:1px solid #3a3d45;border-radius:10px;padding:0.5rem;">`;
+        container._getSelected = () => container.querySelector('input').value;
+      }, 10);
+      return `<div class="dropdown-search" id="${containerId}"></div>`;
+    }
+    setTimeout(() => {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      const input = container.querySelector('input');
+      const list = container.querySelector('.dropdown-list');
+      const selectedContainer = container.querySelector('.selected-items');
+      let selected = selectedIdsStr ? selectedIdsStr.split(',').map(s => s.trim()).filter(Boolean) : [];
+      function renderSelected() {
+        selectedContainer.innerHTML = selected.map(id => {
+          const item = items.find(i => i.id === id);
+          return `<span class="selected-item">${id} (${item?.name||item?.title||'?'}) <span class="remove" data-id="${id}">✕</span></span>`;
+        }).join('') + (selected.length === 0 ? `<span style="color:#7a7a8a;font-size:0.8rem;">${placeholder}</span>` : '');
+        selectedContainer.querySelectorAll('.remove').forEach(btn => {
+          btn.addEventListener('click', (e) => { e.stopPropagation(); selected = selected.filter(id => id !== btn.dataset.id); renderSelected(); });
+        });
+      }
+      function filterList(search) {
+        list.innerHTML = '';
+        const filtered = items.filter(i => (i.id||'').includes(search) || (i.name||i.title||'').toLowerCase().includes(search.toLowerCase()));
+        filtered.forEach(i => {
+          const div = document.createElement('div');
+          div.className = 'dropdown-item';
+          div.textContent = `${i.id} – ${i.name||i.title}`;
+          div.addEventListener('click', () => {
+            if (!selected.includes(i.id)) { selected.push(i.id); renderSelected(); }
+            input.value = ''; list.style.display = 'none';
+          });
+          list.appendChild(div);
+        });
+      }
+      renderSelected();
+      input.addEventListener('focus', () => { filterList(input.value); list.style.display = 'block'; });
+      input.addEventListener('input', () => { filterList(input.value); list.style.display = 'block'; });
+      input.addEventListener('blur', () => { setTimeout(() => list.style.display = 'none', 200); });
+      container._getSelected = () => selected.join(', ');
+    }, 50);
+    return `<div class="dropdown-search" id="${containerId}">
+      <div class="selected-items"></div>
+      <input type="text" placeholder="Поиск..." style="background:#12141a;color:#e0e0e0;border:1px solid #3a3d45;border-radius:10px;padding:0.5rem;">
+      <div class="dropdown-list"></div>
+    </div>`;
+  }
+
+  function openEditModal(type, obj = null) {
+    const folder = type;
+    const styles = getClassStylesForType(type);
+    const defaultCls = type === 'levels' ? '0' : type === 'entities' ? '0' : type === 'items' ? 'cold_weapon' : 'drink';
+    const lvl = obj || { id:'', title:'', cluster:'', cls:defaultCls, desc:'', ent:[], foodIds:[], itemIds:[], in:'', out:'', stats:{}, tags:[], thumbnail:'', images:[], _sha:null };
+    const classOptions = Object.entries(styles).map(([v,s]) => `<option value="${v}" ${(obj?.cls||defaultCls)==v?'selected':''}>${s.name}</option>`).join('');
+    const entityContainerId = 'entity_' + Date.now();
+    const foodContainerId = 'food_' + Date.now();
+    const itemContainerId = 'item_' + Date.now();
+    const inContainerId = 'in_' + Date.now();
+    const outContainerId = 'out_' + Date.now();
+    const selectedEntities = obj?.ent ? (Array.isArray(obj.ent) ? obj.ent.join(',') : obj.ent) : '';
+    const selectedFoods = obj?.foodIds ? (Array.isArray(obj.foodIds) ? obj.foodIds.join(',') : obj.foodIds) : '';
+    const selectedItems = obj?.itemIds ? (Array.isArray(obj.itemIds) ? obj.itemIds.join(',') : obj.itemIds) : '';
+    const selectedIn = obj?.in || '';
+    const selectedOut = obj?.out || '';
+
+    editContent.innerHTML = `<h3 style="color:#c9a86c;">${obj?'Редактировать':'Новый'} ${type==='levels'?'уровень':type==='entities'?'сущность':type==='items'?'предмет':'еда'}</h3>
+      <div class="form-group"><label>ID</label><input id="editId" value="${lvl.id}"></div>
+      <div class="form-group"><label>Название</label><input id="editTitle" value="${lvl.title||lvl.name||''}"></div>
+      ${type==='levels' ? `<div class="form-group"><label>Кластер</label><input id="editCluster" value="${lvl.cluster||''}"></div>` : ''}
+      <div class="form-group"><label>Класс</label><select id="editClass">${classOptions}</select></div>
+      <div class="form-group"><label>Теги</label><input id="editTags" value="${(lvl.tags||[]).join(', ')}"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+        ${type==='levels' ? ` <div><label>Безопасность</label><input type="number" id="editSafety" value="${lvl.stats.safety||3}" min="1" max="5"></div><div><label>Стабильность</label><input type="number" id="editStability" value="${lvl.stats.stability||3}" min="1" max="5"></div><div><label>Заселённость</label><input type="number" id="editEntities" value="${lvl.stats.entities||3}" min="1" max="5"></div><div><label>Ресурсы</label><input type="number" id="editResources" value="${lvl.stats.resources||3}" min="1" max="5"></div><div><label>Психика</label><input type="number" id="editMental" value="${lvl.stats.mental||3}" min="1" max="5"></div><div><label>Навигация</label><input type="number" id="editNavigation" value="${lvl.stats.navigation||3}" min="1" max="5"></div>` : ''}
+        ${type==='entities' ? ` <div><label>Опасность</label><input type="number" id="editDanger" value="${lvl.stats.danger||3}" min="1" max="5"></div><div><label>Частота</label><input type="number" id="editFrequency" value="${lvl.stats.frequency||3}" min="1" max="5"></div><div><label>Интеллект</label><input type="number" id="editIntelligence" value="${lvl.stats.intelligence||3}" min="1" max="5"></div><div><label>Агрессия</label><input type="number" id="editAggression" value="${lvl.stats.aggression||3}" min="1" max="5"></div>` : ''}
+        ${type==='items' ? ` <div><label>Вес (кг)</label><input type="number" id="editWeight" value="${lvl.stats.weight||3}" step="any"></div><div><label>Редкость</label><input type="number" id="editRarity" value="${lvl.stats.rarity||3}" min="1" max="5"></div><div><label>Полезность</label><input type="number" id="editUsefulness" value="${lvl.stats.usefulness||3}" min="1" max="5"></div><div><label>Прочность</label><input type="number" id="editDurability" value="${lvl.stats.durability||3}" min="1" max="5"></div>` : ''}
+        ${type==='foods' ? ` <div><label>Насыщение (ккал)</label><input type="number" id="editCalories" value="${lvl.stats.calories||500}" step="any"></div><div><label>Доступность</label><input type="number" id="editAvailability" value="${lvl.stats.availability||5}" min="1" max="10"></div><div><label>Вкус</label><input type="number" id="editTaste" value="${lvl.stats.taste||3}" min="1" max="5"></div><div><label>Хранение (дни)</label><input type="number" id="editShelfLife" value="${lvl.stats.shelfLife||7}" min="1" max="365"></div>` : ''}
+      </div>
+      <div class="form-group"><label>Описание</label><textarea id="editDesc">${lvl.desc||''}</textarea></div>
+      ${type==='levels' ? `
+        <div class="form-group"><label>Сущности</label>${createDropdown(entityContainerId, data.entities, selectedEntities, 'Выберите сущностей')}</div>
+        <div class="form-group"><label>Еда</label>${createDropdown(foodContainerId, data.foods, selectedFoods, 'Выберите еду')}</div>
+        <div class="form-group"><label>Предметы</label>${createDropdown(itemContainerId, data.items, selectedItems, 'Выберите предметы')}</div>
+        <div class="form-group"><label>Входы</label>${createDropdown(inContainerId, data.levels, selectedIn, 'Выберите уровни входа')}</div>
+        <div class="form-group"><label>Выходы</label>${createDropdown(outContainerId, data.levels, selectedOut, 'Выберите уровни выхода')}</div>
+      ` : ''}
+      ${type==='entities' ? `<div class="form-group"><label>Среда обитания</label><input id="editHabitat" value="${lvl.habitat||''}"></div><div class="form-group"><label>Поведение</label><textarea id="editBehavior">${lvl.behavior||''}</textarea></div><div class="form-group"><label>Выживание</label><textarea id="editSurvival">${lvl.survival||''}</textarea></div>` : ''}
+      ${type==='items' ? `<div class="form-group"><label>Свойства</label><textarea id="editProps">${lvl.props||''}</textarea></div>` : ''}
+      ${type==='foods' ? `<div class="form-group"><label>Эффект</label><textarea id="editEffect">${lvl.effect||''}</textarea></div>` : ''}
+      <div class="form-group"><label>Главное изображение</label><input id="editThumbnail" value="${lvl.thumbnail||''}"></div>
+      <div id="imagesContainer">${(lvl.images||[]).map(img => `<div class="image-entry"><input class="image-url" value="${img.url}"><input class="image-desc" value="${img.description||''}"><button class="btn remove-image" style="background:transparent;border:1px solid #3a3d45;color:#cacaca;padding:0.2rem 0.5rem;border-radius:8px;">✕</button></div>`).join('')}</div>
+      <button class="btn" id="addImageBtn" style="margin-top:0.5rem;">+ Изображение</button>
+      <div style="margin-top:1.5rem; display:flex; gap:1rem; justify-content:flex-end;">
+        <button class="btn" onclick="editModal.classList.remove('active')">Отмена</button>
+        <button class="btn primary" id="saveBtn">Сохранить</button>
+      </div>`;
+    editModal.classList.add('active');
+    addImageListeners();
+    document.getElementById('saveBtn').addEventListener('click', async () => {
+      const images = []; document.querySelectorAll('#imagesContainer .image-entry').forEach(e => { const u=e.querySelector('.image-url').value.trim(), d=e.querySelector('.image-desc').value.trim(); if(u) images.push({url:u,description:d}); });
+      const newObj = {
+        id: document.getElementById('editId').value,
+        title: document.getElementById('editTitle').value,
+        cluster: type==='levels' ? document.getElementById('editCluster')?.value : undefined,
+        cls: document.getElementById('editClass').value,
+        tags: document.getElementById('editTags').value.split(',').map(s=>s.trim()).filter(Boolean),
+        stats: {},
+        desc: document.getElementById('editDesc').value,
+        thumbnail: document.getElementById('editThumbnail').value,
+        images
       };
-
-      let currentTab = 'levels';
-      let data = { levels: [], entities: [], items: [], foods: [] };
-
-      // ── Load data ──────────────────────────────
-      async function fetchFilesInFolder(folder) {
-        if (!API.owner() || !API.repo()) return [];
-        const url = `${API.base()}/${folder}`;
-        try {
-          const resp = await fetch(url, { headers: API.headers(), cache: 'no-store' });
-          if (!resp.ok) return [];
-          const items = await resp.json();
-          return Array.isArray(items) ? items.filter(f => f.type === 'file' && f.name.endsWith('.json')) : [];
-        } catch (e) { return []; }
+      if (type==='levels') {
+        newObj.stats = { safety:+document.getElementById('editSafety').value, stability:+document.getElementById('editStability').value, entities:+document.getElementById('editEntities').value, resources:+document.getElementById('editResources').value, mental:+document.getElementById('editMental').value, navigation:+document.getElementById('editNavigation').value };
+        const eDrop = document.getElementById(entityContainerId);
+        const fDrop = document.getElementById(foodContainerId);
+        const iDrop = document.getElementById(itemContainerId);
+        const inDrop = document.getElementById(inContainerId);
+        const outDrop = document.getElementById(outContainerId);
+        newObj.ent = (eDrop && eDrop._getSelected) ? eDrop._getSelected().split(',').map(s=>s.trim()).filter(Boolean) : [];
+        newObj.foodIds = (fDrop && fDrop._getSelected) ? fDrop._getSelected().split(',').map(s=>s.trim()).filter(Boolean) : [];
+        newObj.itemIds = (iDrop && iDrop._getSelected) ? iDrop._getSelected().split(',').map(s=>s.trim()).filter(Boolean) : [];
+        newObj.in = (inDrop && inDrop._getSelected) ? inDrop._getSelected() : '';
+        newObj.out = (outDrop && outDrop._getSelected) ? outDrop._getSelected() : '';
+      } else if (type==='entities') {
+        newObj.name = newObj.title; delete newObj.title;
+        newObj.stats = { danger:+document.getElementById('editDanger').value, frequency:+document.getElementById('editFrequency').value, intelligence:+document.getElementById('editIntelligence').value, aggression:+document.getElementById('editAggression').value };
+        newObj.habitat = document.getElementById('editHabitat').value;
+        newObj.behavior = document.getElementById('editBehavior').value;
+        newObj.survival = document.getElementById('editSurvival').value;
+      } else if (type==='items') {
+        newObj.name = newObj.title; delete newObj.title;
+        newObj.stats = { weight:+document.getElementById('editWeight').value, rarity:+document.getElementById('editRarity').value, usefulness:+document.getElementById('editUsefulness').value, durability:+document.getElementById('editDurability').value };
+        newObj.props = document.getElementById('editProps').value;
+      } else if (type==='foods') {
+        newObj.name = newObj.title; delete newObj.title;
+        newObj.stats = { calories:+document.getElementById('editCalories').value, availability:+document.getElementById('editAvailability').value, taste:+document.getElementById('editTaste').value, shelfLife:+document.getElementById('editShelfLife').value };
+        newObj.effect = document.getElementById('editEffect').value;
       }
-
-      async function loadAllData() {
-        const folders = ['levels', 'entities', 'items', 'foods'];
-        data = { levels: [], entities: [], items: [], foods: [] };
-        const downloadPromises = [];
-        for (const folder of folders) {
-          const files = await fetchFilesInFolder(folder);
-          files.forEach(file => {
-            downloadPromises.push((async () => {
-              try {
-                const resp = await fetch(file.download_url, { cache: 'no-store' });
-                if (resp.ok) {
-                  const obj = await resp.json();
-                  obj._sha = file.sha;
-                  data[folder].push(obj);
-                }
-              } catch (e) { }
-            })());
-          });
-        }
-        await Promise.all(downloadPromises);
+      const filename = `${folder}/${type}_${newObj.id}.json`;
+      const success = await commitFile(filename, newObj, obj?._sha);
+      if (success) {
+        if (obj) {
+          const idx = data[type].findIndex(o => o.id === obj.id);
+          if (idx !== -1) data[type][idx] = newObj;
+        } else data[type].push(newObj);
+        editModal.classList.remove('active');
+        renderTree();
+        renderContent();
+      } else {
+        alert('Ошибка сохранения. Проверьте токен и права доступа.');
       }
+    });
+  }
 
-      // ── Render ────────────────────────────────
-      function getClassIcon(cls) {
-        const icons = { '0': '🟢', '1': '🟡', '2': '🟠', '3': '🟤', '4': '🔴', '5': '⛔' };
-        return icons[cls] || '⬜';
-      }
+  async function commitFile(filename, content, sha) {
+    const token = API.token();
+    const url = `${API.base()}/${filename}`;
+    const body = {
+      message: `Update ${filename}`,
+      content: btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2)))),
+      branch: 'main'
+    };
+    if (sha) body.sha = sha;
+    try {
+      const resp = await fetch(url, { method: 'PUT', headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      if (!resp.ok) return false;
+      return true;
+    } catch(e) { return false; }
+  }
 
-      function sortLevels(arr, key) {
-        const a = [...arr];
-        switch (key) {
-          case 'id_asc': return a.sort((x, y) => (x.id || '').localeCompare(y.id || '', undefined, { numeric: true }));
-          case 'id_desc': return a.sort((x, y) => (y.id || '').localeCompare(x.id || '', undefined, { numeric: true }));
-          case 'name_asc': return a.sort((x, y) => (x.title || '').localeCompare(y.title || ''));
-          case 'name_desc': return a.sort((x, y) => (y.title || '').localeCompare(x.title || ''));
-          case 'class_asc': return a.sort((x, y) => parseInt(x.cls || 0) - parseInt(y.cls || 0));
-          case 'class_desc': return a.sort((x, y) => parseInt(y.cls || 0) - parseInt(x.cls || 0));
-          default: return a;
-        }
-      }
+  function addImageListeners() {
+    document.getElementById('addImageBtn')?.addEventListener('click', () => {
+      const container = document.getElementById('imagesContainer');
+      const entry = document.createElement('div'); entry.className='image-entry';
+      entry.innerHTML = `<input class="image-url" placeholder="URL" style="background:#12141a;color:#e0e0e0;border:1px solid #3a3d45;border-radius:8px;padding:0.3rem;margin-right:0.3rem;"><input class="image-desc" placeholder="Описание" style="background:#12141a;color:#e0e0e0;border:1px solid #3a3d45;border-radius:8px;padding:0.3rem;"><button class="btn remove-image">✕</button>`;
+      container.appendChild(entry);
+      entry.querySelector('.remove-image').addEventListener('click', () => entry.remove());
+    });
+    document.querySelectorAll('#imagesContainer .remove-image').forEach(b => b.addEventListener('click', e => e.target.closest('.image-entry').remove()));
+  }
 
-      function renderCatalog() {
-        const container = document.getElementById('contentArea');
-        const search = document.getElementById('searchInput').value.toLowerCase().trim();
-        const clusterFilter = document.getElementById('clusterFilter').value;
-        const sortKey = document.getElementById('sortSelect').value;
-
-        let items = data.levels;
-        if (search) items = items.filter(l => (l.title || '').toLowerCase().includes(search) || (l.id || '').includes(search));
-        if (clusterFilter) items = items.filter(l => (l.cluster || 'Без кластера') === clusterFilter);
-        items = sortLevels(items, sortKey);
-
-        if (!items.length) {
-          container.innerHTML = '<div class="empty-state">Ничего не найдено. Попробуйте изменить запрос.</div>';
-          return;
-        }
-
-        // Group by cluster
-        const clusters = {};
+  function renderTree() {
+    if (currentSection === 'home') { tree.innerHTML = '<div style="padding:1rem;color:#8c8c9a;">Выберите раздел</div>'; return; }
+    const arr = getCurrentArray();
+    if (currentSection === 'levels') {
+      const clusters = {};
+      arr.forEach(l => { const c = l.cluster || 'Без кластера'; if (!clusters[c]) clusters[c] = []; clusters[c].push(l); });
+      tree.innerHTML = '';
+      Object.entries(clusters).forEach(([name, items]) => {
+        const folder = document.createElement('div'); folder.className='tree-item tree-folder'; folder.textContent='📁 '+name;
+        const childContainer = document.createElement('div'); childContainer.className='tree-children'; childContainer.style.display='block';
+        folder.addEventListener('click', (e) => { e.stopPropagation(); childContainer.style.display = childContainer.style.display === 'none' ? 'block' : 'none'; });
+        tree.appendChild(folder); tree.appendChild(childContainer);
         items.forEach(l => {
-          const c = l.cluster || 'Без кластера';
-          if (!clusters[c]) clusters[c] = [];
-          clusters[c].push(l);
-        });
-
-        container.innerHTML = Object.entries(clusters).map(([name, levels]) => `
-          <div class="cluster">
-            <div class="cluster-title">
-              📁 ${name}
-              <span class="cluster-count">${levels.length} уровней</span>
-            </div>
-            <div class="level-grid">
-              ${levels.map(l => `
-                <div class="level-card" data-id="${l.id}">
-                  <div class="level-icon">${getClassIcon(l.cls)}</div>
-                  <div class="level-info">
-                    <div class="level-id">${l.id}</div>
-                    <div class="level-name">${l.title || 'Без названия'}</div>
-                  </div>
-                  <div class="level-class-badge">Класс ${l.cls || '?'}</div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        `).join('');
-
-        // Click → quick view
-        document.querySelectorAll('.level-card').forEach(card => {
-          card.addEventListener('click', () => {
-            const id = card.dataset.id;
-            const level = data.levels.find(l => l.id === id);
-            if (level) showQuickView(level);
-          });
-        });
-      }
-
-      function showQuickView(level) {
-        const modal = document.getElementById('quickViewModal');
-        const content = document.getElementById('quickViewContent');
-        content.innerHTML = `
-          <h3>Уровень ${level.id} – «${level.title || 'Без названия'}»</h3>
-          <p><strong>Класс:</strong> ${level.cls || '?'} ${getClassIcon(level.cls)}</p>
-          <p><strong>Кластер:</strong> ${level.cluster || '—'}</p>
-          <p>${(level.desc || '').substring(0, 300)}…</p>
-          <div class="modal-actions">
-            <button class="nav-link" id="closeQuickView">Закрыть</button>
-            <button class="nav-link primary" id="openFullView">Открыть полностью</button>
-          </div>
-        `;
-        modal.classList.add('active');
-        document.getElementById('closeQuickView').addEventListener('click', () => modal.classList.remove('active'));
-        document.getElementById('openFullView').addEventListener('click', () => {
-          modal.classList.remove('active');
-          // Открыть в текущем окне (заглушка – можно реализовать полноценный просмотр)
-          alert('Полноценный просмотр уровня будет добавлен в следующем обновлении.');
-        });
-        modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
-      }
-
-      function updateClusterFilter() {
-        const clusters = [...new Set(data.levels.map(l => l.cluster || 'Без кластера'))].sort();
-        const select = document.getElementById('clusterFilter');
-        select.innerHTML = '<option value="">Все кластеры</option>' + clusters.map(c => `<option value="${c}">${c}</option>`).join('');
-      }
-
-      // ── Event listeners ────────────────────────
-      document.getElementById('searchInput').addEventListener('input', renderCatalog);
-      document.getElementById('clusterFilter').addEventListener('change', renderCatalog);
-      document.getElementById('sortSelect').addEventListener('change', renderCatalog);
-
-      document.querySelectorAll('.nav-link[data-tab]').forEach(link => {
-        link.addEventListener('click', (e) => {
-          e.preventDefault();
-          document.querySelectorAll('.nav-link[data-tab]').forEach(l => l.classList.remove('active'));
-          link.classList.add('active');
-          currentTab = link.dataset.tab;
-          // Для других вкладок можно также отобразить соответствующий каталог
-          renderCatalog();
+          const item = document.createElement('div'); item.className='tree-item'; item.style.paddingLeft='2rem';
+          item.innerHTML = `<span class="class-icon">${getClassIcon('levels', l.cls)}</span> ${l.title}`;
+          item.addEventListener('click', (e) => { e.stopPropagation(); openView('levels', l.id); });
+          childContainer.appendChild(item);
         });
       });
-
-      document.getElementById('addBtn').addEventListener('click', (e) => {
-        e.preventDefault();
-        alert('Редактор уровней откроется в следующем обновлении.');
+    } else {
+      tree.innerHTML = '';
+      arr.forEach(d => {
+        const item = document.createElement('div'); item.className='tree-item';
+        item.innerHTML = `<span class="class-icon">${getClassIcon(currentSection, d.cls)}</span> ${d.title || d.name}`;
+        item.addEventListener('click', () => openView(currentSection, d.id));
+        tree.appendChild(item);
       });
+    }
+  }
 
-      // ── Init ────────────────────────────────────
-      (async () => {
-        await loadAllData();
-        updateClusterFilter();
-        renderCatalog();
-      })();
-    })();
-  </script>
+  async function switchSection(section) {
+    currentSection = section;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === section));
+    breadcrumbs.innerHTML = section === 'home' ? 'Главная' : `<span onclick="switchSection('home')">Главная</span> > ${section==='levels'?'Уровни':section==='entities'?'Сущности':section==='items'?'Предметы':'Еда'}`;
+    if (section !== 'home') await loadAllData();
+    renderTree();
+    renderContent();
+  }
+
+  window.switchSection = switchSection;
+
+  document.getElementById('luckyBtn').addEventListener('click', async () => {
+    const all = [...data.levels, ...data.entities, ...data.items, ...data.foods];
+    if (!all.length) return alert('База данных пуста');
+    const randomObj = all[Math.floor(Math.random() * all.length)];
+    const type = data.levels.includes(randomObj) ? 'levels' : data.entities.includes(randomObj) ? 'entities' : data.items.includes(randomObj) ? 'items' : 'foods';
+    await switchSection(type);
+    openView(type, randomObj.id);
+  });
+
+  document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => switchSection(b.dataset.tab)));
+  document.getElementById('refreshBtn').addEventListener('click', async () => { await loadAllData(); renderTree(); renderContent(); });
+  document.getElementById('addBtn').addEventListener('click', () => {
+    if (currentSection === 'home') return alert('Перейдите в нужный раздел');
+    openEditModal(currentSection);
+  });
+  viewModal.addEventListener('click', e => { if (e.target === viewModal) viewModal.classList.remove('active'); });
+  editModal.addEventListener('click', e => { if (e.target === editModal) editModal.classList.remove('active'); });
+
+  (async () => { await loadAllData(); switchSection('home'); })();
+})();
+</script>
 </body>
 </html>
