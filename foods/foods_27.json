@@ -1,0 +1,18 @@
+{
+  "id": "27",
+  "cls": "dish",
+  "tags": [
+    "Выпечка"
+  ],
+  "stats": {
+    "calories": 80,
+    "availability": 6,
+    "taste": 2,
+    "shelfLife": 80
+  },
+  "desc": "Армейские галеты , весьма сносные , пойдут как аналог хлеба",
+  "thumbnail": "https://avatars.mds.yandex.net/i?id=5220de805e7c63e574613f460efc6b21_l-5904614-images-thumbs&n=13",
+  "images": [],
+  "name": "Галеты",
+  "effect": "Насыщение"
+}
