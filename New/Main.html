@@ -97,7 +97,7 @@
     </div>
     <div class="breadcrumbs" id="breadcrumbs">Главная</div>
     <div class="actions">
-      <button class="btn" id="luckyBtn">🎲 Повезёт</button>
+      <button class="btn" id="luckyBtn">🎲 ЛакиБлок</button>
       <button class="btn" id="refreshBtn">🔄 Обновить</button>
       <button class="btn primary" id="addBtn">➕ Создать</button>
     </div>
@@ -126,15 +126,15 @@
     "0": { icon:"🟢", color:"#6a9a6a", name:"Безопасный" },
     "1": { icon:"🟡", color:"#c9a64a", name:"Почти безопасный" },
     "2": { icon:"🟠", color:"#b9774a", name:"Небезопасный" },
-    "3": { icon:"🟤", color:"#8b5a2b", name:"Опасный" },
-    "4": { icon:"🔴", color:"#a95a5a", name:"Очень опасный" },
-    "5": { icon:"⛔", color:"#8b0000", name:"Смертельный" }
+    "3": { icon:"🔴", color:"#8b5a2b", name:"Опасный" },
+    "4": { icon:"🟣", color:"#a95a5a", name:"Очень опасный" },
+    "5": { icon:"🔵", color:"#8b0000", name:"Смертельный" }
   };
   let entityClassStyles = JSON.parse(localStorage.getItem('entityClassStyles')) || {
-    "0": { icon:"👻", color:"#6a9a6a", name:"Безвредный" },
-    "1": { icon:"🐾", color:"#c9a64a", name:"Условно безопасный" },
-    "2": { icon:"⚠️", color:"#b9774a", name:"Опасный" },
-    "3": { icon:"💀", color:"#a95a5a", name:"Смертельно опасный" }
+    "0": { icon:"🟢", color:"#6a9a6a", name:"Безвредный" },
+    "1": { icon:"🟠", color:"#c9a64a", name:"Условно безопасный" },
+    "2": { icon:"🔴", color:"#b9774a", name:"Опасный" },
+    "3": { icon:"🟣", color:"#a95a5a", name:"Смертельно опасный" }
   };
   let itemClassStyles = JSON.parse(localStorage.getItem('itemClassStyles')) || {
     "cold_weapon": { icon:"🔪", color:"#6a9a6a", name:"Холодное оружие" },
@@ -285,7 +285,7 @@
     if (currentSection === 'home') {
       contentArea.innerHTML = `<div style="max-width:800px;margin:0 auto;text-align:center;">
         <h2 style="color:#c9a86c;margin-bottom:1rem;">Добро пожаловать в Tihie Rooms Enciclopedia</h2>
-        <p style="color:#b0b0be;">Исследуйте уровни, существ, предметы и пищу «Там, где бог покинет нас вновь».</p>
+        <p style="color:#b0b0be;">Енцеклопедия вселенной «Там, где бог покинет нас вновь».</p>
         <div style="display:flex;gap:1rem;justify-content:center;margin:2rem 0;">
           <div class="card" style="min-width:100px;"><div style="font-size:1.8rem;color:#c9a86c;">${data.levels.length}</div><div>Уровней</div></div>
           <div class="card" style="min-width:100px;"><div style="font-size:1.8rem;color:#c9a86c;">${data.entities.length}</div><div>Сущностей</div></div>
