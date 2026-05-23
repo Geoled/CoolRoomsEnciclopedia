@@ -67,8 +67,6 @@
     .entity-card:hover, .food-card:hover, .level-card:hover { border-color: #c9a86c; }
     .entity-card img, .food-card img, .level-card img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; margin-bottom: 0.3rem; }
     .entity-card-name, .food-card-name, .level-card-name { font-size: 0.8rem; color: #c9a86c; }
-
-    /* Стили для выпадающих списков */
     .dropdown-search { position: relative; }
     .dropdown-search .selected-items { display: flex; flex-wrap: wrap; gap: 0.3rem; min-height: 40px; align-items: center; padding: 0.3rem; background: #12141a; border: 1px solid #3a3d45; border-radius: 10px; }
     .selected-item { background: #2c2c38; padding: 0.2rem 0.5rem; border-radius: 10px; font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem; }
@@ -77,7 +75,6 @@
     .dropdown-search .dropdown-list { position: absolute; top: 100%; left: 0; width: 100%; background: #1a1c24; border: 1px solid #3a3d45; border-radius: 10px; max-height: 180px; overflow-y: auto; z-index: 50; display: none; }
     .dropdown-list .dropdown-item { padding: 0.5rem; cursor: pointer; color: #d0d0d0; }
     .dropdown-list .dropdown-item:hover { background: #2a2d35; }
-
     @media (max-width:700px) { body { flex-direction:column; } .sidebar { width:100%; height:40%; } }
   </style>
 </head>
@@ -85,6 +82,7 @@
 <div class="sidebar" id="sidebar">
   <div class="sidebar-header"><span>◈</span> Tihie Rooms</div>
   <div class="tree" id="tree"></div>
+  <button class="btn" id="settingsBtn" style="margin:1rem;">⚙️ Настройки GitHub</button>
 </div>
 <div class="main">
   <div class="top-bar" id="topBar">
@@ -107,6 +105,18 @@
 
 <div class="modal" id="viewModal"><div class="modal-content" id="viewContent"></div></div>
 <div class="modal" id="editModal"><div class="modal-content" id="editContent"></div></div>
+<div class="modal" id="settingsModal">
+  <div class="modal-content">
+    <h3 style="color:#c9a86c;">Настройки GitHub</h3>
+    <div class="form-group"><label>Владелец репозитория</label><input id="settingsOwner" placeholder="username"></div>
+    <div class="form-group"><label>Название репозитория</label><input id="settingsRepo" placeholder="repo-name"></div>
+    <div class="form-group"><label>Токен (classic)</label><input type="password" id="settingsToken" placeholder="ghp_..."></div>
+    <div class="modal-actions" style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:1rem;">
+      <button class="btn" id="closeSettingsBtn">Закрыть</button>
+      <button class="btn primary" id="saveSettingsBtn">Сохранить</button>
+    </div>
+  </div>
+</div>
 <div class="lightbox" id="lightbox" onclick="this.style.display='none'"><img id="lightboxImg" src=""></div>
 
 <script>
@@ -166,19 +176,39 @@
   const lightbox = document.getElementById('lightbox');
   const lightboxImg = document.getElementById('lightboxImg');
 
+  // ── Настройки GitHub ─────────────────────────
+  document.getElementById('settingsBtn').addEventListener('click', () => {
+    document.getElementById('settingsOwner').value = localStorage.getItem('gh_owner') || '';
+    document.getElementById('settingsRepo').value = localStorage.getItem('gh_repo') || '';
+    document.getElementById('settingsToken').value = localStorage.getItem('gh_token') || '';
+    document.getElementById('settingsModal').classList.add('active');
+  });
+  document.getElementById('closeSettingsBtn').addEventListener('click', () => {
+    document.getElementById('settingsModal').classList.remove('active');
+  });
+  document.getElementById('saveSettingsBtn').addEventListener('click', () => {
+    localStorage.setItem('gh_owner', document.getElementById('settingsOwner').value.trim());
+    localStorage.setItem('gh_repo', document.getElementById('settingsRepo').value.trim());
+    localStorage.setItem('gh_token', document.getElementById('settingsToken').value.trim());
+    alert('Настройки сохранены.');
+    document.getElementById('settingsModal').classList.remove('active');
+  });
+  document.getElementById('settingsModal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('settingsModal')) document.getElementById('settingsModal').classList.remove('active');
+  });
+
+  // ── Вспомогательные функции ──────────────────
   function getClassStylesForType(type) {
     if (type === 'entities') return entityClassStyles;
     if (type === 'items') return itemClassStyles;
     if (type === 'foods') return foodClassStyles;
     return classStyles;
   }
-
   function getClassIcon(type, cls) {
     const styles = getClassStylesForType(type);
     if (styles[cls]) return styles[cls].icon;
     return '⬜';
   }
-
   function ensureStats(obj, defaults) {
     if (!obj.stats) obj.stats = {};
     Object.keys(defaults).forEach(k => { if (obj.stats[k] === undefined) obj.stats[k] = defaults[k]; });
@@ -186,6 +216,7 @@
     return obj;
   }
 
+  // ── Загрузка данных ──────────────────────────
   async function fetchFilesInFolder(folder) {
     if (!API.owner() || !API.repo()) return [];
     const url = `${API.base()}/${folder}`;
@@ -391,11 +422,22 @@
     const filename = `${folder}/${type}_${obj.id}.json`;
     const url = `${API.base()}/${filename}`;
     const token = API.token();
-    let sha = obj._sha;
-    if (!sha) {
-      try { const resp = await fetch(url, { headers: { Authorization: `token ${token}` } }); if (resp.ok) sha = (await resp.json()).sha; } catch(e) {}
-    }
-    await fetch(url, { method: 'PUT', headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ message: `Delete ${filename}`, content: '', sha, branch: 'main' }) });
+    if (!token) { alert('Настройте GitHub токен.'); return; }
+    // Получаем актуальный SHA
+    let sha = null;
+    try {
+      const resp = await fetch(url, { headers: { Authorization: `token ${token}` } });
+      if (resp.ok) { const info = await resp.json(); sha = info.sha; }
+      else if (resp.status === 404) { alert('Файл не найден.'); return; }
+    } catch(e) { alert('Ошибка получения информации о файле.'); return; }
+    if (!sha) { alert('Не удалось получить SHA файла.'); return; }
+    // Удаление
+    const delResp = await fetch(url, {
+      method: 'PUT',
+      headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: `Delete ${filename}`, content: '', sha, branch: 'main' })
+    });
+    if (!delResp.ok) { alert('Ошибка удаления.'); return; }
     data[type] = data[type].filter(o => o.id !== obj.id);
     viewModal.classList.remove('active');
     renderTree();
@@ -560,9 +602,19 @@
     });
   }
 
-  async function commitFile(filename, content, sha) {
+  async function commitFile(filename, content, oldSha) {
     const token = API.token();
+    if (!token) { alert('Настройте GitHub токен.'); return false; }
     const url = `${API.base()}/${filename}`;
+    // Получаем актуальный SHA, если файл существует
+    let sha = null;
+    try {
+      const resp = await fetch(url, { headers: { Authorization: `token ${token}` } });
+      if (resp.ok) {
+        const info = await resp.json();
+        sha = info.sha;
+      }
+    } catch (e) {}
     const body = {
       message: `Update ${filename}`,
       content: btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2)))),
@@ -570,10 +622,13 @@
     };
     if (sha) body.sha = sha;
     try {
-      const resp = await fetch(url, { method: 'PUT', headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-      if (!resp.ok) return false;
-      return true;
-    } catch(e) { return false; }
+      const resp = await fetch(url, {
+        method: 'PUT',
+        headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      return resp.ok;
+    } catch (e) { return false; }
   }
 
   function addImageListeners() {
