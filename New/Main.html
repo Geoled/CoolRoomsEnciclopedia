@@ -130,6 +130,52 @@
     .gallery img:hover { transform: scale(1.5); z-index:10; box-shadow: 0 4px 12px rgba(0,0,0,0.6); }
     .lightbox { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:none; align-items:center; justify-content:center; z-index:200; }
     .lightbox img { max-width:90%; max-height:90%; border-radius:12px; }
+
+    /* Улучшение читаемости */
+    .view-section {
+      background: #1a1d28;
+      border: 1px solid #2a2e3a;
+      border-radius: 12px;
+      padding: 1.2rem;
+      margin: 1.2rem 0;
+    }
+    .view-section p {
+      line-height: 1.8;
+      margin-bottom: 0.8rem;
+      color: #cbcbd4;
+    }
+    .view-section h3 {
+      margin-bottom: 0.6rem;
+      color: #b8974c;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .entity-card {
+      display: inline-block;
+      background: #1e2028;
+      border: 1px solid #3a3d45;
+      border-radius: 12px;
+      padding: 0.8rem;
+      margin: 0.3rem;
+      text-align: center;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .entity-card:hover {
+      border-color: #c9a86c;
+    }
+    .entity-card img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 0.3rem;
+    }
+    .entity-card-name {
+      font-size: 0.8rem;
+      color: #c9a86c;
+    }
     @media (max-width:700px) {
       body { flex-direction:column; }
       .sidebar { width:100%; height:40%; }
@@ -282,6 +328,16 @@
     data.entities.forEach(e => ensureStats(e, {danger:3, frequency:3, intelligence:3, aggression:3}));
     data.items.forEach(i => ensureStats(i, {weight:3, rarity:3, usefulness:3, durability:3}));
     data.foods.forEach(f => ensureStats(f, {calories:500, availability:5, taste:3, shelfLife:7}));
+
+    // Преобразование старых ent (массив строк) в ID сущностей
+    data.levels.forEach(level => {
+      if (Array.isArray(level.ent) && level.ent.length > 0 && typeof level.ent[0] === 'string') {
+        level.ent = level.ent.map(name => {
+          const found = data.entities.find(e => e.name === name);
+          return found ? found.id : name;
+        });
+      }
+    });
   }
 
   function getCurrentArray() {
@@ -386,19 +442,36 @@
     else if (type === 'entities') statsHtml = renderStatsHTML(obj.stats, {danger:'Опасность',frequency:'Частота',intelligence:'Интеллект',aggression:'Агрессия'}, statColors);
     else if (type === 'items') statsHtml = renderStatsHTML(obj.stats, {weight:'Вес (кг)',rarity:'Редкость',usefulness:'Полезность',durability:'Прочность'}, statColors);
     else if (type === 'foods') statsHtml = renderStatsHTML(obj.stats, {calories:'Насыщение (ккал)',availability:'Доступность',taste:'Вкус',shelfLife:'Хранение (дни)'}, statColors);
+    
+    let entitiesHtml = '';
+    if (type === 'levels' && obj.ent) {
+      const entityCards = obj.ent.map(entId => {
+        const entity = data.entities.find(e => e.id === entId);
+        if (entity) {
+          return `<div class="entity-card" data-entity-id="${entity.id}">
+            ${entity.thumbnail ? `<img src="${entity.thumbnail}" onerror="this.style.display='none'">` : '<div style="width:80px;height:80px;background:#252835;border-radius:8px;"></div>'}
+            <div class="entity-card-name">${entity.name}</div>
+          </div>`;
+        } else {
+          return `<span class="tag">${entId}</span>`;
+        }
+      }).join('');
+      entitiesHtml = `<div class="view-section"><h3>👾 Сущности</h3><div style="display:flex;flex-wrap:wrap;">${entityCards}</div></div>`;
+    }
+
     viewContent.innerHTML = `<h2 style="color:#c9a86c;">${obj.title || obj.name} (${obj.id})</h2>${thumb}
       <p>Класс: ${getClassStylesForType(type)[obj.cls]?.name || obj.cls} ${getClassIcon(type, obj.cls)}</p>
-      <div>${statsHtml}</div>
+      <div class="view-section">${statsHtml}</div>
       <div style="margin:0.5rem 0;">${(obj.tags||[]).map(t => `<span class="tag">${t}</span>`).join('')}</div>
-      <p>${obj.desc}</p>
-      ${obj.food ? `<p><strong>Пища:</strong> ${obj.food}</p>` : ''}
-      ${obj.ent ? `<p><strong>Сущности:</strong> ${obj.ent.join(', ')}</p>` : ''}
-      ${obj.in ? `<p><strong>Входы:</strong> ${obj.in}</p>` : ''}
-      ${obj.out ? `<p><strong>Выходы:</strong> ${obj.out}</p>` : ''}
-      ${obj.habitat ? `<p><strong>Среда:</strong> ${obj.habitat}</p>` : ''}
-      ${obj.behavior ? `<p><strong>Поведение:</strong> ${obj.behavior}</p>` : ''}
-      ${obj.props ? `<p><strong>Свойства:</strong> ${obj.props}</p>` : ''}
-      ${obj.effect ? `<p><strong>Эффект:</strong> ${obj.effect}</p>` : ''}
+      <div class="view-section"><h3>📖 Описание</h3><p>${obj.desc}</p></div>
+      ${obj.food ? `<div class="view-section"><h3>🍞 Пища</h3><p>${obj.food}</p></div>` : ''}
+      ${entitiesHtml}
+      ${obj.in ? `<div class="view-section"><h3>🚪 Входы</h3><p>${obj.in}</p></div>` : ''}
+      ${obj.out ? `<div class="view-section"><h3>🏃 Выходы</h3><p>${obj.out}</p></div>` : ''}
+      ${obj.habitat ? `<div class="view-section"><h3>🌍 Среда обитания</h3><p>${obj.habitat}</p></div>` : ''}
+      ${obj.behavior ? `<div class="view-section"><h3>🧠 Поведение</h3><p>${obj.behavior}</p></div>` : ''}
+      ${obj.props ? `<div class="view-section"><h3>⚙️ Свойства</h3><p>${obj.props}</p></div>` : ''}
+      ${obj.effect ? `<div class="view-section"><h3>✨ Эффект</h3><p>${obj.effect}</p></div>` : ''}
       <div class="gallery">${gallery}</div>
       <div style="display:flex;justify-content:flex-end;gap:0.7rem;margin-top:1.5rem;border-top:1px solid #3a3d45;padding-top:1rem;">
         <button class="btn" id="closeViewBtn">Закрыть</button>
@@ -410,6 +483,16 @@
     document.getElementById('closeViewBtn').addEventListener('click', () => viewModal.classList.remove('active'));
     document.getElementById('editFromViewBtn').addEventListener('click', () => { viewModal.classList.remove('active'); openEditModal(type, obj); });
     document.getElementById('deleteBtn').addEventListener('click', () => { if (confirm(`Удалить ${obj.title||obj.name}?`)) deleteItem(type, obj); });
+
+    // Клики по карточкам сущностей
+    viewContent.querySelectorAll('.entity-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const entityId = card.dataset.entityId;
+        const entity = data.entities.find(e => e.id === entityId);
+        if (entity) openView('entities', entity.id);
+      });
+    });
   }
 
   async function deleteItem(type, obj) {
@@ -428,12 +511,68 @@
     renderContent();
   }
 
+  // Функция для создания выпадающего списка сущностей с поиском (аналогично уровням)
+  function createEntityDropdown(containerId, selectedIds, placeholder) {
+    setTimeout(() => {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      const input = container.querySelector('input');
+      const list = container.querySelector('.dropdown-list');
+      const selectedContainer = container.querySelector('.selected-items');
+      let selected = selectedIds || [];
+      function renderSelected() {
+        selectedContainer.innerHTML = selected.map(id => {
+          const ent = data.entities.find(e => e.id === id);
+          return `<span class="selected-item">${id} (${ent?.name||'?'}) <span class="remove" data-id="${id}">✕</span></span>`;
+        }).join('') + (selected.length === 0 ? `<span style="color:#7a7a8a;font-size:0.8rem;">${placeholder}</span>` : '');
+        selectedContainer.querySelectorAll('.remove').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            selected = selected.filter(id => id !== btn.dataset.id);
+            renderSelected();
+          });
+        });
+      }
+      function filterList(search) {
+        list.innerHTML = '';
+        const filtered = data.entities.filter(e => e.id.includes(search) || e.name.toLowerCase().includes(search.toLowerCase()));
+        filtered.forEach(e => {
+          const div = document.createElement('div');
+          div.className = 'dropdown-item';
+          div.textContent = `${e.id} – ${e.name}`;
+          div.addEventListener('click', () => {
+            if (!selected.includes(e.id)) {
+              selected.push(e.id);
+              renderSelected();
+            }
+            input.value = '';
+            list.style.display = 'none';
+          });
+          list.appendChild(div);
+        });
+      }
+      renderSelected();
+      input.addEventListener('focus', () => { filterList(input.value); list.style.display = 'block'; });
+      input.addEventListener('input', () => { filterList(input.value); list.style.display = 'block'; });
+      input.addEventListener('blur', () => { setTimeout(() => list.style.display = 'none', 200); });
+      container._getSelected = () => selected.join(', ');
+    }, 50);
+    return `<div class="dropdown-search" id="${containerId}">
+      <div class="selected-items"></div>
+      <input type="text" placeholder="Поиск сущности...">
+      <div class="dropdown-list"></div>
+    </div>`;
+  }
+
   function openEditModal(type, obj = null) {
     const folder = type;
     const styles = getClassStylesForType(type);
     const defaultCls = type === 'levels' ? '0' : type === 'entities' ? '0' : type === 'items' ? 'cold_weapon' : 'drink';
     const lvl = obj || { id:'', title:'', cluster:'', cls:defaultCls, desc:'', food:'', ent:[], in:'', out:'', stats:{}, tags:[], thumbnail:'', images:[], _sha:null };
     const classOptions = Object.entries(styles).map(([v,s]) => `<option value="${v}" ${(obj?.cls||defaultCls)==v?'selected':''}>${s.name}</option>`).join('');
+    const entityContainerId = 'entity_' + Date.now();
+    const selectedEntities = obj?.ent ? (Array.isArray(obj.ent) ? obj.ent.join(',') : obj.ent) : '';
+    
     editContent.innerHTML = `<h3>${obj?'Редактировать':'Новый'} ${type==='levels'?'уровень':type==='entities'?'сущность':type==='items'?'предмет':'еда'}</h3>
       <div class="form-group"><label>ID</label><input id="editId" value="${lvl.id}"></div>
       <div class="form-group"><label>Название</label><input id="editTitle" value="${lvl.title||lvl.name||''}"></div>
@@ -447,7 +586,7 @@
         ${type==='foods' ? ` <div><label>Насыщение (ккал)</label><input type="number" id="editCalories" value="${lvl.stats.calories||500}" step="any"></div><div><label>Доступность</label><input type="number" id="editAvailability" value="${lvl.stats.availability||5}" min="1" max="10"></div><div><label>Вкус</label><input type="number" id="editTaste" value="${lvl.stats.taste||3}" min="1" max="5"></div><div><label>Хранение (дни)</label><input type="number" id="editShelfLife" value="${lvl.stats.shelfLife||7}" min="1" max="365"></div>` : ''}
       </div>
       <div class="form-group"><label>Описание</label><textarea id="editDesc">${lvl.desc||''}</textarea></div>
-      ${type==='levels' ? `<div class="form-group"><label>Пища</label><input id="editFood" value="${lvl.food||''}"></div><div class="form-group"><label>Сущности</label><input id="editEnt" value="${(lvl.ent||[]).join(', ')}"></div><div class="form-group"><label>Входы</label><input id="editIn" value="${lvl.in||''}"></div><div class="form-group"><label>Выходы</label><input id="editOut" value="${lvl.out||''}"></div>` : ''}
+      ${type==='levels' ? `<div class="form-group"><label>Пища</label><input id="editFood" value="${lvl.food||''}"></div><div class="form-group"><label>Сущности</label>${createEntityDropdown(entityContainerId, selectedEntities, 'Выберите сущностей')}</div><div class="form-group"><label>Входы</label><input id="editIn" value="${lvl.in||''}"></div><div class="form-group"><label>Выходы</label><input id="editOut" value="${lvl.out||''}"></div>` : ''}
       ${type==='entities' ? `<div class="form-group"><label>Среда обитания</label><input id="editHabitat" value="${lvl.habitat||''}"></div><div class="form-group"><label>Поведение</label><textarea id="editBehavior">${lvl.behavior||''}</textarea></div><div class="form-group"><label>Выживание</label><textarea id="editSurvival">${lvl.survival||''}</textarea></div>` : ''}
       ${type==='items' ? `<div class="form-group"><label>Свойства</label><textarea id="editProps">${lvl.props||''}</textarea></div>` : ''}
       ${type==='foods' ? `<div class="form-group"><label>Эффект</label><textarea id="editEffect">${lvl.effect||''}</textarea></div>` : ''}
@@ -473,7 +612,8 @@
       if (type==='levels') {
         newObj.stats = { safety:+document.getElementById('editSafety').value, stability:+document.getElementById('editStability').value, entities:+document.getElementById('editEntities').value, resources:+document.getElementById('editResources').value, mental:+document.getElementById('editMental').value, navigation:+document.getElementById('editNavigation').value };
         newObj.food = document.getElementById('editFood').value;
-        newObj.ent = document.getElementById('editEnt').value.split(',').map(s=>s.trim()).filter(Boolean);
+        const entityDropdown = document.getElementById(entityContainerId);
+        newObj.ent = entityDropdown ? entityDropdown._getSelected().split(',').map(s=>s.trim()).filter(Boolean) : [];
         newObj.in = document.getElementById('editIn').value;
         newObj.out = document.getElementById('editOut').value;
       } else if (type==='entities') {
