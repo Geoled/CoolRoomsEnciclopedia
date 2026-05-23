@@ -95,7 +95,7 @@
     </div>
     <div class="breadcrumbs" id="breadcrumbs">Главная</div>
     <div class="actions">
-      <button class="btn" id="luckyBtn"> Повезёт</button>
+      <button class="btn" id="luckyBtn"> Лаки-Блок</button>
       <button class="btn" id="refreshBtn"> Обновить</button>
       <button class="btn primary" id="addBtn">➕ Создать</button>
     </div>
@@ -403,12 +403,12 @@
       <p>Класс: ${getClassStylesForType(type)[obj.cls]?.name || obj.cls} ${getClassIcon(type, obj.cls)}</p>
       <div class="view-section">${statsHtml}</div>
       <div style="margin:0.5rem 0;">${(obj.tags||[]).map(t => `<span class="tag">${t}</span>`).join('')}</div>
-      <div class="view-section"><h3>📖 Описание</h3><p>${obj.desc}</p></div>
+      <div class="view-section"><h3> Описание</h3><p>${obj.desc}</p></div>
       ${linkedHtml}
-      ${obj.habitat ? `<div class="view-section"><h3>🌍 Среда обитания</h3><p>${obj.habitat}</p></div>` : ''}
-      ${obj.behavior ? `<div class="view-section"><h3>🧠 Поведение</h3><p>${obj.behavior}</p></div>` : ''}
-      ${obj.props ? `<div class="view-section"><h3>⚙️ Свойства</h3><p>${obj.props}</p></div>` : ''}
-      ${obj.effect ? `<div class="view-section"><h3>✨ Эффект</h3><p>${obj.effect}</p></div>` : ''}
+      ${obj.habitat ? `<div class="view-section"><h3> Среда обитания</h3><p>${obj.habitat}</p></div>` : ''}
+      ${obj.behavior ? `<div class="view-section"><h3> Поведение</h3><p>${obj.behavior}</p></div>` : ''}
+      ${obj.props ? `<div class="view-section"><h3> Свойства</h3><p>${obj.props}</p></div>` : ''}
+      ${obj.effect ? `<div class="view-section"><h3> Эффект</h3><p>${obj.effect}</p></div>` : ''}
       <div class="gallery">${gallery}</div>
       <div style="display:flex;justify-content:flex-end;gap:0.7rem;margin-top:1.5rem;border-top:1px solid #3a3d45;padding-top:1rem;">
         <button class="btn" id="closeViewBtn">Закрыть</button>
