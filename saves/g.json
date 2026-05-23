@@ -1,14 +1,14 @@
 {
   "hp": 100,
-  "hunger": 100,
-  "thirst": 100,
-  "sleep": 100,
+  "hunger": 58,
+  "thirst": 37,
+  "sleep": 91,
   "temperature": 36.6,
   "sanity": 100,
   "currentLevelId": "0",
   "inventory": [],
-  "playTime": 3,
-  "dayTime": 3,
+  "playTime": 63,
+  "dayTime": 63,
   "levelsVisited": [
     "0"
   ],
@@ -22,15 +22,15 @@
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
@@ -44,59 +44,63 @@
       ],
       [
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "exit"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         }
       ],
       [
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         }
       ],
       [
         {
-          "explored": false,
+          "explored": true,
+          "type": "empty"
+        },
+        {
+          "explored": true,
           "type": "empty"
         },
         {
@@ -104,71 +108,67 @@
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
-          "explored": false,
-          "type": "empty"
-        },
-        {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         }
       ],
       [
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         }
       ],
       [
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         }
       ]
@@ -176,6 +176,6 @@
     "width": 6,
     "height": 6
   },
-  "playerX": 0,
-  "playerY": 0
+  "playerX": 3,
+  "playerY": 1
 }
