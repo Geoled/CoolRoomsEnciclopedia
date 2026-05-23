@@ -1,8 +1,8 @@
 {
   "hp": 100,
-  "hunger": 95,
-  "thirst": 92.5,
-  "sleep": 97.5,
+  "hunger": 89,
+  "thirst": 83.5,
+  "sleep": 94.5,
   "temperature": 36.6,
   "sanity": 100,
   "currentLevelId": "765",
@@ -26,8 +26,8 @@
       "effect": "освежает, утоляет жажду"
     }
   ],
-  "playTime": 6,
-  "dayTime": 6,
+  "playTime": 8,
+  "dayTime": 8,
   "levelsVisited": [
     "765"
   ],
@@ -77,7 +77,7 @@
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
@@ -105,38 +105,11 @@
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
-          "explored": false,
-          "type": "empty"
-        },
-        {
-          "explored": false,
-          "type": "empty"
-        }
-      ],
-      [
-        {
-          "explored": false,
-          "type": "food",
-          "itemId": "1"
-        },
-        {
-          "explored": false,
-          "type": "empty"
-        },
-        {
-          "explored": false,
-          "type": "empty"
-        },
-        {
-          "explored": false,
-          "type": "empty"
-        },
-        {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
@@ -163,11 +136,38 @@
           "type": "empty"
         },
         {
+          "explored": true,
+          "type": "empty"
+        },
+        {
+          "explored": true,
+          "type": "empty"
+        }
+      ],
+      [
+        {
+          "explored": false,
+          "type": "food",
+          "itemId": "1"
+        },
+        {
           "explored": false,
           "type": "empty"
         },
         {
           "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": true,
           "type": "empty"
         }
       ],
@@ -204,6 +204,6 @@
     "width": 6,
     "height": 6
   },
-  "playerX": 2,
-  "playerY": 1
+  "playerX": 5,
+  "playerY": 4
 }
