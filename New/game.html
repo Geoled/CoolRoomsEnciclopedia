@@ -348,11 +348,9 @@
 
   function generateMap(width = 6, height = 6) {
     const grid = Array(height).fill().map(() => Array(width).fill().map(() => ({ explored: false, type: 'empty' })));
-    // Размещаем выход
     const exitX = Math.floor(Math.random() * width);
     const exitY = Math.floor(Math.random() * height);
     if (exitX !== 0 || exitY !== 0) grid[exitY][exitX] = { explored: false, type: 'exit' };
-    // Размещаем предметы/еду
     const level = data.levels.find(l => l.id === gameState.currentLevelId);
     const possibleItems = data.items.filter(i => level?.itemIds?.includes(i.id));
     const possibleFoods = data.foods.filter(f => level?.foodIds?.includes(f.id));
@@ -449,7 +447,6 @@
         addLog('Вы уже нашли выход, можете уйти.');
       }
     }
-    // Расход ресурсов за перемещение
     gameState.hunger = Math.max(0, gameState.hunger - 1);
     gameState.thirst = Math.max(0, gameState.thirst - 1.5);
     gameState.sleep = Math.max(0, gameState.sleep - 0.5);
