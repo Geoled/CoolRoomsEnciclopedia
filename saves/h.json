@@ -1,16 +1,16 @@
 {
   "hp": 100,
-  "hunger": 89,
-  "thirst": 83.5,
-  "sleep": 94.5,
+  "hunger": 100,
+  "thirst": 100,
+  "sleep": 100,
   "temperature": 36.6,
   "sanity": 100,
-  "currentLevelId": "1",
+  "currentLevelId": "5",
   "inventory": [],
-  "playTime": 7,
-  "dayTime": 7,
+  "playTime": 1,
+  "dayTime": 1,
   "levelsVisited": [
-    "1"
+    "5"
   ],
   "entitiesKilled": 0,
   "itemsFound": 0,
@@ -22,7 +22,89 @@
           "type": "empty"
         },
         {
-          "explored": true,
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        }
+      ],
+      [
+        {
+          "explored": false,
+          "type": "food",
+          "itemId": "55"
+        },
+        {
+          "explored": false,
+          "type": "food",
+          "itemId": "55"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        }
+      ],
+      [
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "food",
+          "itemId": "55"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
+          "type": "empty"
+        }
+      ],
+      [
+        {
+          "explored": false,
+          "type": "food",
+          "itemId": "55"
+        },
+        {
+          "explored": false,
           "type": "empty"
         },
         {
@@ -48,11 +130,15 @@
           "type": "empty"
         },
         {
-          "explored": true,
+          "explored": false,
           "type": "empty"
         },
         {
-          "explored": true,
+          "explored": false,
+          "type": "empty"
+        },
+        {
+          "explored": false,
           "type": "empty"
         },
         {
@@ -62,42 +148,13 @@
         {
           "explored": false,
           "type": "exit"
-        },
-        {
-          "explored": false,
-          "type": "empty"
         }
       ],
       [
         {
           "explored": false,
-          "type": "empty"
-        },
-        {
-          "explored": false,
-          "type": "empty"
-        },
-        {
-          "explored": true,
-          "type": "empty"
-        },
-        {
-          "explored": true,
-          "type": "empty"
-        },
-        {
-          "explored": false,
-          "type": "empty"
-        },
-        {
-          "explored": false,
-          "type": "empty"
-        }
-      ],
-      [
-        {
-          "explored": false,
-          "type": "empty"
+          "type": "food",
+          "itemId": "55"
         },
         {
           "explored": false,
@@ -108,64 +165,14 @@
           "type": "empty"
         },
         {
-          "explored": true,
-          "type": "empty"
-        },
-        {
-          "explored": true,
-          "type": "empty"
+          "explored": false,
+          "type": "food",
+          "itemId": "55"
         },
         {
           "explored": false,
-          "type": "empty"
-        }
-      ],
-      [
-        {
-          "explored": false,
-          "type": "empty"
-        },
-        {
-          "explored": false,
-          "type": "empty"
-        },
-        {
-          "explored": false,
-          "type": "empty"
-        },
-        {
-          "explored": true,
-          "type": "empty"
-        },
-        {
-          "explored": true,
-          "type": "empty"
-        },
-        {
-          "explored": false,
-          "type": "empty"
-        }
-      ],
-      [
-        {
-          "explored": false,
-          "type": "empty"
-        },
-        {
-          "explored": false,
-          "type": "empty"
-        },
-        {
-          "explored": false,
-          "type": "empty"
-        },
-        {
-          "explored": true,
-          "type": "empty"
-        },
-        {
-          "explored": true,
-          "type": "empty"
+          "type": "food",
+          "itemId": "55"
         },
         {
           "explored": false,
@@ -176,6 +183,6 @@
     "width": 6,
     "height": 6
   },
-  "playerX": 4,
-  "playerY": 5
+  "playerX": 0,
+  "playerY": 0
 }
