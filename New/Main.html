@@ -151,7 +151,7 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-    .entity-card {
+    .entity-card, .food-card {
       display: inline-block;
       background: #1e2028;
       border: 1px solid #3a3d45;
@@ -162,17 +162,17 @@
       cursor: pointer;
       transition: 0.2s;
     }
-    .entity-card:hover {
+    .entity-card:hover, .food-card:hover {
       border-color: #c9a86c;
     }
-    .entity-card img {
+    .entity-card img, .food-card img {
       width: 80px;
       height: 80px;
       object-fit: cover;
       border-radius: 8px;
       margin-bottom: 0.3rem;
     }
-    .entity-card-name {
+    .entity-card-name, .food-card-name {
       font-size: 0.8rem;
       color: #c9a86c;
     }
@@ -459,13 +459,29 @@
       entitiesHtml = `<div class="view-section"><h3>👾 Сущности</h3><div style="display:flex;flex-wrap:wrap;">${entityCards}</div></div>`;
     }
 
+    let foodsHtml = '';
+    if (type === 'levels' && obj.foodIds) {
+      const foodCards = obj.foodIds.map(foodId => {
+        const food = data.foods.find(f => f.id === foodId);
+        if (food) {
+          return `<div class="food-card" data-food-id="${food.id}">
+            ${food.thumbnail ? `<img src="${food.thumbnail}" onerror="this.style.display='none'">` : '<div style="width:80px;height:80px;background:#252835;border-radius:8px;"></div>'}
+            <div class="food-card-name">${food.name}</div>
+          </div>`;
+        } else {
+          return `<span class="tag">${foodId}</span>`;
+        }
+      }).join('');
+      foodsHtml = `<div class="view-section"><h3>🍞 Пища</h3><div style="display:flex;flex-wrap:wrap;">${foodCards}</div></div>`;
+    }
+
     viewContent.innerHTML = `<h2 style="color:#c9a86c;">${obj.title || obj.name} (${obj.id})</h2>${thumb}
       <p>Класс: ${getClassStylesForType(type)[obj.cls]?.name || obj.cls} ${getClassIcon(type, obj.cls)}</p>
       <div class="view-section">${statsHtml}</div>
       <div style="margin:0.5rem 0;">${(obj.tags||[]).map(t => `<span class="tag">${t}</span>`).join('')}</div>
       <div class="view-section"><h3>📖 Описание</h3><p>${obj.desc}</p></div>
-      ${obj.food ? `<div class="view-section"><h3>🍞 Пища</h3><p>${obj.food}</p></div>` : ''}
       ${entitiesHtml}
+      ${foodsHtml}
       ${obj.in ? `<div class="view-section"><h3>🚪 Входы</h3><p>${obj.in}</p></div>` : ''}
       ${obj.out ? `<div class="view-section"><h3>🏃 Выходы</h3><p>${obj.out}</p></div>` : ''}
       ${obj.habitat ? `<div class="view-section"><h3>🌍 Среда обитания</h3><p>${obj.habitat}</p></div>` : ''}
@@ -493,6 +509,15 @@
         if (entity) openView('entities', entity.id);
       });
     });
+    // Клики по карточкам еды
+    viewContent.querySelectorAll('.food-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const foodId = card.dataset.foodId;
+        const food = data.foods.find(f => f.id === foodId);
+        if (food) openView('foods', food.id);
+      });
+    });
   }
 
   async function deleteItem(type, obj) {
@@ -511,8 +536,8 @@
     renderContent();
   }
 
-  // Функция для создания выпадающего списка сущностей с поиском (аналогично уровням)
-  function createEntityDropdown(containerId, selectedIds, placeholder) {
+  // Функция для создания выпадающего списка с поиском
+  function createDropdown(containerId, items, selectedIds, placeholder) {
     setTimeout(() => {
       const container = document.getElementById(containerId);
       if (!container) return;
@@ -522,8 +547,8 @@
       let selected = selectedIds || [];
       function renderSelected() {
         selectedContainer.innerHTML = selected.map(id => {
-          const ent = data.entities.find(e => e.id === id);
-          return `<span class="selected-item">${id} (${ent?.name||'?'}) <span class="remove" data-id="${id}">✕</span></span>`;
+          const item = items.find(i => i.id === id);
+          return `<span class="selected-item">${id} (${item?.name||item?.title||'?'}) <span class="remove" data-id="${id}">✕</span></span>`;
         }).join('') + (selected.length === 0 ? `<span style="color:#7a7a8a;font-size:0.8rem;">${placeholder}</span>` : '');
         selectedContainer.querySelectorAll('.remove').forEach(btn => {
           btn.addEventListener('click', (e) => {
@@ -535,14 +560,14 @@
       }
       function filterList(search) {
         list.innerHTML = '';
-        const filtered = data.entities.filter(e => e.id.includes(search) || e.name.toLowerCase().includes(search.toLowerCase()));
-        filtered.forEach(e => {
+        const filtered = items.filter(i => (i.id||'').includes(search) || (i.name||i.title||'').toLowerCase().includes(search.toLowerCase()));
+        filtered.forEach(i => {
           const div = document.createElement('div');
           div.className = 'dropdown-item';
-          div.textContent = `${e.id} – ${e.name}`;
+          div.textContent = `${i.id} – ${i.name||i.title}`;
           div.addEventListener('click', () => {
-            if (!selected.includes(e.id)) {
-              selected.push(e.id);
+            if (!selected.includes(i.id)) {
+              selected.push(i.id);
               renderSelected();
             }
             input.value = '';
@@ -559,7 +584,7 @@
     }, 50);
     return `<div class="dropdown-search" id="${containerId}">
       <div class="selected-items"></div>
-      <input type="text" placeholder="Поиск сущности...">
+      <input type="text" placeholder="Поиск...">
       <div class="dropdown-list"></div>
     </div>`;
   }
@@ -568,10 +593,12 @@
     const folder = type;
     const styles = getClassStylesForType(type);
     const defaultCls = type === 'levels' ? '0' : type === 'entities' ? '0' : type === 'items' ? 'cold_weapon' : 'drink';
-    const lvl = obj || { id:'', title:'', cluster:'', cls:defaultCls, desc:'', food:'', ent:[], in:'', out:'', stats:{}, tags:[], thumbnail:'', images:[], _sha:null };
+    const lvl = obj || { id:'', title:'', cluster:'', cls:defaultCls, desc:'', food:'', ent:[], foodIds:[], in:'', out:'', stats:{}, tags:[], thumbnail:'', images:[], _sha:null };
     const classOptions = Object.entries(styles).map(([v,s]) => `<option value="${v}" ${(obj?.cls||defaultCls)==v?'selected':''}>${s.name}</option>`).join('');
     const entityContainerId = 'entity_' + Date.now();
+    const foodContainerId = 'food_' + Date.now();
     const selectedEntities = obj?.ent ? (Array.isArray(obj.ent) ? obj.ent.join(',') : obj.ent) : '';
+    const selectedFoods = obj?.foodIds ? (Array.isArray(obj.foodIds) ? obj.foodIds.join(',') : obj.foodIds) : '';
     
     editContent.innerHTML = `<h3>${obj?'Редактировать':'Новый'} ${type==='levels'?'уровень':type==='entities'?'сущность':type==='items'?'предмет':'еда'}</h3>
       <div class="form-group"><label>ID</label><input id="editId" value="${lvl.id}"></div>
@@ -586,7 +613,12 @@
         ${type==='foods' ? ` <div><label>Насыщение (ккал)</label><input type="number" id="editCalories" value="${lvl.stats.calories||500}" step="any"></div><div><label>Доступность</label><input type="number" id="editAvailability" value="${lvl.stats.availability||5}" min="1" max="10"></div><div><label>Вкус</label><input type="number" id="editTaste" value="${lvl.stats.taste||3}" min="1" max="5"></div><div><label>Хранение (дни)</label><input type="number" id="editShelfLife" value="${lvl.stats.shelfLife||7}" min="1" max="365"></div>` : ''}
       </div>
       <div class="form-group"><label>Описание</label><textarea id="editDesc">${lvl.desc||''}</textarea></div>
-      ${type==='levels' ? `<div class="form-group"><label>Пища</label><input id="editFood" value="${lvl.food||''}"></div><div class="form-group"><label>Сущности</label>${createEntityDropdown(entityContainerId, selectedEntities, 'Выберите сущностей')}</div><div class="form-group"><label>Входы</label><input id="editIn" value="${lvl.in||''}"></div><div class="form-group"><label>Выходы</label><input id="editOut" value="${lvl.out||''}"></div>` : ''}
+      ${type==='levels' ? `
+        <div class="form-group"><label>Сущности</label>${createDropdown(entityContainerId, data.entities, selectedEntities, 'Выберите сущностей')}</div>
+        <div class="form-group"><label>Еда</label>${createDropdown(foodContainerId, data.foods, selectedFoods, 'Выберите еду')}</div>
+        <div class="form-group"><label>Входы</label><input id="editIn" value="${lvl.in||''}"></div>
+        <div class="form-group"><label>Выходы</label><input id="editOut" value="${lvl.out||''}"></div>
+      ` : ''}
       ${type==='entities' ? `<div class="form-group"><label>Среда обитания</label><input id="editHabitat" value="${lvl.habitat||''}"></div><div class="form-group"><label>Поведение</label><textarea id="editBehavior">${lvl.behavior||''}</textarea></div><div class="form-group"><label>Выживание</label><textarea id="editSurvival">${lvl.survival||''}</textarea></div>` : ''}
       ${type==='items' ? `<div class="form-group"><label>Свойства</label><textarea id="editProps">${lvl.props||''}</textarea></div>` : ''}
       ${type==='foods' ? `<div class="form-group"><label>Эффект</label><textarea id="editEffect">${lvl.effect||''}</textarea></div>` : ''}
@@ -611,9 +643,10 @@
       };
       if (type==='levels') {
         newObj.stats = { safety:+document.getElementById('editSafety').value, stability:+document.getElementById('editStability').value, entities:+document.getElementById('editEntities').value, resources:+document.getElementById('editResources').value, mental:+document.getElementById('editMental').value, navigation:+document.getElementById('editNavigation').value };
-        newObj.food = document.getElementById('editFood').value;
         const entityDropdown = document.getElementById(entityContainerId);
         newObj.ent = entityDropdown ? entityDropdown._getSelected().split(',').map(s=>s.trim()).filter(Boolean) : [];
+        const foodDropdown = document.getElementById(foodContainerId);
+        newObj.foodIds = foodDropdown ? foodDropdown._getSelected().split(',').map(s=>s.trim()).filter(Boolean) : [];
         newObj.in = document.getElementById('editIn').value;
         newObj.out = document.getElementById('editOut').value;
       } else if (type==='entities') {
