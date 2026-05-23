@@ -1,0 +1,18 @@
+{
+  "id": "102",
+  "cls": "dish",
+  "tags": [
+    "Консервы"
+  ],
+  "stats": {
+    "calories": 480,
+    "availability": 4,
+    "taste": 3,
+    "shelfLife": 325
+  },
+  "desc": "Банка сардин в масле , по информации на упаковке русского производства но в месте производства написано Бурмалда, и больше ничего , что бы это могло значить?",
+  "thumbnail": "https://rskrf.ru/upload/iblock/2d7/8l32nco8r812ecoqyaezkkovutdaj29q.jpg",
+  "images": [],
+  "name": "Консервированные сардины",
+  "effect": "Насыщение"
+}
