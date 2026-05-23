@@ -1,0 +1,18 @@
+{
+  "id": "1000",
+  "cls": "plant",
+  "tags": [
+    "Артефакт"
+  ],
+  "stats": {
+    "calories": 35,
+    "availability": 2,
+    "taste": 5,
+    "shelfLife": 9999
+  },
+  "desc": "Идеальные на вкус и вид персики , но каждый укус необратимо стирает память ",
+  "thumbnail": "https://avatars.mds.yandex.net/i?id=52282d45c3073db0b6be9981ec0431a5_l-4841475-images-thumbs&n=13",
+  "images": [],
+  "name": "Плод Сада Забвения",
+  "effect": "Насыщение, Лоботомия"
+}
