@@ -21,8 +21,20 @@
   "images": [],
   "ent": [],
   "foodIds": [
-    "1"
+    "1",
+    "55"
   ],
-  "in": "нет",
-  "out": "нет"
+  "itemIds": [],
+  "inDetails": [
+    {
+      "id": "0",
+      "description": ""
+    }
+  ],
+  "outDetails": [
+    {
+      "id": "1",
+      "description": ""
+    }
+  ]
 }
