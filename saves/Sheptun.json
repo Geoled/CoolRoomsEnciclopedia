@@ -1,14 +1,14 @@
 {
   "hp": 100,
-  "hunger": 94.7000000000003,
-  "thirst": 92.0499999999997,
-  "sleep": 97.35000000000015,
+  "hunger": 94.6000000000003,
+  "thirst": 91.8999999999997,
+  "sleep": 97.30000000000015,
   "temperature": 36.6,
-  "sanity": 98.94000000000021,
+  "sanity": 98.92000000000021,
   "currentLevelId": "1",
   "inventory": [],
-  "playTime": 53,
-  "dayTime": 53,
+  "playTime": 54,
+  "dayTime": 54,
   "levelsVisited": [
     "1"
   ],
