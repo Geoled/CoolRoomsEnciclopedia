@@ -98,153 +98,6 @@
     .btn:hover { background:#2a2d35; border-color:#c9a86c; color:#e8dcc8; }
     .btn.primary { background:#2c2a1f; border-color:#b8974c; color:#e5c97a; }
     .content-area { flex:1; overflow-y:auto; padding:1.5rem; }
-
-    /* Главная страница */
-    .home-container {
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-    .hero {
-      background: linear-gradient(135deg, #1a1d28 0%, #252835 100%);
-      border: 1px solid #3a3d45;
-      border-radius: 24px;
-      padding: 3rem 2rem;
-      margin-bottom: 2.5rem;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle at 30% 50%, rgba(201,168,108,0.05) 0%, transparent 50%);
-      pointer-events: none;
-    }
-    .hero h2 {
-      font-size: 2.5rem;
-      color: #e8dcc8;
-      margin-bottom: 1rem;
-      position: relative;
-    }
-    .hero .subtitle {
-      font-size: 1.1rem;
-      color: #b0b0be;
-      margin-bottom: 1.5rem;
-      position: relative;
-    }
-    .hero .quote {
-      font-style: italic;
-      color: #8c8c9a;
-      font-size: 0.95rem;
-      border-left: 3px solid #c9a86c;
-      padding-left: 1.5rem;
-      max-width: 600px;
-      margin: 0 auto 2rem;
-      text-align: left;
-      position: relative;
-    }
-    .stats-row {
-      display: flex;
-      gap: 1rem;
-      justify-content: center;
-      flex-wrap: wrap;
-      position: relative;
-    }
-    .stat-item {
-      background: rgba(30,32,40,0.8);
-      border: 1px solid #3a3d45;
-      border-radius: 16px;
-      padding: 1.2rem 1.8rem;
-      min-width: 110px;
-      transition: 0.2s;
-    }
-    .stat-item:hover {
-      border-color: #c9a86c;
-      transform: translateY(-2px);
-    }
-    .stat-number {
-      font-size: 2rem;
-      font-weight: 600;
-      color: #c9a86c;
-    }
-    .stat-label {
-      font-size: 0.8rem;
-      color: #8c8c9a;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-top: 0.2rem;
-    }
-    .section-title {
-      font-size: 1.4rem;
-      color: #cfc19e;
-      margin: 2rem 0 1rem;
-      border-bottom: 1px solid #2a2d35;
-      padding-bottom: 0.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .quick-links {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-    .quick-link-card {
-      background: #1a1c24;
-      border: 1px solid #2a2d35;
-      border-radius: 16px;
-      padding: 1.5rem;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      text-decoration: none;
-      color: inherit;
-    }
-    .quick-link-card:hover {
-      transform: translateY(-4px);
-      border-color: #c9a86c;
-      background: #1e2028;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-    }
-    .quick-link-icon {
-      font-size: 2.5rem;
-      margin-bottom: 0.5rem;
-    }
-    .quick-link-title {
-      font-weight: 600;
-      font-size: 1.1rem;
-      color: #e8d9b8;
-      margin-bottom: 0.3rem;
-    }
-    .quick-link-desc {
-      font-size: 0.8rem;
-      color: #8c8c9a;
-    }
-    .recent-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.8rem;
-    }
-    .recent-item {
-      background: #1a1c24;
-      border: 1px solid #2a2d35;
-      border-radius: 14px;
-      padding: 0.7rem 1rem;
-      font-size: 0.85rem;
-      color: #c0c0c8;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .recent-item:hover {
-      border-color: #c9a86c;
-      color: #e8dcc8;
-    }
-
     .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px,1fr)); gap:1.2rem; }
     .card {
       background:#1a1c24; border:1px solid #2a2d35; border-radius:16px;
@@ -278,6 +131,7 @@
     .lightbox { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:none; align-items:center; justify-content:center; z-index:200; }
     .lightbox img { max-width:90%; max-height:90%; border-radius:12px; }
 
+    /* Улучшение читаемости */
     .view-section {
       background: #1a1d28;
       border: 1px solid #2a2e3a;
@@ -297,7 +151,7 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-    .entity-card, .food-card {
+    .entity-card, .food-card, .item-card {
       display: inline-block;
       background: #1e2028;
       border: 1px solid #3a3d45;
@@ -308,19 +162,33 @@
       cursor: pointer;
       transition: 0.2s;
     }
-    .entity-card:hover, .food-card:hover {
+    .entity-card:hover, .food-card:hover, .item-card:hover {
       border-color: #c9a86c;
     }
-    .entity-card img, .food-card img {
+    .entity-card img, .food-card img, .item-card img {
       width: 80px;
       height: 80px;
       object-fit: cover;
       border-radius: 8px;
       margin-bottom: 0.3rem;
     }
-    .entity-card-name, .food-card-name {
+    .entity-card-name, .food-card-name, .item-card-name {
       font-size: 0.8rem;
       color: #c9a86c;
+    }
+    .location-list {
+      list-style: none;
+      padding-left: 0;
+    }
+    .location-list li {
+      padding: 0.3rem 0;
+      border-bottom: 1px solid #2a2e3a;
+    }
+    .location-list li:last-child { border-bottom: none; }
+    .location-link {
+      color: #c9a86c;
+      cursor: pointer;
+      text-decoration: underline;
     }
     @media (max-width:700px) {
       body { flex-direction:column; }
@@ -360,7 +228,7 @@
 
 <div class="modal" id="viewModal"><div class="modal-content" id="viewContent"></div></div>
 <div class="modal" id="editModal"><div class="modal-content" id="editContent"></div></div>
-<div class="lightbox" id="lightbox" onclick="this.style.display='none'"><img id="lightboxImg" src="" loading="lazy"></div>
+<div class="lightbox" id="lightbox" onclick="this.style.display='none'"><img id="lightboxImg" src=""></div>
 
 <script>
 (function() {
@@ -375,7 +243,6 @@
 
   let currentSection = 'home';
   let data = { levels: [], entities: [], items: [], foods: [] };
-  let homePageData = null;
   let classStyles = JSON.parse(localStorage.getItem('classStyles')) || {
     "0": { icon:"🟢", color:"#6a9a6a", name:"Безопасный" },
     "1": { icon:"🟡", color:"#c9a64a", name:"Почти безопасный" },
@@ -451,20 +318,6 @@
     } catch(e) { return []; }
   }
 
-  async function loadHomePage() {
-    const url = API.raw('home.json');
-    try {
-      const resp = await fetch(url, { cache:'no-store' });
-      if (resp.ok) {
-        homePageData = await resp.json();
-      } else {
-        homePageData = null;
-      }
-    } catch(e) {
-      homePageData = null;
-    }
-  }
-
   async function loadAllData() {
     const folders = ['levels', 'entities', 'items', 'foods'];
     data = { levels: [], entities: [], items: [], foods: [] };
@@ -490,10 +343,23 @@
     data.items.forEach(i => ensureStats(i, {weight:3, rarity:3, usefulness:3, durability:3}));
     data.foods.forEach(f => ensureStats(f, {calories:500, availability:5, taste:3, shelfLife:7}));
 
+    // Преобразование старых данных
     data.levels.forEach(level => {
       if (Array.isArray(level.ent) && level.ent.length > 0 && typeof level.ent[0] === 'string') {
         level.ent = level.ent.map(name => {
           const found = data.entities.find(e => e.name === name);
+          return found ? found.id : name;
+        });
+      }
+      if (Array.isArray(level.foodIds) && level.foodIds.length > 0 && typeof level.foodIds[0] === 'string') {
+        level.foodIds = level.foodIds.map(name => {
+          const found = data.foods.find(f => f.name === name);
+          return found ? found.id : name;
+        });
+      }
+      if (Array.isArray(level.itemIds) && level.itemIds.length > 0 && typeof level.itemIds[0] === 'string') {
+        level.itemIds = level.itemIds.map(name => {
+          const found = data.items.find(i => i.name === name);
           return found ? found.id : name;
         });
       }
@@ -537,7 +403,7 @@
 
   function renderCards(items, type) {
     return items.map(obj => {
-      const thumb = obj.thumbnail ? `<img class="card-img" src="${obj.thumbnail}" loading="lazy" onerror="this.style.display='none'">` : '';
+      const thumb = obj.thumbnail ? `<img class="card-img" src="${obj.thumbnail}" onerror="this.style.display='none'">` : '';
       let statsHtml = '';
       if (type === 'levels') statsHtml = renderStatsHTML(obj.stats, {safety:'Безопасность',stability:'Стабильность',entities:'Заселённость',resources:'Ресурсы',mental:'Психика',navigation:'Навигация'}, statColors);
       else if (type === 'entities') statsHtml = renderStatsHTML(obj.stats, {danger:'Опасность',frequency:'Частота',intelligence:'Интеллект',aggression:'Агрессия'}, statColors);
@@ -555,42 +421,16 @@
 
   function renderContent() {
     if (currentSection === 'home') {
-      if (homePageData) {
-        contentArea.innerHTML = `<div class="home-container">
-          <div class="hero">
-            <h2>${homePageData.title || '«Там, где бог покинет нас вновь»'}</h2>
-            <p class="subtitle">${homePageData.subtitle || 'Энциклопедия бесконечных комнат, кошмаров и надежды'}</p>
-            <div class="quote">${homePageData.quote || '"Говорят, что в этом месте можно найти что угодно — кроме выхода..."'}</div>
-            <div class="stats-row">
-              <div class="stat-item"><div class="stat-number">${data.levels.length}</div><div class="stat-label">Уровней</div></div>
-              <div class="stat-item"><div class="stat-number">${data.entities.length}</div><div class="stat-label">Сущностей</div></div>
-              <div class="stat-item"><div class="stat-number">${data.items.length}</div><div class="stat-label">Предметов</div></div>
-              <div class="stat-item"><div class="stat-number">${data.foods.length}</div><div class="stat-label">Еды</div></div>
-            </div>
-          </div>
-          <div class="section-title"><span>📂</span> Исследовать</div>
-          <div class="quick-links">
-            <div class="quick-link-card" onclick="switchSection('levels')"><div class="quick-link-icon">📊</div><div class="quick-link-title">Уровни</div><div class="quick-link-desc">Бесконечные пространства</div></div>
-            <div class="quick-link-card" onclick="switchSection('entities')"><div class="quick-link-icon">👾</div><div class="quick-link-title">Сущности</div><div class="quick-link-desc">Обитатели этих мест</div></div>
-            <div class="quick-link-card" onclick="switchSection('items')"><div class="quick-link-icon">📦</div><div class="quick-link-title">Предметы</div><div class="quick-link-desc">Артефакты и оружие</div></div>
-            <div class="quick-link-card" onclick="switchSection('foods')"><div class="quick-link-icon">🍎</div><div class="quick-link-title">Еда</div><div class="quick-link-desc">Провизия и эффекты</div></div>
-          </div>
-          ${homePageData.description ? `<div class="view-section"><h3>📖 О проекте</h3><p>${homePageData.description}</p></div>` : ''}
-          <div class="section-title"><span>🕒</span> Последние добавленные уровни</div>
-          <div class="recent-list">${levels.slice(-5).reverse().map(l => `<div class="recent-item" onclick="switchSection('levels');setTimeout(()=>openView('level','${l.id}'),100)">${l.id} – ${l.title}</div>`).join('') || '<div style="color:#8c8c9a;">Пока нет уровней</div>'}</div>
-        </div>`;
-      } else {
-        contentArea.innerHTML = `<div style="max-width:800px;margin:0 auto;text-align:center;">
-          <h2 style="color:#c9a86c;margin-bottom:1rem;">Добро пожаловать в Tihie Rooms Enciclopedia</h2>
-          <p style="color:#b0b0be;">Исследуйте уровни, существ, предметы и пищу Закулисья.</p>
-          <div style="display:flex;gap:1rem;justify-content:center;margin:2rem 0;">
-            <div class="card" style="min-width:100px;"><div style="font-size:1.8rem;color:#c9a86c;">${data.levels.length}</div><div>Уровней</div></div>
-            <div class="card" style="min-width:100px;"><div style="font-size:1.8rem;color:#c9a86c;">${data.entities.length}</div><div>Сущностей</div></div>
-            <div class="card" style="min-width:100px;"><div style="font-size:1.8rem;color:#c9a86c;">${data.items.length}</div><div>Предметов</div></div>
-            <div class="card" style="min-width:100px;"><div style="font-size:1.8rem;color:#c9a86c;">${data.foods.length}</div><div>Еды</div></div>
-          </div>
-        </div>`;
-      }
+      contentArea.innerHTML = `<div style="max-width:800px;margin:0 auto;text-align:center;">
+        <h2 style="color:#c9a86c;margin-bottom:1rem;">Добро пожаловать в Tihie Rooms Enciclopedia</h2>
+        <p style="color:#b0b0be;">Исследуйте уровни, существ, предметы и пищу Закулисья.</p>
+        <div style="display:flex;gap:1rem;justify-content:center;margin:2rem 0;">
+          <div class="card" style="min-width:100px;"><div style="font-size:1.8rem;color:#c9a86c;">${data.levels.length}</div><div>Уровней</div></div>
+          <div class="card" style="min-width:100px;"><div style="font-size:1.8rem;color:#c9a86c;">${data.entities.length}</div><div>Сущностей</div></div>
+          <div class="card" style="min-width:100px;"><div style="font-size:1.8rem;color:#c9a86c;">${data.items.length}</div><div>Предметов</div></div>
+          <div class="card" style="min-width:100px;"><div style="font-size:1.8rem;color:#c9a86c;">${data.foods.length}</div><div>Еды</div></div>
+        </div>
+      </div>`;
       tree.innerHTML = '<div style="padding:1rem;color:#8c8c9a;">Выберите раздел</div>';
       return;
     }
@@ -621,8 +461,8 @@
     const obj = arr.find(o => o.id === id);
     if (!obj) return;
     breadcrumbs.innerHTML = `<span onclick="switchSection('home')">Главная</span> > ${type==='levels'?'Уровень':type==='entities'?'Сущность':type==='items'?'Предмет':'Еда'} ${obj.id}`;
-    const thumb = obj.thumbnail ? `<img src="${obj.thumbnail}" style="max-width:300px;border-radius:12px;margin-bottom:1rem;" loading="lazy" onerror="this.style.display='none'">` : '';
-    const gallery = (obj.images||[]).map(img => `<img src="${img.url}" alt="${img.description||''}" loading="lazy">`).join('');
+    const thumb = obj.thumbnail ? `<img src="${obj.thumbnail}" style="max-width:300px;border-radius:12px;margin-bottom:1rem;" onerror="this.style.display='none'">` : '';
+    const gallery = (obj.images||[]).map(img => `<img src="${img.url}" alt="${img.description||''}">`).join('');
     let statsHtml = '';
     if (type === 'levels') statsHtml = renderStatsHTML(obj.stats, {safety:'Безопасность',stability:'Стабильность',entities:'Заселённость',resources:'Ресурсы',mental:'Психика',navigation:'Навигация'}, statColors);
     else if (type === 'entities') statsHtml = renderStatsHTML(obj.stats, {danger:'Опасность',frequency:'Частота',intelligence:'Интеллект',aggression:'Агрессия'}, statColors);
@@ -635,7 +475,7 @@
         const entity = data.entities.find(e => e.id === entId);
         if (entity) {
           return `<div class="entity-card" data-entity-id="${entity.id}">
-            ${entity.thumbnail ? `<img src="${entity.thumbnail}" loading="lazy" onerror="this.style.display='none'">` : '<div style="width:80px;height:80px;background:#252835;border-radius:8px;"></div>'}
+            ${entity.thumbnail ? `<img src="${entity.thumbnail}" onerror="this.style.display='none'">` : '<div style="width:80px;height:80px;background:#252835;border-radius:8px;"></div>'}
             <div class="entity-card-name">${entity.name}</div>
           </div>`;
         } else {
@@ -651,7 +491,7 @@
         const food = data.foods.find(f => f.id === foodId);
         if (food) {
           return `<div class="food-card" data-food-id="${food.id}">
-            ${food.thumbnail ? `<img src="${food.thumbnail}" loading="lazy" onerror="this.style.display='none'">` : '<div style="width:80px;height:80px;background:#252835;border-radius:8px;"></div>'}
+            ${food.thumbnail ? `<img src="${food.thumbnail}" onerror="this.style.display='none'">` : '<div style="width:80px;height:80px;background:#252835;border-radius:8px;"></div>'}
             <div class="food-card-name">${food.name}</div>
           </div>`;
         } else {
@@ -661,6 +501,38 @@
       foodsHtml = `<div class="view-section"><h3>🍞 Пища</h3><div style="display:flex;flex-wrap:wrap;">${foodCards}</div></div>`;
     }
 
+    let itemsHtml = '';
+    if (type === 'levels' && obj.itemIds) {
+      const itemCards = obj.itemIds.map(itemId => {
+        const item = data.items.find(i => i.id === itemId);
+        if (item) {
+          return `<div class="item-card" data-item-id="${item.id}">
+            ${item.thumbnail ? `<img src="${item.thumbnail}" onerror="this.style.display='none'">` : '<div style="width:80px;height:80px;background:#252835;border-radius:8px;"></div>'}
+            <div class="item-card-name">${item.name}</div>
+          </div>`;
+        } else {
+          return `<span class="tag">${itemId}</span>`;
+        }
+      }).join('');
+      itemsHtml = `<div class="view-section"><h3>📦 Предметы</h3><div style="display:flex;flex-wrap:wrap;">${itemCards}</div></div>`;
+    }
+
+    // Локации для сущностей, предметов и еды
+    let locationsHtml = '';
+    if (type !== 'levels') {
+      const fieldName = type === 'entities' ? 'ent' : type === 'foods' ? 'foodIds' : 'itemIds';
+      const relevantLevels = data.levels.filter(level => {
+        const ids = level[fieldName] || [];
+        return ids.includes(obj.id);
+      });
+      if (relevantLevels.length > 0) {
+        const levelLinks = relevantLevels.map(level => 
+          `<li><span class="location-link" data-level-id="${level.id}">${level.title || level.id}</span></li>`
+        ).join('');
+        locationsHtml = `<div class="view-section"><h3>📍 Встречается на уровнях</h3><ul class="location-list">${levelLinks}</ul></div>`;
+      }
+    }
+
     viewContent.innerHTML = `<h2 style="color:#c9a86c;">${obj.title || obj.name} (${obj.id})</h2>${thumb}
       <p>Класс: ${getClassStylesForType(type)[obj.cls]?.name || obj.cls} ${getClassIcon(type, obj.cls)}</p>
       <div class="view-section">${statsHtml}</div>
@@ -668,6 +540,8 @@
       <div class="view-section"><h3>📖 Описание</h3><p>${obj.desc}</p></div>
       ${entitiesHtml}
       ${foodsHtml}
+      ${itemsHtml}
+      ${locationsHtml}
       ${obj.in ? `<div class="view-section"><h3>🚪 Входы</h3><p>${obj.in}</p></div>` : ''}
       ${obj.out ? `<div class="view-section"><h3>🏃 Выходы</h3><p>${obj.out}</p></div>` : ''}
       ${obj.habitat ? `<div class="view-section"><h3>🌍 Среда обитания</h3><p>${obj.habitat}</p></div>` : ''}
@@ -686,6 +560,7 @@
     document.getElementById('editFromViewBtn').addEventListener('click', () => { viewModal.classList.remove('active'); openEditModal(type, obj); });
     document.getElementById('deleteBtn').addEventListener('click', () => { if (confirm(`Удалить ${obj.title||obj.name}?`)) deleteItem(type, obj); });
 
+    // Клики по карточкам
     viewContent.querySelectorAll('.entity-card').forEach(card => {
       card.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -700,6 +575,23 @@
         const foodId = card.dataset.foodId;
         const food = data.foods.find(f => f.id === foodId);
         if (food) openView('foods', food.id);
+      });
+    });
+    viewContent.querySelectorAll('.item-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const itemId = card.dataset.itemId;
+        const item = data.items.find(i => i.id === itemId);
+        if (item) openView('items', item.id);
+      });
+    });
+    // Клики по ссылкам локаций
+    viewContent.querySelectorAll('.location-link').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const levelId = link.dataset.levelId;
+        const level = data.levels.find(l => l.id === levelId);
+        if (level) openView('levels', level.id);
       });
     });
   }
@@ -720,6 +612,7 @@
     renderContent();
   }
 
+  // Функция для создания выпадающего списка с поиском
   function createDropdown(containerId, items, selectedIds, placeholder) {
     setTimeout(() => {
       const container = document.getElementById(containerId);
@@ -776,12 +669,14 @@
     const folder = type;
     const styles = getClassStylesForType(type);
     const defaultCls = type === 'levels' ? '0' : type === 'entities' ? '0' : type === 'items' ? 'cold_weapon' : 'drink';
-    const lvl = obj || { id:'', title:'', cluster:'', cls:defaultCls, desc:'', food:'', ent:[], foodIds:[], in:'', out:'', stats:{}, tags:[], thumbnail:'', images:[], _sha:null };
+    const lvl = obj || { id:'', title:'', cluster:'', cls:defaultCls, desc:'', food:'', ent:[], foodIds:[], itemIds:[], in:'', out:'', stats:{}, tags:[], thumbnail:'', images:[], _sha:null };
     const classOptions = Object.entries(styles).map(([v,s]) => `<option value="${v}" ${(obj?.cls||defaultCls)==v?'selected':''}>${s.name}</option>`).join('');
     const entityContainerId = 'entity_' + Date.now();
     const foodContainerId = 'food_' + Date.now();
+    const itemContainerId = 'item_' + Date.now();
     const selectedEntities = obj?.ent ? (Array.isArray(obj.ent) ? obj.ent.join(',') : obj.ent) : '';
     const selectedFoods = obj?.foodIds ? (Array.isArray(obj.foodIds) ? obj.foodIds.join(',') : obj.foodIds) : '';
+    const selectedItems = obj?.itemIds ? (Array.isArray(obj.itemIds) ? obj.itemIds.join(',') : obj.itemIds) : '';
     
     editContent.innerHTML = `<h3>${obj?'Редактировать':'Новый'} ${type==='levels'?'уровень':type==='entities'?'сущность':type==='items'?'предмет':'еда'}</h3>
       <div class="form-group"><label>ID</label><input id="editId" value="${lvl.id}"></div>
@@ -799,6 +694,7 @@
       ${type==='levels' ? `
         <div class="form-group"><label>Сущности</label>${createDropdown(entityContainerId, data.entities, selectedEntities, 'Выберите сущностей')}</div>
         <div class="form-group"><label>Еда</label>${createDropdown(foodContainerId, data.foods, selectedFoods, 'Выберите еду')}</div>
+        <div class="form-group"><label>Предметы</label>${createDropdown(itemContainerId, data.items, selectedItems, 'Выберите предметы')}</div>
         <div class="form-group"><label>Входы</label><input id="editIn" value="${lvl.in||''}"></div>
         <div class="form-group"><label>Выходы</label><input id="editOut" value="${lvl.out||''}"></div>
       ` : ''}
@@ -830,6 +726,8 @@
         newObj.ent = entityDropdown ? entityDropdown._getSelected().split(',').map(s=>s.trim()).filter(Boolean) : [];
         const foodDropdown = document.getElementById(foodContainerId);
         newObj.foodIds = foodDropdown ? foodDropdown._getSelected().split(',').map(s=>s.trim()).filter(Boolean) : [];
+        const itemDropdown = document.getElementById(itemContainerId);
+        newObj.itemIds = itemDropdown ? itemDropdown._getSelected().split(',').map(s=>s.trim()).filter(Boolean) : [];
         newObj.in = document.getElementById('editIn').value;
         newObj.out = document.getElementById('editOut').value;
       } else if (type==='entities') {
@@ -940,7 +838,7 @@
   });
 
   document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => switchSection(b.dataset.tab)));
-  document.getElementById('refreshBtn').addEventListener('click', async () => { await loadHomePage(); await loadAllData(); renderTree(); renderContent(); });
+  document.getElementById('refreshBtn').addEventListener('click', async () => { await loadAllData(); renderTree(); renderContent(); });
   document.getElementById('addBtn').addEventListener('click', () => {
     if (currentSection === 'home') return alert('Перейдите в нужный раздел');
     openEditModal(currentSection);
@@ -948,7 +846,7 @@
   viewModal.addEventListener('click', e => { if (e.target === viewModal) viewModal.classList.remove('active'); });
   editModal.addEventListener('click', e => { if (e.target === editModal) editModal.classList.remove('active'); });
 
-  (async () => { await loadHomePage(); await loadAllData(); switchSection('home'); })();
+  (async () => { await loadAllData(); switchSection('home'); })();
 })();
 </script>
 </body>
