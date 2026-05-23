@@ -1,33 +1,14 @@
 {
   "hp": 100,
-  "hunger": 83.2000000000001,
-  "thirst": 76.2999999999999,
-  "sleep": 87.10000000000005,
+  "hunger": 99.9,
+  "thirst": 99.85,
+  "sleep": 87.05000000000005,
   "temperature": 36.6,
-  "sanity": 99.64000000000007,
+  "sanity": 99.62000000000008,
   "currentLevelId": "69",
-  "inventory": [
-    {
-      "id": "1",
-      "cls": "drink",
-      "tags": [
-        "Жажда"
-      ],
-      "stats": {
-        "calories": 0,
-        "availability": 7,
-        "taste": 1,
-        "shelfLife": 30
-      },
-      "desc": "Обычная бутылка воды ",
-      "thumbnail": "https://i.pinimg.com/1200x/b5/bf/03/b5bf03af7e9ba90bb78d793419723fb8.jpg",
-      "images": [],
-      "name": "Бутылка Воды",
-      "effect": "освежает, утоляет жажду"
-    }
-  ],
-  "playTime": 18,
-  "dayTime": 18,
+  "inventory": [],
+  "playTime": 19,
+  "dayTime": 19,
   "levelsVisited": [
     "69"
   ],
