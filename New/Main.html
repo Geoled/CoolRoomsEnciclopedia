@@ -22,7 +22,6 @@
       flex-direction: column;
       flex-shrink: 0;
       overflow-y: auto;
-      transition: width 0.2s;
     }
     .sidebar-header {
       padding: 1.2rem 1rem;
@@ -36,7 +35,28 @@
       letter-spacing: 1px;
       font-size: 0.9rem;
     }
-    .sidebar-header span { font-size: 1.4rem; }
+    .sidebar-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      padding: 0.8rem;
+      border-bottom: 1px solid #2a2d35;
+    }
+    .sidebar-nav-btn {
+      background: #1e2028;
+      border: 1px solid #3a3d45;
+      color: #cacaca;
+      padding: 0.4rem 0.7rem;
+      border-radius: 14px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .sidebar-nav-btn:hover, .sidebar-nav-btn.active {
+      background: #252835;
+      border-color: #c9a86c;
+      color: #c9a86c;
+    }
     .tree {
       flex:1; overflow-y:auto; padding:0.5rem 0;
       scrollbar-width: thin; scrollbar-color: #3a3d45 #1a1c24;
@@ -115,6 +135,12 @@
 <body>
 <div class="sidebar" id="sidebar">
   <div class="sidebar-header"><span>◈</span> Tihie Rooms</div>
+  <div class="sidebar-nav">
+    <button class="sidebar-nav-btn active" data-section="levels">Уровни</button>
+    <button class="sidebar-nav-btn" data-section="entities">Сущности</button>
+    <button class="sidebar-nav-btn" data-section="items">Предметы</button>
+    <button class="sidebar-nav-btn" data-section="foods">Еда</button>
+  </div>
   <div class="tree" id="tree"></div>
 </div>
 <div class="main">
@@ -161,6 +187,25 @@
     "4": { icon:"🔴", color:"#a95a5a", name:"Очень опасный" },
     "5": { icon:"⛔", color:"#8b0000", name:"Смертельный" }
   };
+  // Отдельные стили классов для сущностей, предметов и еды (можно настраивать)
+  let entityClassStyles = JSON.parse(localStorage.getItem('entityClassStyles')) || {
+    "0": { icon:"👻", color:"#6a9a6a", name:"Безвредный" },
+    "1": { icon:"🐾", color:"#c9a64a", name:"Условно безопасный" },
+    "2": { icon:"⚠️", color:"#b9774a", name:"Опасный" },
+    "3": { icon:"💀", color:"#a95a5a", name:"Смертельно опасный" }
+  };
+  let itemClassStyles = JSON.parse(localStorage.getItem('itemClassStyles')) || {
+    "0": { icon:"🔹", color:"#6a9a6a", name:"Обычный" },
+    "1": { icon:"🔸", color:"#c9a64a", name:"Необычный" },
+    "2": { icon:"🔶", color:"#b9774a", name:"Редкий" },
+    "3": { icon:"💠", color:"#a95a5a", name:"Уникальный" }
+  };
+  let foodClassStyles = JSON.parse(localStorage.getItem('foodClassStyles')) || {
+    "0": { icon:"🍎", color:"#6a9a6a", name:"Обычная" },
+    "1": { icon:"🍲", color:"#c9a64a", name:"Питательная" },
+    "2": { icon:"🧪", color:"#b9774a", name:"Особая" }
+  };
+
   const statColors = {
     safety:'#6a9a6a', stability:'#5a7a9a', entities:'#b9774a', resources:'#6a9a6a', mental:'#9a6a9a', navigation:'#5a9a9a',
     danger:'#a95a5a', frequency:'#b9774a', intelligence:'#5a7a9a', aggression:'#b95a5a',
@@ -177,6 +222,19 @@
   const editContent = document.getElementById('editContent');
   const lightbox = document.getElementById('lightbox');
   const lightboxImg = document.getElementById('lightboxImg');
+
+  function getClassStylesForType(type) {
+    if (type === 'entities') return entityClassStyles;
+    if (type === 'items') return itemClassStyles;
+    if (type === 'foods') return foodClassStyles;
+    return classStyles;
+  }
+
+  function getClassIcon(type, cls) {
+    const styles = getClassStylesForType(type);
+    const num = cls ? cls.toString().match(/^(\d+)/)?.[1] : '?';
+    return styles[num]?.icon || '⬜';
+  }
 
   function ensureStats(obj, defaults) {
     if (!obj.stats) obj.stats = {};
@@ -266,18 +324,13 @@
       else if (type === 'items') statsHtml = renderStatsHTML(obj.stats, {weight:'Вес',rarity:'Редкость',usefulness:'Полезность',durability:'Прочность'}, statColors);
       else if (type === 'foods') statsHtml = renderStatsHTML(obj.stats, {calories:'Насыщение',availability:'Доступность',taste:'Вкус',shelfLife:'Хранение'}, statColors);
       return `<div class="card" data-type="${type}" data-id="${obj.id}">${thumb}
-        <div class="card-header"><span class="card-id">${obj.id}</span><span class="class-icon">${type==='levels' ? getClassIcon(obj.cls) : ''}</span></div>
+        <div class="card-header"><span class="card-id">${obj.id}</span><span class="class-icon">${getClassIcon(type, obj.cls)}</span></div>
         <div style="font-weight:500;">${obj.title || obj.name}</div>
         <div style="margin:0.3rem 0;">${statsHtml}</div>
         <div class="card-desc">${(obj.desc||'').substring(0,80)}...</div>
         <div style="margin-top:0.3rem;">${(obj.tags||[]).map(t => `<span class="tag">${t}</span>`).join('')}</div>
       </div>`;
     }).join('');
-  }
-
-  function getClassIcon(cls) {
-    const num = cls ? cls.toString().match(/^(\d+)/)?.[1] : '?';
-    return classStyles[num]?.icon || '⬜';
   }
 
   function renderContent() {
@@ -330,7 +383,7 @@
     else if (type === 'items') statsHtml = renderStatsHTML(obj.stats, {weight:'Вес',rarity:'Редкость',usefulness:'Полезность',durability:'Прочность'}, statColors);
     else if (type === 'foods') statsHtml = renderStatsHTML(obj.stats, {calories:'Насыщение',availability:'Доступность',taste:'Вкус',shelfLife:'Хранение'}, statColors);
     viewContent.innerHTML = `<h2 style="color:#c9a86c;">${obj.title || obj.name} (${obj.id})</h2>${thumb}
-      <p>Класс: ${obj.cls} ${type==='levels' ? getClassIcon(obj.cls) : ''}</p>
+      <p>Класс: ${obj.cls} ${getClassIcon(type, obj.cls)}</p>
       <div>${statsHtml}</div>
       <div style="margin:0.5rem 0;">${(obj.tags||[]).map(t => `<span class="tag">${t}</span>`).join('')}</div>
       <p>${obj.desc}</p>
@@ -356,8 +409,8 @@
   }
 
   async function deleteItem(type, obj) {
-    const folder = type === 'foods' ? 'foods' : type; // папки совпадают
-    const filename = `${folder}/${obj._folder ? '' : folder + '_'}${obj.id}.json`;
+    const folder = type;
+    const filename = `${folder}/${type}_${obj.id}.json`;
     const url = `${API.base()}/${filename}`;
     const token = API.token();
     let sha = obj._sha;
@@ -372,19 +425,21 @@
   }
 
   function openEditModal(type, obj = null) {
-    const folder = type === 'foods' ? 'foods' : type;
-    const lvl = obj || { id:'', title:'', cluster:'', cls:'0', desc:'', food:'', ent:[], in:'', out:'', stats:{safety:3,stability:3,entities:3,resources:3,mental:3,navigation:3}, tags:[], thumbnail:'', images:[], _sha:null };
+    const folder = type;
+    const styles = getClassStylesForType(type);
+    const lvl = obj || { id:'', title:'', cluster:'', cls:'0', desc:'', food:'', ent:[], in:'', out:'', stats:{}, tags:[], thumbnail:'', images:[], _sha:null };
+    const classOptions = Object.entries(styles).map(([v,s]) => `<option value="${v}" ${(obj?.cls||'0')==v?'selected':''}>${v} - ${s.name}</option>`).join('');
     editContent.innerHTML = `<h3>${obj?'Редактировать':'Новый'} ${type==='levels'?'уровень':type==='entities'?'сущность':type==='items'?'предмет':'еда'}</h3>
       <div class="form-group"><label>ID</label><input id="editId" value="${lvl.id}"></div>
       <div class="form-group"><label>Название</label><input id="editTitle" value="${lvl.title||lvl.name||''}"></div>
       ${type==='levels' ? `<div class="form-group"><label>Кластер</label><input id="editCluster" value="${lvl.cluster||''}"></div>` : ''}
-      <div class="form-group"><label>Класс</label><select id="editClass">${Object.entries(classStyles).map(([v,s]) => `<option value="${v}" ${lvl.cls==v?'selected':''}>${v} - ${s.name}</option>`).join('')}</select></div>
+      <div class="form-group"><label>Класс</label><select id="editClass">${classOptions}</select></div>
       <div class="form-group"><label>Теги</label><input id="editTags" value="${(lvl.tags||[]).join(', ')}"></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
-        ${type==='levels' ? ` <div><label>Безопасность</label><input type="number" id="editSafety" value="${lvl.stats.safety}" min="1" max="5"></div><div><label>Стабильность</label><input type="number" id="editStability" value="${lvl.stats.stability}" min="1" max="5"></div><div><label>Заселённость</label><input type="number" id="editEntities" value="${lvl.stats.entities}" min="1" max="5"></div><div><label>Ресурсы</label><input type="number" id="editResources" value="${lvl.stats.resources}" min="1" max="5"></div><div><label>Психика</label><input type="number" id="editMental" value="${lvl.stats.mental}" min="1" max="5"></div><div><label>Навигация</label><input type="number" id="editNavigation" value="${lvl.stats.navigation}" min="1" max="5"></div>` : ''}
-        ${type==='entities' ? ` <div><label>Опасность</label><input type="number" id="editDanger" value="${lvl.stats.danger}" min="1" max="5"></div><div><label>Частота</label><input type="number" id="editFrequency" value="${lvl.stats.frequency}" min="1" max="5"></div><div><label>Интеллект</label><input type="number" id="editIntelligence" value="${lvl.stats.intelligence}" min="1" max="5"></div><div><label>Агрессия</label><input type="number" id="editAggression" value="${lvl.stats.aggression}" min="1" max="5"></div>` : ''}
-        ${type==='items' ? ` <div><label>Вес (1-10)</label><input type="number" id="editWeight" value="${lvl.stats.weight}" min="1" max="10"></div><div><label>Редкость</label><input type="number" id="editRarity" value="${lvl.stats.rarity}" min="1" max="5"></div><div><label>Полезность</label><input type="number" id="editUsefulness" value="${lvl.stats.usefulness}" min="1" max="5"></div><div><label>Прочность</label><input type="number" id="editDurability" value="${lvl.stats.durability}" min="1" max="5"></div>` : ''}
-        ${type==='foods' ? ` <div><label>Насыщение</label><input type="number" id="editCalories" value="${lvl.stats.calories}" min="0" max="2000"></div><div><label>Доступность</label><input type="number" id="editAvailability" value="${lvl.stats.availability}" min="1" max="10"></div><div><label>Вкус</label><input type="number" id="editTaste" value="${lvl.stats.taste}" min="1" max="5"></div><div><label>Хранение</label><input type="number" id="editShelfLife" value="${lvl.stats.shelfLife}" min="1" max="365"></div>` : ''}
+        ${type==='levels' ? ` <div><label>Безопасность</label><input type="number" id="editSafety" value="${lvl.stats.safety||3}" min="1" max="5"></div><div><label>Стабильность</label><input type="number" id="editStability" value="${lvl.stats.stability||3}" min="1" max="5"></div><div><label>Заселённость</label><input type="number" id="editEntities" value="${lvl.stats.entities||3}" min="1" max="5"></div><div><label>Ресурсы</label><input type="number" id="editResources" value="${lvl.stats.resources||3}" min="1" max="5"></div><div><label>Психика</label><input type="number" id="editMental" value="${lvl.stats.mental||3}" min="1" max="5"></div><div><label>Навигация</label><input type="number" id="editNavigation" value="${lvl.stats.navigation||3}" min="1" max="5"></div>` : ''}
+        ${type==='entities' ? ` <div><label>Опасность</label><input type="number" id="editDanger" value="${lvl.stats.danger||3}" min="1" max="5"></div><div><label>Частота</label><input type="number" id="editFrequency" value="${lvl.stats.frequency||3}" min="1" max="5"></div><div><label>Интеллект</label><input type="number" id="editIntelligence" value="${lvl.stats.intelligence||3}" min="1" max="5"></div><div><label>Агрессия</label><input type="number" id="editAggression" value="${lvl.stats.aggression||3}" min="1" max="5"></div>` : ''}
+        ${type==='items' ? ` <div><label>Вес (1-10)</label><input type="number" id="editWeight" value="${lvl.stats.weight||3}" min="1" max="10"></div><div><label>Редкость</label><input type="number" id="editRarity" value="${lvl.stats.rarity||3}" min="1" max="5"></div><div><label>Полезность</label><input type="number" id="editUsefulness" value="${lvl.stats.usefulness||3}" min="1" max="5"></div><div><label>Прочность</label><input type="number" id="editDurability" value="${lvl.stats.durability||3}" min="1" max="5"></div>` : ''}
+        ${type==='foods' ? ` <div><label>Насыщение</label><input type="number" id="editCalories" value="${lvl.stats.calories||500}" min="0" max="2000"></div><div><label>Доступность</label><input type="number" id="editAvailability" value="${lvl.stats.availability||5}" min="1" max="10"></div><div><label>Вкус</label><input type="number" id="editTaste" value="${lvl.stats.taste||3}" min="1" max="5"></div><div><label>Хранение</label><input type="number" id="editShelfLife" value="${lvl.stats.shelfLife||7}" min="1" max="365"></div>` : ''}
       </div>
       <div class="form-group"><label>Описание</label><textarea id="editDesc">${lvl.desc||''}</textarea></div>
       ${type==='levels' ? `<div class="form-group"><label>Пища</label><input id="editFood" value="${lvl.food||''}"></div><div class="form-group"><label>Сущности</label><input id="editEnt" value="${(lvl.ent||[]).join(', ')}"></div><div class="form-group"><label>Входы</label><input id="editIn" value="${lvl.in||''}"></div><div class="form-group"><label>Выходы</label><input id="editOut" value="${lvl.out||''}"></div>` : ''}
@@ -431,7 +486,6 @@
         newObj.stats = { calories:+document.getElementById('editCalories').value, availability:+document.getElementById('editAvailability').value, taste:+document.getElementById('editTaste').value, shelfLife:+document.getElementById('editShelfLife').value };
         newObj.effect = document.getElementById('editEffect').value;
       }
-      const folder = type === 'foods' ? 'foods' : type;
       const filename = `${folder}/${type}_${newObj.id}.json`;
       await commitFile(filename, newObj, obj?._sha);
       if (obj) {
@@ -481,7 +535,7 @@
         tree.appendChild(folder); tree.appendChild(childContainer);
         items.forEach(l => {
           const item = document.createElement('div'); item.className='tree-item'; item.style.paddingLeft='2rem';
-          item.innerHTML = `<span class="class-icon">${getClassIcon(l.cls)}</span> ${l.title}`;
+          item.innerHTML = `<span class="class-icon">${getClassIcon('levels', l.cls)}</span> ${l.title}`;
           item.addEventListener('click', (e) => { e.stopPropagation(); openView('levels', l.id); });
           childContainer.appendChild(item);
         });
@@ -490,7 +544,7 @@
       tree.innerHTML = '';
       arr.forEach(d => {
         const item = document.createElement('div'); item.className='tree-item';
-        item.textContent = (d.title || d.name);
+        item.innerHTML = `<span class="class-icon">${getClassIcon(currentSection, d.cls)}</span> ${d.title || d.name}`;
         item.addEventListener('click', () => openView(currentSection, d.id));
         tree.appendChild(item);
       });
@@ -500,6 +554,7 @@
   async function switchSection(section) {
     currentSection = section;
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === section));
+    document.querySelectorAll('.sidebar-nav-btn').forEach(b => b.classList.toggle('active', b.dataset.section === section));
     breadcrumbs.innerHTML = section === 'home' ? 'Главная' : `<span onclick="switchSection('home')">Главная</span> > ${section==='levels'?'Уровни':section==='entities'?'Сущности':section==='items'?'Предметы':'Еда'}`;
     if (section !== 'home') {
       await loadAllData();
@@ -510,7 +565,10 @@
 
   window.switchSection = switchSection;
 
-  // Рандомизатор
+  document.querySelectorAll('.sidebar-nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchSection(btn.dataset.section));
+  });
+
   document.getElementById('luckyBtn').addEventListener('click', async () => {
     const all = [...data.levels, ...data.entities, ...data.items, ...data.foods];
     if (!all.length) return alert('База данных пуста');
