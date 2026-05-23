@@ -130,8 +130,6 @@
     .gallery img:hover { transform: scale(1.5); z-index:10; box-shadow: 0 4px 12px rgba(0,0,0,0.6); }
     .lightbox { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:none; align-items:center; justify-content:center; z-index:200; }
     .lightbox img { max-width:90%; max-height:90%; border-radius:12px; }
-
-    /* Улучшение читаемости */
     .view-section {
       background: #1a1d28;
       border: 1px solid #2a2e3a;
@@ -175,20 +173,6 @@
     .entity-card-name, .food-card-name, .item-card-name {
       font-size: 0.8rem;
       color: #c9a86c;
-    }
-    .location-list {
-      list-style: none;
-      padding-left: 0;
-    }
-    .location-list li {
-      padding: 0.3rem 0;
-      border-bottom: 1px solid #2a2e3a;
-    }
-    .location-list li:last-child { border-bottom: none; }
-    .location-link {
-      color: #c9a86c;
-      cursor: pointer;
-      text-decoration: underline;
     }
     @media (max-width:700px) {
       body { flex-direction:column; }
@@ -307,6 +291,37 @@
     return obj;
   }
 
+  function buildLocationMap() {
+    // entityId -> Set(level ids)
+    const entityLocations = {};
+    const itemLocations = {};
+    const foodLocations = {};
+    data.levels.forEach(level => {
+      const levelId = level.id;
+      (level.ent || []).forEach(entId => {
+        if (!entityLocations[entId]) entityLocations[entId] = new Set();
+        entityLocations[entId].add(levelId);
+      });
+      (level.itemIds || []).forEach(itemId => {
+        if (!itemLocations[itemId]) itemLocations[itemId] = new Set();
+        itemLocations[itemId].add(levelId);
+      });
+      (level.foodIds || []).forEach(foodId => {
+        if (!foodLocations[foodId]) foodLocations[foodId] = new Set();
+        foodLocations[foodId].add(levelId);
+      });
+    });
+    return { entityLocations, itemLocations, foodLocations };
+  }
+
+  function getLocationList(locations, allData) {
+    if (!locations || locations.size === 0) return 'Неизвестно';
+    return Array.from(locations).map(id => {
+      const level = allData.find(l => l.id === id);
+      return level ? `${id} – ${level.title}` : id;
+    }).join(', ');
+  }
+
   async function fetchFilesInFolder(folder) {
     if (!API.owner() || !API.repo()) return [];
     const url = `${API.base()}/${folder}`;
@@ -343,23 +358,11 @@
     data.items.forEach(i => ensureStats(i, {weight:3, rarity:3, usefulness:3, durability:3}));
     data.foods.forEach(f => ensureStats(f, {calories:500, availability:5, taste:3, shelfLife:7}));
 
-    // Преобразование старых данных
+    // Преобразование старых ent (массив строк) в ID сущностей
     data.levels.forEach(level => {
       if (Array.isArray(level.ent) && level.ent.length > 0 && typeof level.ent[0] === 'string') {
         level.ent = level.ent.map(name => {
           const found = data.entities.find(e => e.name === name);
-          return found ? found.id : name;
-        });
-      }
-      if (Array.isArray(level.foodIds) && level.foodIds.length > 0 && typeof level.foodIds[0] === 'string') {
-        level.foodIds = level.foodIds.map(name => {
-          const found = data.foods.find(f => f.name === name);
-          return found ? found.id : name;
-        });
-      }
-      if (Array.isArray(level.itemIds) && level.itemIds.length > 0 && typeof level.itemIds[0] === 'string') {
-        level.itemIds = level.itemIds.map(name => {
-          const found = data.items.find(i => i.name === name);
           return found ? found.id : name;
         });
       }
@@ -469,6 +472,7 @@
     else if (type === 'items') statsHtml = renderStatsHTML(obj.stats, {weight:'Вес (кг)',rarity:'Редкость',usefulness:'Полезность',durability:'Прочность'}, statColors);
     else if (type === 'foods') statsHtml = renderStatsHTML(obj.stats, {calories:'Насыщение (ккал)',availability:'Доступность',taste:'Вкус',shelfLife:'Хранение (дни)'}, statColors);
     
+    const locMap = buildLocationMap();
     let entitiesHtml = '';
     if (type === 'levels' && obj.ent) {
       const entityCards = obj.ent.map(entId => {
@@ -517,20 +521,17 @@
       itemsHtml = `<div class="view-section"><h3>📦 Предметы</h3><div style="display:flex;flex-wrap:wrap;">${itemCards}</div></div>`;
     }
 
-    // Локации для сущностей, предметов и еды
-    let locationsHtml = '';
-    if (type !== 'levels') {
-      const fieldName = type === 'entities' ? 'ent' : type === 'foods' ? 'foodIds' : 'itemIds';
-      const relevantLevels = data.levels.filter(level => {
-        const ids = level[fieldName] || [];
-        return ids.includes(obj.id);
-      });
-      if (relevantLevels.length > 0) {
-        const levelLinks = relevantLevels.map(level => 
-          `<li><span class="location-link" data-level-id="${level.id}">${level.title || level.id}</span></li>`
-        ).join('');
-        locationsHtml = `<div class="view-section"><h3>📍 Встречается на уровнях</h3><ul class="location-list">${levelLinks}</ul></div>`;
-      }
+    // Локации для сущностей/предметов/еды
+    let locationHtml = '';
+    if (type === 'entities') {
+      const locs = locMap.entityLocations[obj.id];
+      locationHtml = `<div class="view-section"><h3>🌍 Встречается на уровнях</h3><p>${getLocationList(locs, data.levels)}</p></div>`;
+    } else if (type === 'items') {
+      const locs = locMap.itemLocations[obj.id];
+      locationHtml = `<div class="view-section"><h3>🌍 Встречается на уровнях</h3><p>${getLocationList(locs, data.levels)}</p></div>`;
+    } else if (type === 'foods') {
+      const locs = locMap.foodLocations[obj.id];
+      locationHtml = `<div class="view-section"><h3>🌍 Встречается на уровнях</h3><p>${getLocationList(locs, data.levels)}</p></div>`;
     }
 
     viewContent.innerHTML = `<h2 style="color:#c9a86c;">${obj.title || obj.name} (${obj.id})</h2>${thumb}
@@ -541,10 +542,9 @@
       ${entitiesHtml}
       ${foodsHtml}
       ${itemsHtml}
-      ${locationsHtml}
+      ${locationHtml}
       ${obj.in ? `<div class="view-section"><h3>🚪 Входы</h3><p>${obj.in}</p></div>` : ''}
       ${obj.out ? `<div class="view-section"><h3>🏃 Выходы</h3><p>${obj.out}</p></div>` : ''}
-      ${obj.habitat ? `<div class="view-section"><h3>🌍 Среда обитания</h3><p>${obj.habitat}</p></div>` : ''}
       ${obj.behavior ? `<div class="view-section"><h3>🧠 Поведение</h3><p>${obj.behavior}</p></div>` : ''}
       ${obj.props ? `<div class="view-section"><h3>⚙️ Свойства</h3><p>${obj.props}</p></div>` : ''}
       ${obj.effect ? `<div class="view-section"><h3>✨ Эффект</h3><p>${obj.effect}</p></div>` : ''}
@@ -560,39 +560,14 @@
     document.getElementById('editFromViewBtn').addEventListener('click', () => { viewModal.classList.remove('active'); openEditModal(type, obj); });
     document.getElementById('deleteBtn').addEventListener('click', () => { if (confirm(`Удалить ${obj.title||obj.name}?`)) deleteItem(type, obj); });
 
-    // Клики по карточкам
     viewContent.querySelectorAll('.entity-card').forEach(card => {
-      card.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const entityId = card.dataset.entityId;
-        const entity = data.entities.find(e => e.id === entityId);
-        if (entity) openView('entities', entity.id);
-      });
+      card.addEventListener('click', (e) => { e.stopPropagation(); openView('entities', card.dataset.entityId); });
     });
     viewContent.querySelectorAll('.food-card').forEach(card => {
-      card.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const foodId = card.dataset.foodId;
-        const food = data.foods.find(f => f.id === foodId);
-        if (food) openView('foods', food.id);
-      });
+      card.addEventListener('click', (e) => { e.stopPropagation(); openView('foods', card.dataset.foodId); });
     });
     viewContent.querySelectorAll('.item-card').forEach(card => {
-      card.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const itemId = card.dataset.itemId;
-        const item = data.items.find(i => i.id === itemId);
-        if (item) openView('items', item.id);
-      });
-    });
-    // Клики по ссылкам локаций
-    viewContent.querySelectorAll('.location-link').forEach(link => {
-      link.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const levelId = link.dataset.levelId;
-        const level = data.levels.find(l => l.id === levelId);
-        if (level) openView('levels', level.id);
-      });
+      card.addEventListener('click', (e) => { e.stopPropagation(); openView('items', card.dataset.itemId); });
     });
   }
 
@@ -612,7 +587,6 @@
     renderContent();
   }
 
-  // Функция для создания выпадающего списка с поиском
   function createDropdown(containerId, items, selectedIds, placeholder) {
     setTimeout(() => {
       const container = document.getElementById(containerId);
@@ -698,7 +672,7 @@
         <div class="form-group"><label>Входы</label><input id="editIn" value="${lvl.in||''}"></div>
         <div class="form-group"><label>Выходы</label><input id="editOut" value="${lvl.out||''}"></div>
       ` : ''}
-      ${type==='entities' ? `<div class="form-group"><label>Среда обитания</label><input id="editHabitat" value="${lvl.habitat||''}"></div><div class="form-group"><label>Поведение</label><textarea id="editBehavior">${lvl.behavior||''}</textarea></div><div class="form-group"><label>Выживание</label><textarea id="editSurvival">${lvl.survival||''}</textarea></div>` : ''}
+      ${type==='entities' ? `<div class="form-group"><label>Поведение</label><textarea id="editBehavior">${lvl.behavior||''}</textarea></div><div class="form-group"><label>Выживание</label><textarea id="editSurvival">${lvl.survival||''}</textarea></div>` : ''}
       ${type==='items' ? `<div class="form-group"><label>Свойства</label><textarea id="editProps">${lvl.props||''}</textarea></div>` : ''}
       ${type==='foods' ? `<div class="form-group"><label>Эффект</label><textarea id="editEffect">${lvl.effect||''}</textarea></div>` : ''}
       <div class="form-group"><label>Главное изображение</label><input id="editThumbnail" value="${lvl.thumbnail||''}"></div>
@@ -733,7 +707,6 @@
       } else if (type==='entities') {
         newObj.name = newObj.title; delete newObj.title;
         newObj.stats = { danger:+document.getElementById('editDanger').value, frequency:+document.getElementById('editFrequency').value, intelligence:+document.getElementById('editIntelligence').value, aggression:+document.getElementById('editAggression').value };
-        newObj.habitat = document.getElementById('editHabitat').value;
         newObj.behavior = document.getElementById('editBehavior').value;
         newObj.survival = document.getElementById('editSurvival').value;
       } else if (type==='items') {
