@@ -32,6 +32,7 @@
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap;
+      gap: 1rem;
     }
     .level-info {
       display: flex;
@@ -39,24 +40,39 @@
       gap: 1rem;
     }
     .level-img {
-      width: 60px;
-      height: 60px;
+      width: 100px;
+      height: 100px;
       object-fit: cover;
-      border-radius: 10px;
+      border-radius: 12px;
       border: 1px solid #3a3d45;
     }
     .level-name {
       font-weight: 600;
       color: #c9a86c;
-      font-size: 1.1rem;
+      font-size: 1.2rem;
     }
     .level-class {
       font-size: 0.85rem;
       color: #8c8c9a;
     }
+    .timers {
+      display: flex;
+      gap: 1.5rem;
+      font-size: 0.85rem;
+      color: #8c8c9a;
+    }
+    .timer-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .timer-value {
+      font-weight: 600;
+      color: #c9a86c;
+    }
     .stats-panel {
       display: flex;
-      gap: 2rem;
+      gap: 1.5rem;
       flex-wrap: wrap;
     }
     .stat-item {
@@ -76,7 +92,7 @@
       color: #c9a86c;
     }
     .stat-bar {
-      width: 80px;
+      width: 70px;
       height: 6px;
       background: #252835;
       border-radius: 3px;
@@ -186,6 +202,11 @@
       border-color: #b8974c;
       color: #e5c97a;
     }
+    .btn.danger {
+      background: #3a2020;
+      border-color: #a95a5a;
+      color: #e5a0a0;
+    }
     .modal {
       display: none;
       position: fixed;
@@ -205,11 +226,46 @@
       width: 100%;
     }
     .modal-content h3 { color: #c9a86c; margin-bottom: 1rem; }
+    .modal-content p { margin-bottom: 1rem; }
     .modal-actions {
       display: flex;
       gap: 0.5rem;
       justify-content: flex-end;
       margin-top: 1rem;
+    }
+    .night-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,40,0.4);
+      pointer-events: none;
+      z-index: 50;
+      display: none;
+    }
+    .nickname-modal {
+      display: flex;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      align-items: center; justify-content: center;
+      z-index: 200;
+    }
+    .nickname-box {
+      background: #1a1c24;
+      border: 1px solid #3a3d45;
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+    }
+    .nickname-box input {
+      padding: 0.7rem;
+      background: #12141a;
+      border: 1px solid #3a3d45;
+      border-radius: 10px;
+      color: #e0e0e0;
+      font-size: 1rem;
+      margin: 1rem 0;
+      width: 200px;
+      text-align: center;
     }
     @media (max-width: 800px) {
       .game-content { flex-direction: column; }
@@ -217,7 +273,16 @@
   </style>
 </head>
 <body>
-<div class="game-layout">
+<div class="nickname-modal" id="nicknameModal">
+  <div class="nickname-box">
+    <h3 style="color:#c9a86c;">Введите ваш ник</h3>
+    <input type="text" id="nicknameInput" placeholder="Никнейм">
+    <br>
+    <button class="btn primary" id="startGameBtn">Начать игру</button>
+  </div>
+</div>
+<div class="night-overlay" id="nightOverlay"></div>
+<div class="game-layout" id="gameLayout" style="display:none;">
   <div class="game-main">
     <div class="top-bar">
       <div class="level-info">
@@ -225,6 +290,16 @@
         <div>
           <div class="level-name" id="levelName">Загрузка...</div>
           <div class="level-class" id="levelClass"></div>
+        </div>
+      </div>
+      <div class="timers">
+        <div class="timer-item">
+          <span>Время игры</span>
+          <span class="timer-value" id="playTime">00:00</span>
+        </div>
+        <div class="timer-item">
+          <span>Время суток</span>
+          <span class="timer-value" id="dayTime">День</span>
         </div>
       </div>
       <div class="stats-panel" id="statsPanel"></div>
@@ -241,6 +316,18 @@
       <button class="btn" id="btnRest">💤 Отдых</button>
       <button class="btn" id="btnSearchExit">🚪 Искать выход</button>
       <button class="btn primary" id="btnNewGame">🔄 Новая игра</button>
+      <button class="btn danger" id="btnResetSave">🗑️ Сбросить прогресс</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="battleModal">
+  <div class="modal-content">
+    <h3 id="battleTitle">Бой</h3>
+    <p id="battleDesc"></p>
+    <div class="modal-actions">
+      <button class="btn" id="battleAttackBtn">⚔️ Атаковать</button>
+      <button class="btn" id="battleFleeBtn">🏃 Бежать</button>
     </div>
   </div>
 </div>
@@ -277,8 +364,12 @@
     temperature: 36.6,
     sanity: 100,
     currentLevelId: null,
-    inventory: []
+    inventory: [],
+    playTime: 0,
+    dayTime: 0 // 0-600 день, 600-1200 ночь (в секундах)
   };
+  let playerNickname = '';
+  let gameInterval = null;
 
   const logPanel = document.getElementById('logPanel');
   const inventoryList = document.getElementById('invList');
@@ -286,6 +377,8 @@
   const levelClassEl = document.getElementById('levelClass');
   const levelThumb = document.getElementById('levelThumb');
   const statsPanel = document.getElementById('statsPanel');
+  const nightOverlay = document.getElementById('nightOverlay');
+  const battleModal = document.getElementById('battleModal');
   const itemModal = document.getElementById('itemModal');
 
   function addLog(msg, imgUrl = null) {
@@ -317,6 +410,15 @@
         <div class="stat-bar"><div class="stat-fill" style="width:${pct}%; background:${s.color};"></div></div>
       </div>`;
     }).join('');
+  }
+
+  function updateTimers() {
+    const mins = Math.floor(gameState.playTime / 60);
+    const secs = gameState.playTime % 60;
+    document.getElementById('playTime').textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+    const isNight = gameState.dayTime >= 600;
+    document.getElementById('dayTime').textContent = isNight ? 'Ночь' : 'День';
+    nightOverlay.style.display = isNight ? 'block' : 'none';
   }
 
   function updateInventory() {
@@ -354,23 +456,23 @@
   }
 
   function useItem(item, index) {
-    // Если еда
     const food = data.foods.find(f => f.id === item.id);
     if (food) {
       const calories = food.stats?.calories || 200;
       gameState.hunger = Math.min(100, gameState.hunger + calories / 10);
-      gameState.thirst = Math.min(100, gameState.thirst + (food.cls === 'drink' ? 30 : 5));
+      if (food.cls === 'drink') gameState.thirst = Math.min(100, gameState.thirst + 40);
+      else if (food.cls === 'dish') gameState.thirst = Math.min(100, gameState.thirst + 10);
+      else gameState.thirst = Math.min(100, gameState.thirst + 5);
       gameState.inventory.splice(index, 1);
       addLog(`Вы съели/выпили ${food.name}.`);
       updateInventory();
       updateStats();
       return;
     }
-    // Если предмет
     const tool = data.items.find(i => i.id === item.id);
     if (tool) {
       if (tool.cls === 'cold_weapon' || tool.cls === 'firearm') {
-        addLog(`Вы вооружились: ${tool.name}. Это может помочь при встрече с сущностями.`);
+        addLog(`Вы экипировали ${tool.name}. Оно поможет в бою.`);
       } else if (tool.cls === 'tool') {
         addLog(`Вы использовали ${tool.name}.`);
         gameState.sanity = Math.min(100, gameState.sanity + 10);
@@ -383,6 +485,248 @@
       return;
     }
     addLog('Нельзя использовать этот предмет.');
+  }
+
+  function passiveTick() {
+    gameState.playTime++;
+    gameState.dayTime = (gameState.dayTime + 1) % 1200;
+    gameState.hunger = Math.max(0, gameState.hunger - 0.1);
+    gameState.thirst = Math.max(0, gameState.thirst - 0.15);
+    gameState.sleep = Math.max(0, gameState.sleep - 0.05);
+    if (gameState.hunger <= 0 || gameState.thirst <= 0) {
+      gameState.hp = Math.max(0, gameState.hp - 1);
+      if (gameState.hp <= 0) addLog('Вы погибли от истощения.');
+    }
+    if (gameState.sleep <= 0) {
+      gameState.hp = Math.max(0, gameState.hp - 0.5);
+    }
+    if (gameState.hp <= 0) {
+      gameState.hp = 0;
+      addLog('Вы погибли. Игра окончена.');
+      clearInterval(gameInterval);
+    }
+    updateStats();
+    updateTimers();
+    autoSave();
+  }
+
+  function autoSave() {
+    if (!playerNickname) return;
+    const filename = `saves/${playerNickname}.json`;
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(gameState, null, 2))));
+    const token = API.token();
+    const url = `${API.base()}/${filename}`;
+    fetch(url, { headers: { Authorization: `token ${token}` } })
+      .then(resp => resp.json())
+      .then(data => {
+        const sha = data.sha;
+        return fetch(url, {
+          method: 'PUT',
+          headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: `Save ${filename}`, content, sha, branch: 'main' })
+        });
+      }).catch(() => {
+        fetch(url, {
+          method: 'PUT',
+          headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: `Save ${filename}`, content, branch: 'main' })
+        });
+      });
+  }
+
+  function loadSave() {
+    if (!playerNickname) return;
+    const url = `https://raw.githubusercontent.com/${API.owner()}/${API.repo()}/main/saves/${playerNickname}.json`;
+    fetch(url).then(resp => resp.json()).then(data => {
+      gameState = data;
+      const level = data.levels.find(l => l.id === gameState.currentLevelId);
+      if (level) updateLevelDisplay(level);
+      updateStats();
+      updateInventory();
+      updateTimers();
+      addLog('Прогресс загружен.');
+    }).catch(() => {});
+  }
+
+  function resetSave() {
+    if (!confirm('Удалить всё сохранение?')) return;
+    const filename = `saves/${playerNickname}.json`;
+    const token = API.token();
+    const url = `${API.base()}/${filename}`;
+    fetch(url, { headers: { Authorization: `token ${token}` } })
+      .then(resp => resp.json())
+      .then(data => {
+        return fetch(url, {
+          method: 'PUT',
+          headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: `Delete ${filename}`, content: '', sha: data.sha, branch: 'main' })
+        });
+      }).then(() => {
+        alert('Сохранение удалено.');
+        location.reload();
+      }).catch(() => alert('Ошибка удаления.'));
+  }
+
+  function startNewGame() {
+    if (data.levels.length === 0) {
+      addLog('Нет уровней в базе данных.');
+      return;
+    }
+    const randomLevel = data.levels[Math.floor(Math.random() * data.levels.length)];
+    gameState = {
+      hp: 100,
+      hunger: 100,
+      thirst: 100,
+      sleep: 100,
+      temperature: 36.6,
+      sanity: 100,
+      currentLevelId: randomLevel.id,
+      inventory: [],
+      playTime: 0,
+      dayTime: 0
+    };
+    logPanel.innerHTML = '';
+    updateLevelDisplay(randomLevel);
+    addLog(`Вы очнулись на уровне "${randomLevel.title}".`);
+    addLog(`Класс опасности: ${randomLevel.cls}.`);
+    updateStats();
+    updateInventory();
+    updateTimers();
+    if (gameInterval) clearInterval(gameInterval);
+    gameInterval = setInterval(passiveTick, 1000);
+  }
+
+  function updateLevelDisplay(level) {
+    levelNameEl.textContent = level.title || level.name;
+    levelClassEl.textContent = `Класс: ${level.cls}`;
+    if (level.thumbnail) {
+      levelThumb.src = level.thumbnail;
+      levelThumb.style.display = 'block';
+    } else {
+      levelThumb.style.display = 'none';
+    }
+  }
+
+  function explore() {
+    const level = data.levels.find(l => l.id === gameState.currentLevelId);
+    if (!level) return;
+    const roll = Math.random();
+    addLog('Вы осматриваетесь...');
+
+    const resourceChance = (level.stats?.resources || 3) / 10;
+    if (roll < resourceChance) {
+      const possibleItems = data.items.filter(i => level.itemIds?.includes(i.id));
+      if (possibleItems.length > 0) {
+        const item = possibleItems[Math.floor(Math.random() * possibleItems.length)];
+        gameState.inventory.push(item);
+        addLog(`Найдено: ${item.name}.`, item.thumbnail);
+        updateInventory();
+      }
+    } else if (roll < resourceChance * 2) {
+      const possibleFoods = data.foods.filter(f => level.foodIds?.includes(f.id));
+      if (possibleFoods.length > 0) {
+        const food = possibleFoods[Math.floor(Math.random() * possibleFoods.length)];
+        gameState.inventory.push(food);
+        addLog(`Найдена еда: ${food.name}.`, food.thumbnail);
+        updateInventory();
+      }
+    } else if (roll < 0.7) {
+      const possibleEntities = data.entities.filter(e => level.ent?.includes(e.id));
+      if (possibleEntities.length > 0) {
+        const entity = possibleEntities[Math.floor(Math.random() * possibleEntities.length)];
+        addLog(`Вы столкнулись с сущностью: ${entity.name}.`, entity.thumbnail);
+        const danger = parseInt(entity.cls) || 0;
+        if (danger >= 2) {
+          startBattle(entity);
+        } else {
+          addLog('Сущность не проявляет агрессии.');
+        }
+      }
+    }
+    gameState.hunger = Math.max(0, gameState.hunger - 5);
+    gameState.thirst = Math.max(0, gameState.thirst - 7);
+    gameState.sleep = Math.max(0, gameState.sleep - 4);
+    updateStats();
+  }
+
+  function startBattle(entity) {
+    battleModal.classList.add('active');
+    document.getElementById('battleTitle').textContent = `Бой с ${entity.name}`;
+    document.getElementById('battleDesc').textContent = `Класс опасности: ${entity.cls}. Ваше HP: ${gameState.hp}`;
+    document.getElementById('battleAttackBtn').onclick = () => {
+      const weapon = gameState.inventory.find(i => data.items.find(it => it.id === i.id && (it.cls === 'cold_weapon' || it.cls === 'firearm')));
+      let damage = 5;
+      if (weapon) {
+        damage += weapon.cls === 'firearm' ? 15 : 10;
+        addLog(`Вы используете ${weapon.name}.`);
+      }
+      const entityDanger = parseInt(entity.cls) || 0;
+      const entityDamage = entityDanger * 5 + Math.floor(Math.random() * 10);
+      gameState.hp -= entityDamage;
+      addLog(`Сущность наносит вам ${entityDamage} урона.`);
+      const hitChance = weapon ? 0.8 : 0.5;
+      if (Math.random() < hitChance) {
+        addLog(`Вы наносите ${damage} урона.`);
+      } else {
+        addLog('Вы промахиваетесь!');
+      }
+      if (gameState.hp <= 0) {
+        addLog('Вы погибли в бою.');
+        gameState.hp = 0;
+        clearInterval(gameInterval);
+      }
+      battleModal.classList.remove('active');
+      updateStats();
+    };
+    document.getElementById('battleFleeBtn').onclick = () => {
+      if (Math.random() < 0.5) {
+        addLog('Вы сбежали!');
+      } else {
+        const entityDanger = parseInt(entity.cls) || 0;
+        gameState.hp -= entityDanger * 3;
+        addLog('Вам не удалось сбежать, сущность атакует.');
+        if (gameState.hp <= 0) {
+          addLog('Вы погибли.');
+          gameState.hp = 0;
+          clearInterval(gameInterval);
+        }
+      }
+      battleModal.classList.remove('active');
+      updateStats();
+    };
+  }
+
+  function rest() {
+    addLog('Вы отдыхаете...');
+    gameState.sleep = Math.min(100, gameState.sleep + 25);
+    gameState.hp = Math.min(100, gameState.hp + 5);
+    gameState.hunger = Math.max(0, gameState.hunger - 3);
+    gameState.thirst = Math.max(0, gameState.thirst - 3);
+    updateStats();
+  }
+
+  function searchExit() {
+    const level = data.levels.find(l => l.id === gameState.currentLevelId);
+    if (!level) return;
+    const outIds = level.out ? level.out.split(',').map(s => s.trim()).filter(Boolean) : [];
+    if (outIds.length === 0) {
+      addLog('На этом уровне нет выходов.');
+      return;
+    }
+    const chance = 0.2 + (level.stats?.navigation || 1) * 0.1;
+    if (Math.random() < chance) {
+      const nextId = outIds[Math.floor(Math.random() * outIds.length)];
+      const nextLevel = data.levels.find(l => l.id === nextId);
+      if (nextLevel) {
+        gameState.currentLevelId = nextLevel.id;
+        updateLevelDisplay(nextLevel);
+        addLog(`Вы нашли выход и перешли на уровень "${nextLevel.title}".`);
+        gameState.sanity = Math.min(100, gameState.sanity + 10);
+      }
+    } else {
+      addLog('Вы не смогли найти выход.');
+    }
+    updateStats();
   }
 
   async function fetchFilesInFolder(folder) {
@@ -415,149 +759,38 @@
       }
       await Promise.all(downloadPromises);
       return true;
-    } catch(e) {
-      return false;
-    }
+    } catch(e) { return false; }
   }
 
-  function startNewGame() {
-    if (data.levels.length === 0) {
-      addLog('Нет уровней в базе данных.');
+  document.getElementById('startGameBtn').addEventListener('click', async () => {
+    playerNickname = document.getElementById('nicknameInput').value.trim();
+    if (!playerNickname) return alert('Введите ник.');
+    document.getElementById('nicknameModal').style.display = 'none';
+    document.getElementById('gameLayout').style.display = 'flex';
+    const loaded = await loadAllData();
+    if (!loaded) {
+      addLog('Ошибка загрузки данных.');
       return;
     }
-    const randomLevel = data.levels[Math.floor(Math.random() * data.levels.length)];
-    gameState = {
-      hp: 100,
-      hunger: 100,
-      thirst: 100,
-      sleep: 100,
-      temperature: 36.6,
-      sanity: 100,
-      currentLevelId: randomLevel.id,
-      inventory: []
-    };
-    logPanel.innerHTML = '';
-    updateLevelDisplay(randomLevel);
-    addLog(`Вы очнулись на уровне "${randomLevel.title}".`);
-    addLog(`Класс опасности: ${randomLevel.cls}.`);
-    updateStats();
-    updateInventory();
-  }
-
-  function updateLevelDisplay(level) {
-    levelNameEl.textContent = level.title || level.name;
-    levelClassEl.textContent = `Класс: ${level.cls}`;
-    if (level.thumbnail) {
-      levelThumb.src = level.thumbnail;
-      levelThumb.style.display = 'block';
-    } else {
-      levelThumb.style.display = 'none';
-    }
-  }
-
-  function explore() {
-    const level = data.levels.find(l => l.id === gameState.currentLevelId);
-    if (!level) return;
-    const roll = Math.random();
-    addLog('Вы осматриваетесь...');
-
-    // Шанс найти предмет или еду (зависит от ресурсов)
-    const resourceChance = (level.stats?.resources || 3) / 10;
-    if (roll < resourceChance) {
-      const possibleItems = data.items.filter(i => level.itemIds?.includes(i.id));
-      if (possibleItems.length > 0) {
-        const item = possibleItems[Math.floor(Math.random() * possibleItems.length)];
-        gameState.inventory.push(item);
-        addLog(`Найдено: ${item.name}.`, item.thumbnail);
+    loadSave();
+    setTimeout(() => {
+      if (!gameState.currentLevelId) startNewGame();
+      else {
+        const level = data.levels.find(l => l.id === gameState.currentLevelId);
+        if (level) updateLevelDisplay(level);
+        updateStats();
         updateInventory();
+        updateTimers();
+        gameInterval = setInterval(passiveTick, 1000);
       }
-    } else if (roll < resourceChance * 2) {
-      const possibleFoods = data.foods.filter(f => level.foodIds?.includes(f.id));
-      if (possibleFoods.length > 0) {
-        const food = possibleFoods[Math.floor(Math.random() * possibleFoods.length)];
-        gameState.inventory.push(food);
-        addLog(`Найдена еда: ${food.name}.`, food.thumbnail);
-        updateInventory();
-      }
-    } else if (roll < 0.7) {
-      // Встреча с сущностью
-      const possibleEntities = data.entities.filter(e => level.ent?.includes(e.id));
-      if (possibleEntities.length > 0) {
-        const entity = possibleEntities[Math.floor(Math.random() * possibleEntities.length)];
-        addLog(`Вы столкнулись с сущностью: ${entity.name}.`, entity.thumbnail);
-        const danger = parseInt(entity.cls) || 0;
-        if (danger >= 2) {
-          const damage = danger * 10 + Math.floor(Math.random() * 10);
-          gameState.hp -= damage;
-          addLog(`Сущность атакует! Вы теряете ${damage} HP.`);
-          if (gameState.hp <= 0) {
-            addLog('Вы погибли. Игра окончена.');
-            gameState.hp = 0;
-          }
-        } else {
-          addLog('Сущность не проявляет агрессии.');
-        }
-      }
-    }
-    // Тратим ресурсы
-    gameState.hunger = Math.max(0, gameState.hunger - 8);
-    gameState.thirst = Math.max(0, gameState.thirst - 10);
-    gameState.sleep = Math.max(0, gameState.sleep - 6);
-    gameState.sanity = Math.max(0, gameState.sanity - 2);
-    if (gameState.hunger <= 0) { addLog('Вы умираете от голода!'); gameState.hp = 0; }
-    if (gameState.thirst <= 0) { addLog('Вы умираете от жажды!'); gameState.hp = 0; }
-    if (gameState.sleep <= 0) { addLog('Вы теряете сознание от усталости.'); gameState.hp = Math.max(0, gameState.hp - 20); }
-    updateStats();
-  }
-
-  function rest() {
-    addLog('Вы отдыхаете...');
-    gameState.sleep = Math.min(100, gameState.sleep + 25);
-    gameState.hp = Math.min(100, gameState.hp + 5);
-    gameState.hunger = Math.max(0, gameState.hunger - 5);
-    gameState.thirst = Math.max(0, gameState.thirst - 5);
-    updateStats();
-  }
-
-  function searchExit() {
-    const level = data.levels.find(l => l.id === gameState.currentLevelId);
-    if (!level) return;
-    const outIds = level.out ? level.out.split(',').map(s => s.trim()).filter(Boolean) : [];
-    if (outIds.length === 0) {
-      addLog('На этом уровне нет выходов.');
-      return;
-    }
-    const chance = 0.2 + (level.stats?.navigation || 1) * 0.1;
-    if (Math.random() < chance) {
-      const nextId = outIds[Math.floor(Math.random() * outIds.length)];
-      const nextLevel = data.levels.find(l => l.id === nextId);
-      if (nextLevel) {
-        gameState.currentLevelId = nextLevel.id;
-        updateLevelDisplay(nextLevel);
-        addLog(`Вы нашли выход и перешли на уровень "${nextLevel.title}".`);
-        // Восстановление рассудка при смене уровня
-        gameState.sanity = Math.min(100, gameState.sanity + 10);
-      }
-    } else {
-      addLog('Вы не смогли найти выход.');
-    }
-    updateStats();
-  }
+    }, 500);
+  });
 
   document.getElementById('btnExplore').addEventListener('click', explore);
   document.getElementById('btnRest').addEventListener('click', rest);
   document.getElementById('btnSearchExit').addEventListener('click', searchExit);
   document.getElementById('btnNewGame').addEventListener('click', startNewGame);
-
-  (async () => {
-    const success = await loadAllData();
-    if (success) {
-      addLog('Данные загружены. Добро пожаловать в Закулисье.');
-      startNewGame();
-    } else {
-      addLog('Ошибка загрузки данных. Проверьте настройки GitHub.');
-    }
-  })();
+  document.getElementById('btnResetSave').addEventListener('click', resetSave);
 })();
 </script>
 </body>
