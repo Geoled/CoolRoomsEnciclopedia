@@ -1,1 +1,323 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Закулисье: выживание</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: #0f1115;
+      font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .game-window {
+      width: 420px;
+      background: #c0c0c0;
+      border: 2px outset #c0c0c0;
+      padding: 2px;
+      font-family: "MS Sans Serif", "Tahoma", sans-serif;
+      font-size: 11px;
+      color: #000;
+      box-shadow: 10px 10px 0px rgba(0,0,0,0.5);
+    }
+    .game-card {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 350px;
+      background: #c0c0c0;
+      border: 2px inset #c0c0c0;
+      overflow: hidden;
+    }
+    .game-header {
+      background: #000080;
+      padding: 2px 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: white;
+      font-weight: bold;
+    }
+    .game-body {
+      flex: 1;
+      background: #fff;
+      border: 1px inset #808080;
+      margin: 2px;
+      padding: 8px;
+      font-family: "Courier New", monospace;
+      font-size: 12px;
+      overflow-y: auto;
+      line-height: 1.3;
+      position: relative;
+    }
+    .game-stats {
+      position: absolute;
+      bottom: 2px;
+      left: 2px;
+      right: 2px;
+      background: #f0f0f0;
+      border-top: 1px solid #808080;
+      padding: 2px 4px;
+      font-size: 10px;
+      font-family: "MS Sans Serif", sans-serif;
+    }
+    .game-footer {
+      background: #c0c0c0;
+      padding: 4px;
+      border-top: 1px solid #808080;
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+    .win-btn {
+      background: #c0c0c0;
+      border: 2px outset #c0c0c0;
+      padding: 3px 8px;
+      cursor: pointer;
+      font-size: 11px;
+    }
+    .win-btn:active {
+      border: 2px inset #c0c0c0;
+    }
+  </style>
+</head>
+<body>
+<div class="game-window" id="gameWindow">
+  <div class="game-card">
+    <div class="game-header">
+      <span>Закулисье: выживание</span>
+      <span id="gameLevelId" style="font-size:10px;">[Загрузка...]</span>
+    </div>
+    <div class="game-body" id="gameLog">
+      <div>Загрузка данных...</div>
+    </div>
+    <div class="game-footer">
+      <button class="win-btn" id="btnExplore">🔍 Исследовать</button>
+      <button class="win-btn" id="btnRest">💤 Отдых</button>
+      <button class="win-btn" id="btnEat">🍞 Есть</button>
+      <button class="win-btn" id="btnExit">🚪 Выход</button>
+      <button class="win-btn" id="btnNewGame">🔄 Новая игра</button>
+    </div>
+  </div>
+</div>
 
+<script>
+(function() {
+  const API = {
+    owner: () => localStorage.getItem('gh_owner'),
+    repo: () => localStorage.getItem('gh_repo'),
+    token: () => localStorage.getItem('gh_token'),
+    headers: () => { const t = API.token(); return t ? { Authorization: `token ${t}` } : {}; },
+    base: () => `https://api.github.com/repos/${API.owner()}/${API.repo()}/contents`,
+    raw: (file) => `https://raw.githubusercontent.com/${API.owner()}/${API.repo()}/main/${file}?t=${Date.now()}`
+  };
+
+  let data = { levels: [], entities: [], items: [], foods: [] };
+  let gameState = {
+    hp: 100,
+    hunger: 100,
+    sleep: 100,
+    currentLevelId: null,
+    inventory: []
+  };
+
+  const gameLog = document.getElementById('gameLog');
+  const gameLevelIdSpan = document.getElementById('gameLevelId');
+
+  function addLog(msg) {
+    gameLog.innerHTML += `<div>${msg}</div>`;
+    gameLog.scrollTop = gameLog.scrollHeight;
+  }
+
+  function updateStats() {
+    const stats = document.getElementById('gameStats');
+    if (stats) stats.remove();
+    const div = document.createElement('div');
+    div.id = 'gameStats';
+    div.className = 'game-stats';
+    div.textContent = `HP: ${gameState.hp} | Сытость: ${gameState.hunger} | Сон: ${gameState.sleep} | Инвентарь: ${gameState.inventory.length} предметов`;
+    gameLog.appendChild(div);
+  }
+
+  async function fetchFilesInFolder(folder) {
+    if (!API.owner() || !API.repo()) return [];
+    const url = `${API.base()}/${folder}`;
+    try {
+      const resp = await fetch(url, { headers: API.headers(), cache:'no-store' });
+      if (!resp.ok) return [];
+      const items = await resp.json();
+      return Array.isArray(items) ? items.filter(f => f.type === 'file' && f.name.endsWith('.json')) : [];
+    } catch(e) { return []; }
+  }
+
+  async function loadAllData() {
+    try {
+      const folders = ['levels', 'entities', 'items', 'foods'];
+      data = { levels: [], entities: [], items: [], foods: [] };
+      const downloadPromises = [];
+      for (const folder of folders) {
+        const files = await fetchFilesInFolder(folder);
+        files.forEach(file => {
+          downloadPromises.push((async () => {
+            const resp = await fetch(file.download_url, { cache:'no-store' });
+            if (resp.ok) {
+              const obj = await resp.json();
+              data[folder].push(obj);
+            }
+          })());
+        });
+      }
+      await Promise.all(downloadPromises);
+      return true;
+    } catch(e) {
+      addLog('Ошибка загрузки данных. Проверьте настройки GitHub.');
+      return false;
+    }
+  }
+
+  function startGame() {
+    if (data.levels.length === 0) {
+      addLog("Нет уровней в базе данных.");
+      return;
+    }
+    const randomLevel = data.levels[Math.floor(Math.random() * data.levels.length)];
+    gameState = {
+      hp: 100,
+      hunger: 100,
+      sleep: 100,
+      currentLevelId: randomLevel.id,
+      inventory: []
+    };
+    gameLog.innerHTML = '';
+    addLog(`Вы попали на уровень "${randomLevel.title}" (ID: ${randomLevel.id}).`);
+    addLog(`Класс опасности: ${randomLevel.cls}`);
+    gameLevelIdSpan.textContent = `[Ур. ${randomLevel.id}]`;
+    updateStats();
+  }
+
+  function explore() {
+    const level = data.levels.find(l => l.id === gameState.currentLevelId);
+    if (!level) return;
+    const roll = Math.random();
+    addLog("Вы осматриваетесь...");
+    
+    if (roll < 0.3 * (level.stats?.resources || 3) / 5) {
+      const possibleItems = data.items.filter(i => level.itemIds?.includes(i.id));
+      if (possibleItems.length > 0) {
+        const item = possibleItems[Math.floor(Math.random() * possibleItems.length)];
+        gameState.inventory.push(item);
+        addLog(`Найдено: ${item.name} (${item.id}).`);
+      } else {
+        addLog("Ничего полезного.");
+      }
+    } else if (roll < 0.5) {
+      const possibleFoods = data.foods.filter(f => level.foodIds?.includes(f.id));
+      if (possibleFoods.length > 0) {
+        const food = possibleFoods[Math.floor(Math.random() * possibleFoods.length)];
+        gameState.inventory.push(food);
+        addLog(`Найдена еда: ${food.name} (${food.id}).`);
+      } else {
+        addLog("Крошки, но не еда.");
+      }
+    } else if (roll < 0.7) {
+      const possibleEntities = data.entities.filter(e => level.ent?.includes(e.id));
+      if (possibleEntities.length > 0) {
+        const entity = possibleEntities[Math.floor(Math.random() * possibleEntities.length)];
+        addLog(`Встречена сущность: ${entity.name} (класс ${entity.cls}).`);
+        const entityDanger = parseInt(entity.cls) || 0;
+        if (entityDanger >= 2) {
+          const damage = entityDanger * 10 + Math.floor(Math.random() * 10);
+          gameState.hp -= damage;
+          addLog(`Атака! -${damage} HP.`);
+          if (gameState.hp <= 0) {
+            addLog("Вы погибли. Игра окончена.");
+            gameState.hp = 0;
+          }
+        } else {
+          addLog("Сущность не агрессивна.");
+        }
+      } else {
+        addLog("Тишина.");
+      }
+    } else {
+      addLog("Ничего интересного.");
+    }
+    
+    gameState.hunger = Math.max(0, gameState.hunger - 10);
+    gameState.sleep = Math.max(0, gameState.sleep - 8);
+    if (gameState.hunger <= 0) { addLog("Вы умираете от голода!"); gameState.hp = 0; }
+    if (gameState.sleep <= 0) { addLog("Потеря сознания."); gameState.hp = Math.max(0, gameState.hp - 20); }
+    updateStats();
+  }
+
+  function rest() {
+    addLog("Вы отдыхаете...");
+    gameState.sleep = Math.min(100, gameState.sleep + 30);
+    gameState.hp = Math.min(100, gameState.hp + 10);
+    gameState.hunger = Math.max(0, gameState.hunger - 5);
+    updateStats();
+  }
+
+  function eat() {
+    const foodItems = gameState.inventory.filter(item => data.foods.includes(item));
+    if (foodItems.length === 0) {
+      addLog("Нет еды.");
+      return;
+    }
+    const food = foodItems[0];
+    gameState.inventory = gameState.inventory.filter(i => i !== food);
+    const calories = food.stats?.calories || 200;
+    gameState.hunger = Math.min(100, gameState.hunger + calories / 10);
+    addLog(`Вы съели ${food.name}.`);
+    updateStats();
+  }
+
+  function findExit() {
+    const level = data.levels.find(l => l.id === gameState.currentLevelId);
+    if (!level) return;
+    const outIds = level.out ? level.out.split(',').map(s => s.trim()) : [];
+    if (outIds.length === 0) {
+      addLog("Выходов нет.");
+      return;
+    }
+    const chance = 0.3 + (level.stats?.navigation || 1) * 0.1;
+    if (Math.random() < chance) {
+      const nextId = outIds[Math.floor(Math.random() * outIds.length)];
+      const nextLevel = data.levels.find(l => l.id === nextId);
+      if (nextLevel) {
+        gameState.currentLevelId = nextLevel.id;
+        gameLevelIdSpan.textContent = `[Ур. ${nextLevel.id}]`;
+        addLog(`Переход на уровень "${nextLevel.title}" (ID: ${nextLevel.id}).`);
+      } else {
+        addLog("Выход в никуда...");
+      }
+    } else {
+      addLog("Не удалось найти выход.");
+    }
+    updateStats();
+  }
+
+  document.getElementById('btnExplore').addEventListener('click', explore);
+  document.getElementById('btnRest').addEventListener('click', rest);
+  document.getElementById('btnEat').addEventListener('click', eat);
+  document.getElementById('btnExit').addEventListener('click', findExit);
+  document.getElementById('btnNewGame').addEventListener('click', startGame);
+
+  (async () => {
+    const success = await loadAllData();
+    if (success) {
+      addLog("Данные загружены. Добро пожаловать в Закулисье.");
+      startGame();
+    } else {
+      addLog("Не удалось загрузить данные.");
+    }
+  })();
+})();
+</script>
+</body>
+</html>
