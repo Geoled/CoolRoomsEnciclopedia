@@ -117,7 +117,7 @@
     </div>
   </div>
 </div>
-<div class="lightbox" id="lightbox" onclick="this.style.display='none'"><img id="lightboxImg" src=""></div>
+<div class="lightbox" id="lightbox" onclick="this.style.display='none'"><img id="lightboxImg" src="" loading="lazy"></div>
 
 <script>
 (function() {
@@ -132,6 +132,8 @@
 
   let currentSection = 'home';
   let data = { levels: [], entities: [], items: [], foods: [] };
+  // Кэш индекса файлов для каждого раздела
+  let fileIndexCache = {};
   let classStyles = JSON.parse(localStorage.getItem('classStyles')) || {
     "0": { icon:"🟢", color:"#6a9a6a", name:"Безопасный" },
     "1": { icon:"🟡", color:"#c9a64a", name:"Почти безопасный" },
@@ -216,47 +218,58 @@
     return obj;
   }
 
-  // ── Загрузка данных ──────────────────────────
-  async function fetchFilesInFolder(folder) {
+  // ── Загрузка индекса файлов раздела ──────────
+  async function fetchFileIndex(folder) {
     if (!API.owner() || !API.repo()) return [];
     const url = `${API.base()}/${folder}`;
     try {
       const resp = await fetch(url, { headers: API.headers(), cache:'no-store' });
       if (!resp.ok) return [];
       const items = await resp.json();
-      return Array.isArray(items) ? items.filter(f => f.type === 'file' && f.name.endsWith('.json')) : [];
+      const files = Array.isArray(items) ? items.filter(f => f.type === 'file' && f.name.endsWith('.json')) : [];
+      // Сохраняем индекс
+      fileIndexCache[folder] = files.map(f => ({ name: f.name, sha: f.sha, download_url: f.download_url }));
+      return fileIndexCache[folder];
     } catch(e) { return []; }
   }
 
-  async function loadAllData() {
-    const folders = ['levels', 'entities', 'items', 'foods'];
-    data = { levels: [], entities: [], items: [], foods: [] };
-    const downloadPromises = [];
-    for (const folder of folders) {
-      const files = await fetchFilesInFolder(folder);
-      files.forEach(file => {
-        downloadPromises.push((async () => {
-          try {
-            const resp = await fetch(file.download_url, { cache:'no-store' });
-            if (!resp.ok) return;
-            const obj = await resp.json();
-            obj._sha = file.sha;
-            obj._folder = folder;
-            data[folder].push(obj);
-          } catch(e) {}
-        })());
-      });
-    }
+  // ── Загрузка данных только одного раздела ─────
+  async function loadSectionData(section) {
+    const folder = section;
+    const files = await fetchFileIndex(folder);
+    const arr = [];
+    const downloadPromises = files.map(file => (async () => {
+      try {
+        const resp = await fetch(file.download_url, { cache:'no-store' });
+        if (resp.ok) {
+          const obj = await resp.json();
+          obj._sha = file.sha;
+          obj._folder = folder;
+          arr.push(obj);
+        }
+      } catch(e) {}
+    })());
     await Promise.all(downloadPromises);
-    data.levels.forEach(l => ensureStats(l, {safety:3,stability:3,entities:3,resources:3,mental:3,navigation:3}));
-    data.entities.forEach(e => ensureStats(e, {danger:3, frequency:3, intelligence:3, aggression:3}));
-    data.items.forEach(i => ensureStats(i, {weight:3, rarity:3, usefulness:3, durability:3}));
-    data.foods.forEach(f => ensureStats(f, {calories:500, availability:5, taste:3, shelfLife:7}));
-    data.levels.forEach(level => {
-      if (!Array.isArray(level.ent)) level.ent = [];
-      if (!Array.isArray(level.foodIds)) level.foodIds = [];
-      if (!Array.isArray(level.itemIds)) level.itemIds = [];
+    // Нормализация
+    arr.forEach(obj => {
+      if (section === 'levels') ensureStats(obj, {safety:3,stability:3,entities:3,resources:3,mental:3,navigation:3});
+      else if (section === 'entities') ensureStats(obj, {danger:3, frequency:3, intelligence:3, aggression:3});
+      else if (section === 'items') ensureStats(obj, {weight:3, rarity:3, usefulness:3, durability:3});
+      else if (section === 'foods') ensureStats(obj, {calories:500, availability:5, taste:3, shelfLife:7});
+      if (section === 'levels') {
+        if (!Array.isArray(obj.ent)) obj.ent = [];
+        if (!Array.isArray(obj.foodIds)) obj.foodIds = [];
+        if (!Array.isArray(obj.itemIds)) obj.itemIds = [];
+      }
     });
+    data[section] = arr;
+  }
+
+  async function loadAllData() {
+    // Загружаем только данные для текущего раздела (лениво)
+    if (currentSection === 'levels' || currentSection === 'entities' || currentSection === 'items' || currentSection === 'foods') {
+      await loadSectionData(currentSection);
+    }
   }
 
   function getCurrentArray() {
@@ -296,7 +309,7 @@
 
   function renderCards(items, type) {
     return items.map(obj => {
-      const thumb = obj.thumbnail ? `<img class="card-img" src="${obj.thumbnail}" onerror="this.style.display='none'">` : '';
+      const thumb = obj.thumbnail ? `<img class="card-img" src="${obj.thumbnail}" loading="lazy" onerror="this.style.display='none'">` : '';
       let statsHtml = '';
       if (type === 'levels') statsHtml = renderStatsHTML(obj.stats, {safety:'Безопасность',stability:'Стабильность',entities:'Заселённость',resources:'Ресурсы',mental:'Психика',navigation:'Навигация'}, statColors);
       else if (type === 'entities') statsHtml = renderStatsHTML(obj.stats, {danger:'Опасность',frequency:'Частота',intelligence:'Интеллект',aggression:'Агрессия'}, statColors);
@@ -350,7 +363,7 @@
   function renderLinkedCards(items, type, label) {
     if (!items.length) return '';
     const cards = items.map(item => `<div class="${type}-card" data-id="${item.id}">
-      ${item.thumbnail ? `<img src="${item.thumbnail}" onerror="this.style.display='none'">` : '<div style="width:80px;height:80px;background:#252835;border-radius:8px;"></div>'}
+      ${item.thumbnail ? `<img src="${item.thumbnail}" loading="lazy" onerror="this.style.display='none'">` : '<div style="width:80px;height:80px;background:#252835;border-radius:8px;"></div>'}
       <div class="${type}-card-name">${item.title || item.name}</div>
     </div>`).join('');
     return `<div class="view-section"><h3>${label}</h3><div style="display:flex;flex-wrap:wrap;">${cards}</div></div>`;
@@ -361,8 +374,8 @@
     const obj = arr.find(o => o.id === id);
     if (!obj) return;
     breadcrumbs.innerHTML = `<span onclick="switchSection('home')">Главная</span> > ${type==='levels'?'Уровень':type==='entities'?'Сущность':type==='items'?'Предмет':'Еда'} ${obj.id}`;
-    const thumb = obj.thumbnail ? `<img src="${obj.thumbnail}" style="max-width:300px;border-radius:12px;margin-bottom:1rem;" onerror="this.style.display='none'">` : '';
-    const gallery = (obj.images||[]).map(img => `<img src="${img.url}" alt="${img.description||''}">`).join('');
+    const thumb = obj.thumbnail ? `<img src="${obj.thumbnail}" style="max-width:300px;border-radius:12px;margin-bottom:1rem;" loading="lazy" onerror="this.style.display='none'">` : '';
+    const gallery = (obj.images||[]).map(img => `<img src="${img.url}" alt="${img.description||''}" loading="lazy">`).join('');
     let statsHtml = '';
     if (type === 'levels') statsHtml = renderStatsHTML(obj.stats, {safety:'Безопасность',stability:'Стабильность',entities:'Заселённость',resources:'Ресурсы',mental:'Психика',navigation:'Навигация'}, statColors);
     else if (type === 'entities') statsHtml = renderStatsHTML(obj.stats, {danger:'Опасность',frequency:'Частота',intelligence:'Интеллект',aggression:'Агрессия'}, statColors);
@@ -423,7 +436,6 @@
     const url = `${API.base()}/${filename}`;
     const token = API.token();
     if (!token) { alert('Настройте GitHub токен.'); return; }
-    // Получаем актуальный SHA
     let sha = null;
     try {
       const resp = await fetch(url, { headers: { Authorization: `token ${token}` } });
@@ -431,7 +443,6 @@
       else if (resp.status === 404) { alert('Файл не найден.'); return; }
     } catch(e) { alert('Ошибка получения информации о файле.'); return; }
     if (!sha) { alert('Не удалось получить SHA файла.'); return; }
-    // Удаление
     const delResp = await fetch(url, {
       method: 'PUT',
       headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' },
@@ -606,7 +617,6 @@
     const token = API.token();
     if (!token) { alert('Настройте GitHub токен.'); return false; }
     const url = `${API.base()}/${filename}`;
-    // Получаем актуальный SHA, если файл существует
     let sha = null;
     try {
       const resp = await fetch(url, { headers: { Authorization: `token ${token}` } });
@@ -676,7 +686,7 @@
     currentSection = section;
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === section));
     breadcrumbs.innerHTML = section === 'home' ? 'Главная' : `<span onclick="switchSection('home')">Главная</span> > ${section==='levels'?'Уровни':section==='entities'?'Сущности':section==='items'?'Предметы':'Еда'}`;
-    if (section !== 'home') await loadAllData();
+    if (section !== 'home') await loadSectionData(section);
     renderTree();
     renderContent();
   }
@@ -693,7 +703,11 @@
   });
 
   document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => switchSection(b.dataset.tab)));
-  document.getElementById('refreshBtn').addEventListener('click', async () => { await loadAllData(); renderTree(); renderContent(); });
+  document.getElementById('refreshBtn').addEventListener('click', async () => { 
+    fileIndexCache = {}; // сброс кэша индекса
+    if (currentSection !== 'home') await loadSectionData(currentSection); 
+    renderTree(); renderContent(); 
+  });
   document.getElementById('addBtn').addEventListener('click', () => {
     if (currentSection === 'home') return alert('Перейдите в нужный раздел');
     openEditModal(currentSection);
@@ -701,7 +715,10 @@
   viewModal.addEventListener('click', e => { if (e.target === viewModal) viewModal.classList.remove('active'); });
   editModal.addEventListener('click', e => { if (e.target === editModal) editModal.classList.remove('active'); });
 
-  (async () => { await loadAllData(); switchSection('home'); })();
+  (async () => { 
+    // Начальная загрузка: только главная страница
+    await switchSection('home'); 
+  })();
 })();
 </script>
 </body>
