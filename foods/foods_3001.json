@@ -1,0 +1,18 @@
+{
+  "id": "3001",
+  "cls": "dish",
+  "tags": [
+    "Крупы"
+  ],
+  "stats": {
+    "calories": 210,
+    "availability": 4,
+    "taste": 4,
+    "shelfLife": 2
+  },
+  "desc": "Тёплая, с комочками, на молоке, также имеются ягоды.\nЭксклюзив для 215 уровня",
+  "thumbnail": "https://s1.eda.ru/StaticContent/Photos/0/e2/0e2c19c3742f4670bfa2fad0eee5a26a.jpg",
+  "images": [],
+  "name": "Манная каша",
+  "effect": "Насыщение"
+}
