@@ -1,10 +1,10 @@
 {
   "hp": 100,
-  "hunger": 83.40000000000009,
-  "thirst": 76.59999999999991,
-  "sleep": 87.20000000000005,
+  "hunger": 83.2000000000001,
+  "thirst": 76.2999999999999,
+  "sleep": 87.10000000000005,
   "temperature": 36.6,
-  "sanity": 99.68000000000006,
+  "sanity": 99.64000000000007,
   "currentLevelId": "69",
   "inventory": [
     {
@@ -26,8 +26,8 @@
       "effect": "освежает, утоляет жажду"
     }
   ],
-  "playTime": 16,
-  "dayTime": 16,
+  "playTime": 18,
+  "dayTime": 18,
   "levelsVisited": [
     "69"
   ],
