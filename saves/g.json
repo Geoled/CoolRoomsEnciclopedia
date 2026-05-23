@@ -1,8 +1,8 @@
 {
   "hp": 100,
-  "hunger": 85,
-  "thirst": 77.5,
-  "sleep": 92.5,
+  "hunger": 82,
+  "thirst": 73,
+  "sleep": 91,
   "temperature": 36.6,
   "sanity": 100,
   "currentLevelId": "0",
@@ -42,10 +42,46 @@
       "images": [],
       "name": "Бутылка Воды",
       "effect": "освежает, утоляет жажду"
+    },
+    {
+      "id": "1",
+      "cls": "drink",
+      "tags": [
+        "Жажда"
+      ],
+      "stats": {
+        "calories": 0,
+        "availability": 7,
+        "taste": 1,
+        "shelfLife": 30
+      },
+      "desc": "Обычная бутылка воды ",
+      "thumbnail": "https://i.pinimg.com/1200x/b5/bf/03/b5bf03af7e9ba90bb78d793419723fb8.jpg",
+      "images": [],
+      "name": "Бутылка Воды",
+      "effect": "освежает, утоляет жажду"
+    },
+    {
+      "id": "1",
+      "cls": "drink",
+      "tags": [
+        "Жажда"
+      ],
+      "stats": {
+        "calories": 0,
+        "availability": 7,
+        "taste": 1,
+        "shelfLife": 30
+      },
+      "desc": "Обычная бутылка воды ",
+      "thumbnail": "https://i.pinimg.com/1200x/b5/bf/03/b5bf03af7e9ba90bb78d793419723fb8.jpg",
+      "images": [],
+      "name": "Бутылка Воды",
+      "effect": "освежает, утоляет жажду"
     }
   ],
-  "playTime": 13,
-  "dayTime": 13,
+  "playTime": 15,
+  "dayTime": 15,
   "levelsVisited": [
     "765",
     "0"
@@ -124,7 +160,7 @@
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "food",
           "itemId": "1"
         },
@@ -151,12 +187,12 @@
           "type": "empty"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "food",
           "itemId": "1"
         },
         {
-          "explored": false,
+          "explored": true,
           "type": "empty"
         },
         {
@@ -222,6 +258,6 @@
     "width": 6,
     "height": 6
   },
-  "playerX": 2,
-  "playerY": 2
+  "playerX": 4,
+  "playerY": 3
 }
