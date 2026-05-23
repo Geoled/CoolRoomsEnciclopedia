@@ -1,0 +1,18 @@
+{
+  "id": "55",
+  "cls": "other",
+  "tags": [
+    "Уютненько"
+  ],
+  "stats": {
+    "calories": 51300,
+    "availability": 5,
+    "taste": 3,
+    "shelfLife": 7
+  },
+  "desc": "ц",
+  "thumbnail": "https://i.pinimg.com/736x/b3/d2/45/b3d2459257d773afe6a4a679866e457c.jpg",
+  "images": [],
+  "name": "Ебактуль",
+  "effect": "у"
+}
