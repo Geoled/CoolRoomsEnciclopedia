@@ -1,0 +1,26 @@
+{
+  "id": "00000001",
+  "title": "Земля",
+  "cluster": "Млечный Путь",
+  "cls": "4",
+  "tags": [
+    "Дом",
+    "Вечные страдания"
+  ],
+  "stats": {
+    "safety": 1,
+    "stability": 1,
+    "entities": 5,
+    "resources": 4,
+    "mental": 5,
+    "navigation": 4
+  },
+  "desc": "Всё начинается именно здесь",
+  "thumbnail": "https://img.freepik.com/premium-photo/panoramic-shot-cityscape-by-sea-against-sky_1048944-29667986.jpg?semt=ais_hybrid&w=740",
+  "images": [],
+  "ent": [],
+  "foodIds": [],
+  "itemIds": [],
+  "in": "",
+  "out": "0"
+}
