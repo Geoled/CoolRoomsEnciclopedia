@@ -1,0 +1,19 @@
+{
+  "id": "2",
+  "cls": "drink",
+  "tags": [
+    "Сладко",
+    "Освежает"
+  ],
+  "stats": {
+    "calories": 42,
+    "availability": 5,
+    "taste": 4,
+    "shelfLife": 360
+  },
+  "desc": "Жестяная банка освежающего газированного сладкого напитка",
+  "thumbnail": "https://main-cdn.sbermegamarket.ru/big2/hlr-system/-15/404/316/314/718/20/100051115618b0.jpg",
+  "images": [],
+  "name": "Кола",
+  "effect": "Утоление жажды"
+}
