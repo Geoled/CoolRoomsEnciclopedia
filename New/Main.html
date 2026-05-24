@@ -90,9 +90,6 @@
     .dropdown-list .dropdown-item:hover { background: #2a2d35; }
     .tag-cloud { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 1rem 0; }
     .tag-cloud .tag { cursor: pointer; }
-    .quick-links { display: flex; gap: 1rem; justify-content: center; margin: 2rem 0; flex-wrap: wrap; }
-    .quick-link-card { background:#1a1c24; border:1px solid #2a2d35; border-radius:16px; padding:1.2rem; cursor:pointer; transition:0.2s; min-width:100px; text-align:center; }
-    .quick-link-card:hover { transform:translateY(-3px); border-color:#c9a86c; }
     @media (max-width:700px) { body { flex-direction:column; } .sidebar { width:100%; height:40%; } }
   </style>
 </head>
@@ -114,9 +111,6 @@
     <div class="breadcrumbs" id="breadcrumbs">Главная</div>
     <div class="actions">
       <button class="btn" id="luckyBtn">Лаки-Блок</button>
-      <button class="btn" id="exportBtn">Экспорт</button>
-      <label class="btn" for="importFile">Импорт</label>
-      <input type="file" id="importFile" accept=".json" style="display:none;">
       <button class="btn" id="refreshBtn">Обновить</button>
       <button class="btn primary" id="addBtn">Создать</button>
     </div>
@@ -224,50 +218,6 @@
     document.getElementById('settingsModal').classList.remove('active');
   });
   document.getElementById('settingsModal').addEventListener('click', (e) => { if (e.target === document.getElementById('settingsModal')) document.getElementById('settingsModal').classList.remove('active'); });
-
-  // ── Экспорт и импорт ─────────────────────────
-  document.getElementById('exportBtn').addEventListener('click', () => {
-    const jsonStr = JSON.stringify(data, null, 2);
-    const blob = new Blob([jsonStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'backrooms_database.json';
-    a.click();
-    URL.revokeObjectURL(url);
-  });
-
-  document.getElementById('importFile').addEventListener('change', async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = async (evt) => {
-      try {
-        const imported = JSON.parse(evt.target.result);
-        if (imported.levels && imported.entities && imported.items && imported.foods) {
-          if (confirm('Вы уверены, что хотите заменить все данные? Текущие данные будут перезаписаны.')) {
-            const loading = showLoading(contentArea);
-            // Загружаем каждый раздел
-            for (const type of ['levels', 'entities', 'items', 'foods']) {
-              for (const obj of imported[type]) {
-                const folder = type;
-                const filename = `${folder}/${type}_${obj.id}.json`;
-                await commitFile(filename, obj, null);
-              }
-            }
-            await loadAllData();
-            hideLoading(loading);
-            renderTree();
-            renderContent();
-            alert('Импорт завершён.');
-          }
-        } else {
-          alert('Неверный формат файла.');
-        }
-      } catch(e) { alert('Ошибка чтения файла.'); }
-    };
-    reader.readAsText(file);
-  });
 
   // ── Вспомогательные функции ──────────────────
   function getClassStylesForType(type) {
@@ -427,15 +377,21 @@
       contentArea.innerHTML = `<div style="max-width:800px;margin:0 auto;text-align:center;">
         <h2 style="color:#c9a86c;margin-bottom:1rem;">Добро пожаловать в каталог мира "Где бог покинет нас вновь"</h2>
         <p style="color:#b0b0be;">На этом вебсайте вы найдёте:предметы, уровни, существ, которых нашли в этом мире, пока что неизвестно насколько процентов изучена эта вселенная, но изучения проходят весьма стабильно.</p>
-        <div class="quick-links">
-          <div class="quick-link-card" onclick="switchSection('levels')"><div style="font-size:1.8rem;color:#c9a86c;">${data.levels.length}</div><div>Уровней</div></div>
-          <div class="quick-link-card" onclick="switchSection('entities')"><div style="font-size:1.8rem;color:#c9a86c;">${data.entities.length}</div><div>Сущностей</div></div>
-          <div class="quick-link-card" onclick="switchSection('items')"><div style="font-size:1.8rem;color:#c9a86c;">${data.items.length}</div><div>Предметов</div></div>
-          <div class="quick-link-card" onclick="switchSection('foods')"><div style="font-size:1.8rem;color:#c9a86c;">${data.foods.length}</div><div>Еды</div></div>
+        <div style="display:flex;gap:1rem;justify-content:center;margin:2rem 0;">
+          <div class="card" style="min-width:100px; cursor:pointer;" onclick="switchSection('levels')"><div style="font-size:1.8rem;color:#c9a86c;">${data.levels.length}</div><div>Уровней</div></div>
+          <div class="card" style="min-width:100px; cursor:pointer;" onclick="switchSection('entities')"><div style="font-size:1.8rem;color:#c9a86c;">${data.entities.length}</div><div>Сущностей</div></div>
+          <div class="card" style="min-width:100px; cursor:pointer;" onclick="switchSection('items')"><div style="font-size:1.8rem;color:#c9a86c;">${data.items.length}</div><div>Предметов</div></div>
+          <div class="card" style="min-width:100px; cursor:pointer;" onclick="switchSection('foods')"><div style="font-size:1.8rem;color:#c9a86c;">${data.foods.length}</div><div>Еды</div></div>
+        </div>
+        <div style="display:flex; gap:1rem; justify-content:center; margin-top:1rem;">
+          <button class="btn" id="exportBtn">📥 Экспорт базы данных</button>
+          <button class="btn" id="importBtn">📤 Импорт базы данных</button>
         </div>
         ${renderTagCloud()}
       </div>`;
       tree.innerHTML = '<div style="padding:1rem;color:#8c8c9a;">Выберите раздел</div>';
+      document.getElementById('exportBtn')?.addEventListener('click', exportAllData);
+      document.getElementById('importBtn')?.addEventListener('click', importAllData);
       return;
     }
     const arr = getCurrentArray();
@@ -574,6 +530,7 @@
     renderContent();
   }
 
+  // ── Загрузка изображения в репозиторий ──────
   async function uploadImageToRepo(file) {
     const token = API.token();
     if (!token) { alert('Настройте GitHub токен.'); return null; }
@@ -583,19 +540,31 @@
     return new Promise((resolve) => {
       reader.onload = async () => {
         const base64 = reader.result.split(',')[1];
-        const body = { message: `Upload ${filename}`, content: base64, branch: 'main' };
+        const body = {
+          message: `Upload ${filename}`,
+          content: base64,
+          branch: 'main'
+        };
         try {
-          const resp = await fetch(url, { method: 'PUT', headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+          const resp = await fetch(url, {
+            method: 'PUT',
+            headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+          });
           if (resp.ok) {
             const data = await resp.json();
             resolve(data.content.download_url);
-          } else { alert('Ошибка загрузки изображения.'); resolve(null); }
+          } else {
+            alert('Ошибка загрузки изображения.');
+            resolve(null);
+          }
         } catch(e) { resolve(null); }
       };
       reader.readAsDataURL(file);
     });
   }
 
+  // ── Кэширование формы редактирования ─────────
   function saveFormState() {
     if (!currentEditType || !document.getElementById('editId')) return;
     const state = {
@@ -620,11 +589,16 @@
                        'editDanger','editFrequency','editIntelligence','editAggression',
                        'editWeight','editRarity','editUsefulness','editDurability',
                        'editCalories','editAvailability','editTaste','editShelfLife'];
-    statFields.forEach(f => { const el = document.getElementById(f); if (el) state.stats[f] = el.value; });
+    statFields.forEach(f => {
+      const el = document.getElementById(f);
+      if (el) state.stats[f] = el.value;
+    });
     const dropdowns = ['entity_','food_','item_','in_','out_'];
     dropdowns.forEach(prefix => {
       const container = document.querySelector(`[id^="${prefix}"]`);
-      if (container && container._getSelected) state[prefix + 'selected'] = container._getSelected();
+      if (container && container._getSelected) {
+        state[prefix + 'selected'] = container._getSelected();
+      }
     });
     localStorage.setItem('formDraft_' + currentEditType, JSON.stringify(state));
   }
@@ -650,17 +624,29 @@
         if (document.getElementById('editSurvival')) document.getElementById('editSurvival').value = state.survival || '';
         if (document.getElementById('editProps')) document.getElementById('editProps').value = state.props || '';
         if (document.getElementById('editEffect')) document.getElementById('editEffect').value = state.effect || '';
-        Object.entries(state.stats||{}).forEach(([key, value]) => { const el = document.getElementById(key); if (el) el.value = value; });
+        Object.entries(state.stats||{}).forEach(([key, value]) => {
+          const el = document.getElementById(key);
+          if (el) el.value = value;
+        });
         return true;
-      } else { localStorage.removeItem('formDraft_' + type); }
+      } else {
+        localStorage.removeItem('formDraft_' + type);
+      }
     } catch(e) {}
     return false;
   }
 
-  function clearFormDraft() { if (currentEditType) localStorage.removeItem('formDraft_' + currentEditType); }
+  function clearFormDraft() {
+    if (currentEditType) localStorage.removeItem('formDraft_' + currentEditType);
+  }
 
-  window.addEventListener('beforeunload', () => { if (editModal.classList.contains('active')) saveFormState(); });
-  editModal.addEventListener('click', (e) => { if (e.target === editModal) { saveFormState(); editModal.classList.remove('active'); currentEditType = null; } });
+  window.addEventListener('beforeunload', () => {
+    if (editModal.classList.contains('active')) saveFormState();
+  });
+
+  editModal.addEventListener('click', (e) => {
+    if (e.target === editModal) { saveFormState(); editModal.classList.remove('active'); currentEditType = null; }
+  });
 
   function createDropdown(containerId, items, selectedIdsStr, placeholder) {
     if (!items || items.length === 0) {
@@ -717,11 +703,13 @@
 
   function openEditModal(type, obj = null) {
     currentEditType = type;
-    const folder = type;
     const styles = getClassStylesForType(type);
     const defaultCls = type === 'levels' ? '0' : type === 'entities' ? '0' : type === 'items' ? 'cold_weapon' : 'drink';
     let lvl = obj || { id:'', title:'', cluster:'', cls:defaultCls, desc:'', ent:[], foodIds:[], itemIds:[], in:'', out:'', stats:{}, tags:[], thumbnail:'', images:[], _sha:null, discoveredAt: new Date().toISOString().split('T')[0] };
-    if (!obj && !lvl.id) { const maxId = getMaxId(data[type]||[]); lvl.id = String(maxId + 1); }
+    if (!obj && !lvl.id) {
+      const maxId = getMaxId(data[type]||[]);
+      lvl.id = String(maxId + 1);
+    }
     const classOptions = Object.entries(styles).map(([v,s]) => `<option value="${v}" ${(obj?.cls||defaultCls)==v?'selected':''}>${s.name}</option>`).join('');
     const entityContainerId = 'entity_' + Date.now();
     const foodContainerId = 'food_' + Date.now();
@@ -732,11 +720,23 @@
     if (!obj && restoreFormState(type)) {
       const saved = JSON.parse(localStorage.getItem('formDraft_' + type));
       if (saved) {
-        lvl.id = saved.id || lvl.id; lvl.title = saved.title || ''; lvl.cluster = saved.cluster || ''; lvl.cls = saved.cls || defaultCls;
-        lvl.desc = saved.desc || ''; lvl.tags = saved.tags ? saved.tags.split(',').map(s=>s.trim()).filter(Boolean) : [];
-        lvl.thumbnail = saved.thumbnail || ''; lvl.discoveredAt = saved.discoveredAt || lvl.discoveredAt; lvl.in = saved.in || ''; lvl.out = saved.out || '';
-        lvl.habitat = saved.habitat || ''; lvl.behavior = saved.behavior || ''; lvl.survival = saved.survival || ''; lvl.props = saved.props || ''; lvl.effect = saved.effect || '';
-        lvl.stats = {}; Object.entries(saved.stats||{}).forEach(([k,v]) => { lvl.stats[k.replace('edit','').toLowerCase()] = v; });
+        lvl.id = saved.id || lvl.id;
+        lvl.title = saved.title || '';
+        lvl.cluster = saved.cluster || '';
+        lvl.cls = saved.cls || defaultCls;
+        lvl.desc = saved.desc || '';
+        lvl.tags = saved.tags ? saved.tags.split(',').map(s=>s.trim()).filter(Boolean) : [];
+        lvl.thumbnail = saved.thumbnail || '';
+        lvl.discoveredAt = saved.discoveredAt || lvl.discoveredAt;
+        lvl.in = saved.in || '';
+        lvl.out = saved.out || '';
+        lvl.habitat = saved.habitat || '';
+        lvl.behavior = saved.behavior || '';
+        lvl.survival = saved.survival || '';
+        lvl.props = saved.props || '';
+        lvl.effect = saved.effect || '';
+        lvl.stats = {};
+        Object.entries(saved.stats||{}).forEach(([k,v]) => { lvl.stats[k.replace('edit','').toLowerCase()] = v; });
       }
     }
 
@@ -791,20 +791,31 @@
         <button class="btn" id="addImageBtn" style="margin-top:0.5rem;">+ Изображение</button>
       </div>
       <div style="margin-top:1.5rem; display:flex; gap:1rem; justify-content:flex-end;">
-        <button class="btn" onclick="document.querySelector('#editModal').classList.remove('active')">Отмена</button>
+        <button class="btn" id="cancelEditBtn">Отмена</button>
         ${obj ? `<button class="btn" id="duplicateBtn">Сохранить как копию</button>` : ''}
         <button class="btn primary" id="saveBtn">Сохранить</button>
       </div>`;
     editModal.classList.add('active');
     addImageListeners();
+
+    document.getElementById('cancelEditBtn').addEventListener('click', () => {
+      saveFormState();
+      editModal.classList.remove('active');
+      currentEditType = null;
+    });
+
     document.getElementById('fileUpload')?.addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
       const loading = showLoading(editContent);
       const url = await uploadImageToRepo(file);
       hideLoading(loading);
-      if (url) { document.getElementById('editThumbnail').value = url; alert('Изображение загружено! URL вставлен в поле главного изображения.'); }
+      if (url) {
+        document.getElementById('editThumbnail').value = url;
+        alert('Изображение загружено! URL вставлен в поле главного изображения.');
+      }
     });
+
     document.getElementById('saveBtn').addEventListener('click', () => saveEdit(type, obj));
     if (obj) {
       document.getElementById('duplicateBtn').addEventListener('click', () => {
@@ -832,7 +843,11 @@
     };
     if (type==='levels') {
       newObj.stats = { safety:+document.getElementById('editSafety').value, stability:+document.getElementById('editStability').value, entities:+document.getElementById('editEntities').value, resources:+document.getElementById('editResources').value, mental:+document.getElementById('editMental').value, navigation:+document.getElementById('editNavigation').value };
-      const eDrop = document.querySelector('[id^="entity_"]'), fDrop = document.querySelector('[id^="food_"]'), iDrop = document.querySelector('[id^="item_"]'), inDrop = document.querySelector('[id^="in_"]'), outDrop = document.querySelector('[id^="out_"]');
+      const eDrop = document.querySelector('[id^="entity_"]');
+      const fDrop = document.querySelector('[id^="food_"]');
+      const iDrop = document.querySelector('[id^="item_"]');
+      const inDrop = document.querySelector('[id^="in_"]');
+      const outDrop = document.querySelector('[id^="out_"]');
       newObj.ent = (eDrop && eDrop._getSelected) ? eDrop._getSelected().split(',').map(s=>s.trim()).filter(Boolean) : [];
       newObj.foodIds = (fDrop && fDrop._getSelected) ? fDrop._getSelected().split(',').map(s=>s.trim()).filter(Boolean) : [];
       newObj.itemIds = (iDrop && iDrop._getSelected) ? iDrop._getSelected().split(',').map(s=>s.trim()).filter(Boolean) : [];
@@ -841,7 +856,9 @@
     } else if (type==='entities') {
       newObj.name = newObj.title; delete newObj.title;
       newObj.stats = { danger:+document.getElementById('editDanger').value, frequency:+document.getElementById('editFrequency').value, intelligence:+document.getElementById('editIntelligence').value, aggression:+document.getElementById('editAggression').value };
-      newObj.habitat = document.getElementById('editHabitat').value; newObj.behavior = document.getElementById('editBehavior').value; newObj.survival = document.getElementById('editSurvival').value;
+      newObj.habitat = document.getElementById('editHabitat').value;
+      newObj.behavior = document.getElementById('editBehavior').value;
+      newObj.survival = document.getElementById('editSurvival').value;
     } else if (type==='items') {
       newObj.name = newObj.title; delete newObj.title;
       newObj.stats = { weight:+document.getElementById('editWeight').value, rarity:+document.getElementById('editRarity').value, usefulness:+document.getElementById('editUsefulness').value, durability:+document.getElementById('editDurability').value };
@@ -851,17 +868,23 @@
       newObj.stats = { calories:+document.getElementById('editCalories').value, availability:+document.getElementById('editAvailability').value, taste:+document.getElementById('editTaste').value, shelfLife:+document.getElementById('editShelfLife').value };
       newObj.effect = document.getElementById('editEffect').value;
     }
-    const filename = `${folder}/${type}_${newObj.id}.json`;
+    const filename = `${type}/${type}_${newObj.id}.json`; // исправлено: folder = type
     const loading = showLoading(editContent);
     const success = await commitFile(filename, newObj, obj?._sha);
     hideLoading(loading);
     if (success) {
       clearFormDraft();
-      if (obj) { const idx = data[type].findIndex(o => o.id === obj.id); if (idx !== -1) data[type][idx] = newObj; }
-      else data[type].push(newObj);
-      editModal.classList.remove('active'); currentEditType = null;
-      renderTree(); renderContent();
-    } else { alert('Ошибка сохранения. Проверьте токен и права доступа.'); }
+      if (obj) {
+        const idx = data[type].findIndex(o => o.id === obj.id);
+        if (idx !== -1) data[type][idx] = newObj;
+      } else data[type].push(newObj);
+      editModal.classList.remove('active');
+      currentEditType = null;
+      renderTree();
+      renderContent();
+    } else {
+      alert('Ошибка сохранения. Проверьте токен и права доступа.');
+    }
   }
 
   async function commitFile(filename, content, oldSha) {
@@ -869,11 +892,20 @@
     if (!token) { alert('Настройте GitHub токен.'); return false; }
     const url = `${API.base()}/${filename}`;
     let sha = null;
-    try { const resp = await fetch(url, { headers: { Authorization: `token ${token}` } }); if (resp.ok) { const info = await resp.json(); sha = info.sha; } } catch (e) {}
-    const body = { message: `Update ${filename}`, content: btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2)))), branch: 'main' };
+    try {
+      const resp = await fetch(url, { headers: { Authorization: `token ${token}` } });
+      if (resp.ok) { const info = await resp.json(); sha = info.sha; }
+    } catch (e) {}
+    const body = {
+      message: `Update ${filename}`,
+      content: btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2)))),
+      branch: 'main'
+    };
     if (sha) body.sha = sha;
-    try { const resp = await fetch(url, { method: 'PUT', headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) }); return resp.ok; }
-    catch (e) { return false; }
+    try {
+      const resp = await fetch(url, { method: 'PUT', headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      return resp.ok;
+    } catch (e) { return false; }
   }
 
   function addImageListeners() {
@@ -927,6 +959,52 @@
   }
 
   window.switchSection = switchSection;
+
+  // Экспорт и импорт
+  async function exportAllData() {
+    const allData = { levels: data.levels, entities: data.entities, items: data.items, foods: data.foods };
+    const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'gods_final_farewell_backup.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function importAllData() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported.levels && imported.entities && imported.items && imported.foods) {
+            if (confirm('Это заменит все текущие данные. Продолжить?')) {
+              for (const type of ['levels','entities','items','foods']) {
+                for (const obj of imported[type]) {
+                  const filename = `${type}/${type}_${obj.id}.json`;
+                  await commitFile(filename, obj);
+                }
+              }
+              await loadAllData();
+              renderTree();
+              renderContent();
+              alert('Импорт завершён!');
+            }
+          } else {
+            alert('Неверный формат файла.');
+          }
+        } catch(e) { alert('Ошибка чтения файла.'); }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }
 
   document.getElementById('luckyBtn').addEventListener('click', async () => {
     const all = [...data.levels, ...data.entities, ...data.items, ...data.foods];
