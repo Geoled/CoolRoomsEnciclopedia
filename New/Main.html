@@ -75,6 +75,50 @@
     .dropdown-search .dropdown-list { position: absolute; top: 100%; left: 0; width: 100%; background: #1a1c24; border: 1px solid #3a3d45; border-radius: 10px; max-height: 180px; overflow-y: auto; z-index: 50; display: none; }
     .dropdown-list .dropdown-item { padding: 0.5rem; cursor: pointer; color: #d0d0d0; }
     .dropdown-list .dropdown-item:hover { background: #2a2d35; }
+    .floating-actions {
+      position: sticky;
+      bottom: 1rem;
+      background: #1a1c24;
+      border: 1px solid #3a3d45;
+      border-radius: 12px;
+      padding: 0.5rem;
+      display: flex;
+      gap: 0.5rem;
+      justify-content: flex-end;
+      margin-top: 1rem;
+    }
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #3a3d45;
+      border-top: 2px solid #c9a86c;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 2rem;
+      color: #8c8c9a;
+    }
+    .editor-section {
+      border: 1px solid #2a2d35;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      background: #15171e;
+    }
+    .editor-section h4 {
+      color: #b8974c;
+      margin-bottom: 0.8rem;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
     @media (max-width:700px) { body { flex-direction:column; } .sidebar { width:100%; height:40%; } }
   </style>
 </head>
@@ -100,7 +144,10 @@
       <button class="btn primary" id="addBtn">Создать</button>
     </div>
   </div>
-  <div class="content-area" id="contentArea"></div>
+  <div class="content-area" id="contentArea">
+    <div class="loading-indicator" id="loadingIndicator" style="display:none;"><span class="spinner"></span> Загрузка...</div>
+    <div id="contentInner"></div>
+  </div>
 </div>
 
 <div class="modal" id="viewModal"><div class="modal-content" id="viewContent"></div></div>
@@ -170,12 +217,23 @@
   const tree = document.getElementById('tree');
   const breadcrumbs = document.getElementById('breadcrumbs');
   const contentArea = document.getElementById('contentArea');
+  const loadingIndicator = document.getElementById('loadingIndicator');
+  const contentInner = document.getElementById('contentInner');
   const viewModal = document.getElementById('viewModal');
   const viewContent = document.getElementById('viewContent');
   const editModal = document.getElementById('editModal');
   const editContent = document.getElementById('editContent');
   const lightbox = document.getElementById('lightbox');
   const lightboxImg = document.getElementById('lightboxImg');
+
+  function showLoading() {
+    loadingIndicator.style.display = 'flex';
+    contentInner.style.display = 'none';
+  }
+  function hideLoading() {
+    loadingIndicator.style.display = 'none';
+    contentInner.style.display = 'block';
+  }
 
   // ── Настройки GitHub ─────────────────────────
   document.getElementById('settingsBtn').addEventListener('click', () => {
@@ -321,7 +379,7 @@
 
   function renderContent() {
     if (currentSection === 'home') {
-      contentArea.innerHTML = `<div style="max-width:800px;margin:0 auto;text-align:center;">
+      contentInner.innerHTML = `<div style="max-width:800px;margin:0 auto;text-align:center;">
         <h2 style="color:#c9a86c;margin-bottom:1rem;">Добро пожаловать в каталог мира "Где бог покинет нас вновь"</h2>
         <p style="color:#b0b0be;">На этом вебсайте вы найдёте:предметы, уровни, существ, которых нашли в этом мире, пока что неизвестно насколько процентов изучена эта вселенная, но изучения проходят весьма стабильно.</p>
         <div style="display:flex;gap:1rem;justify-content:center;margin:2rem 0;">
@@ -339,7 +397,7 @@
     const filtered = arr.filter(d => (d.title||d.name||'').toLowerCase().includes(search) || (d.id||'').includes(search));
     const sort = document.getElementById('sortSelectField')?.value || 'default';
     const sorted = sortArray(filtered, sort);
-    contentArea.innerHTML = `<div class="filters-bar" style="display:flex;gap:0.8rem;margin-bottom:1.5rem;">
+    contentInner.innerHTML = `<div class="filters-bar" style="display:flex;gap:0.8rem;margin-bottom:1.5rem;">
       <input type="text" id="searchInputField" placeholder="Поиск..." value="${search}" style="background:#12141a;border:1px solid #3a3d45;color:#e0e0e0;padding:0.6rem 1rem;border-radius:12px;">
       <select id="sortSelectField" style="background:#12141a;border:1px solid #3a3d45;color:#e0e0e0;padding:0.6rem;border-radius:12px;">
         <option value="default">По умолчанию</option>
@@ -394,18 +452,19 @@
       linkedHtml += renderLinkedCards(linkedLevels, 'level', 'Встречается на уровнях');
     }
 
+    const renderedDesc = marked.parse(obj.desc || '');
     viewContent.innerHTML = `<h2 style="color:#c9a86c;">${obj.title || obj.name} (${obj.id})</h2>${thumb}
       <p>Класс: ${getClassStylesForType(type)[obj.cls]?.name || obj.cls} ${getClassIcon(type, obj.cls)}</p>
       <div class="view-section">${statsHtml}</div>
       <div style="margin:0.5rem 0;">${(obj.tags||[]).map(t => `<span class="tag">${t}</span>`).join('')}</div>
-      <div class="view-section"><h3>Описание</h3><p>${obj.desc}</p></div>
+      <div class="view-section"><h3>Описание</h3><div>${renderedDesc}</div></div>
       ${linkedHtml}
       ${obj.habitat ? `<div class="view-section"><h3>Среда обитания</h3><p>${obj.habitat}</p></div>` : ''}
       ${obj.behavior ? `<div class="view-section"><h3>Поведение</h3><p>${obj.behavior}</p></div>` : ''}
       ${obj.props ? `<div class="view-section"><h3>Свойства</h3><p>${obj.props}</p></div>` : ''}
       ${obj.effect ? `<div class="view-section"><h3>Эффект</h3><p>${obj.effect}</p></div>` : ''}
       <div class="gallery">${gallery}</div>
-      <div style="display:flex;justify-content:flex-end;gap:0.7rem;margin-top:1.5rem;border-top:1px solid #3a3d45;padding-top:1rem;">
+      <div class="floating-actions">
         <button class="btn" id="closeViewBtn">Закрыть</button>
         <button class="btn" id="editFromViewBtn">Редактировать</button>
         <button class="btn" id="deleteBtn" style="color:#e5a0a0;">Удалить</button>
@@ -520,37 +579,60 @@
     const selectedOut = obj?.out || '';
 
     editContent.innerHTML = `<h3 style="color:#c9a86c;">${obj?'Редактировать':'Новый'} ${type==='levels'?'уровень':type==='entities'?'сущность':type==='items'?'предмет':'еда'}</h3>
-      <div class="form-group"><label>ID</label><input id="editId" value="${lvl.id}"></div>
-      <div class="form-group"><label>Название</label><input id="editTitle" value="${lvl.title||lvl.name||''}"></div>
-      ${type==='levels' ? `<div class="form-group"><label>Кластер</label><input id="editCluster" value="${lvl.cluster||''}"></div>` : ''}
-      <div class="form-group"><label>Класс</label><select id="editClass">${classOptions}</select></div>
-      <div class="form-group"><label>Теги</label><input id="editTags" value="${(lvl.tags||[]).join(', ')}"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
-        ${type==='levels' ? ` <div><label>Безопасность</label><input type="number" id="editSafety" value="${lvl.stats.safety||3}" min="1" max="5"></div><div><label>Стабильность</label><input type="number" id="editStability" value="${lvl.stats.stability||3}" min="1" max="5"></div><div><label>Заселённость</label><input type="number" id="editEntities" value="${lvl.stats.entities||3}" min="1" max="5"></div><div><label>Ресурсы</label><input type="number" id="editResources" value="${lvl.stats.resources||3}" min="1" max="5"></div><div><label>Психика</label><input type="number" id="editMental" value="${lvl.stats.mental||3}" min="1" max="5"></div><div><label>Навигация</label><input type="number" id="editNavigation" value="${lvl.stats.navigation||3}" min="1" max="5"></div>` : ''}
-        ${type==='entities' ? ` <div><label>Опасность</label><input type="number" id="editDanger" value="${lvl.stats.danger||3}" min="1" max="5"></div><div><label>Частота</label><input type="number" id="editFrequency" value="${lvl.stats.frequency||3}" min="1" max="5"></div><div><label>Интеллект</label><input type="number" id="editIntelligence" value="${lvl.stats.intelligence||3}" min="1" max="5"></div><div><label>Агрессия</label><input type="number" id="editAggression" value="${lvl.stats.aggression||3}" min="1" max="5"></div>` : ''}
-        ${type==='items' ? ` <div><label>Вес (кг)</label><input type="number" id="editWeight" value="${lvl.stats.weight||3}" step="any"></div><div><label>Редкость</label><input type="number" id="editRarity" value="${lvl.stats.rarity||3}" min="1" max="5"></div><div><label>Полезность</label><input type="number" id="editUsefulness" value="${lvl.stats.usefulness||3}" min="1" max="5"></div><div><label>Прочность</label><input type="number" id="editDurability" value="${lvl.stats.durability||3}" min="1" max="5"></div>` : ''}
-        ${type==='foods' ? ` <div><label>Насыщение (ккал)</label><input type="number" id="editCalories" value="${lvl.stats.calories||500}" step="any"></div><div><label>Доступность</label><input type="number" id="editAvailability" value="${lvl.stats.availability||5}" min="1" max="10"></div><div><label>Вкус</label><input type="number" id="editTaste" value="${lvl.stats.taste||3}" min="1" max="5"></div><div><label>Хранение (дни)</label><input type="number" id="editShelfLife" value="${lvl.stats.shelfLife||7}" min="1" max="365"></div>` : ''}
+      <div class="editor-section"><h4>Основное</h4>
+        <div class="form-group"><label>ID</label><input id="editId" value="${lvl.id}"></div>
+        <div class="form-group"><label>Название</label><input id="editTitle" value="${lvl.title||lvl.name||''}"></div>
+        ${type==='levels' ? `<div class="form-group"><label>Кластер</label><input id="editCluster" value="${lvl.cluster||''}"></div>` : ''}
+        <div class="form-group"><label>Класс</label><select id="editClass">${classOptions}</select></div>
+        <div class="form-group"><label>Теги</label><input id="editTags" value="${(lvl.tags||[]).join(', ')}"></div>
       </div>
-      <div class="form-group"><label>Описание</label><textarea id="editDesc">${lvl.desc||''}</textarea></div>
+      <div class="editor-section"><h4>Характеристики</h4>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+          ${type==='levels' ? ` <div><label>Безопасность</label><input type="number" id="editSafety" value="${lvl.stats.safety||3}" min="1" max="5"></div><div><label>Стабильность</label><input type="number" id="editStability" value="${lvl.stats.stability||3}" min="1" max="5"></div><div><label>Заселённость</label><input type="number" id="editEntities" value="${lvl.stats.entities||3}" min="1" max="5"></div><div><label>Ресурсы</label><input type="number" id="editResources" value="${lvl.stats.resources||3}" min="1" max="5"></div><div><label>Психика</label><input type="number" id="editMental" value="${lvl.stats.mental||3}" min="1" max="5"></div><div><label>Навигация</label><input type="number" id="editNavigation" value="${lvl.stats.navigation||3}" min="1" max="5"></div>` : ''}
+          ${type==='entities' ? ` <div><label>Опасность</label><input type="number" id="editDanger" value="${lvl.stats.danger||3}" min="1" max="5"></div><div><label>Частота</label><input type="number" id="editFrequency" value="${lvl.stats.frequency||3}" min="1" max="5"></div><div><label>Интеллект</label><input type="number" id="editIntelligence" value="${lvl.stats.intelligence||3}" min="1" max="5"></div><div><label>Агрессия</label><input type="number" id="editAggression" value="${lvl.stats.aggression||3}" min="1" max="5"></div>` : ''}
+          ${type==='items' ? ` <div><label>Вес (кг)</label><input type="number" id="editWeight" value="${lvl.stats.weight||3}" step="any"></div><div><label>Редкость</label><input type="number" id="editRarity" value="${lvl.stats.rarity||3}" min="1" max="5"></div><div><label>Полезность</label><input type="number" id="editUsefulness" value="${lvl.stats.usefulness||3}" min="1" max="5"></div><div><label>Прочность</label><input type="number" id="editDurability" value="${lvl.stats.durability||3}" min="1" max="5"></div>` : ''}
+          ${type==='foods' ? ` <div><label>Насыщение (ккал)</label><input type="number" id="editCalories" value="${lvl.stats.calories||500}" step="any"></div><div><label>Доступность</label><input type="number" id="editAvailability" value="${lvl.stats.availability||5}" min="1" max="10"></div><div><label>Вкус</label><input type="number" id="editTaste" value="${lvl.stats.taste||3}" min="1" max="5"></div><div><label>Хранение (дни)</label><input type="number" id="editShelfLife" value="${lvl.stats.shelfLife||7}" min="1" max="365"></div>` : ''}
+        </div>
+      </div>
+      <div class="editor-section"><h4>Описание</h4>
+        <div class="form-group"><textarea id="editDesc" style="min-height:150px;">${lvl.desc||''}</textarea></div>
+      </div>
       ${type==='levels' ? `
+      <div class="editor-section"><h4>Связи</h4>
         <div class="form-group"><label>Сущности</label>${createDropdown(entityContainerId, data.entities, selectedEntities, 'Выберите сущностей')}</div>
         <div class="form-group"><label>Еда</label>${createDropdown(foodContainerId, data.foods, selectedFoods, 'Выберите еду')}</div>
         <div class="form-group"><label>Предметы</label>${createDropdown(itemContainerId, data.items, selectedItems, 'Выберите предметы')}</div>
         <div class="form-group"><label>Входы</label>${createDropdown(inContainerId, data.levels, selectedIn, 'Выберите уровни входа')}</div>
         <div class="form-group"><label>Выходы</label>${createDropdown(outContainerId, data.levels, selectedOut, 'Выберите уровни выхода')}</div>
+      </div>
       ` : ''}
-      ${type==='entities' ? `<div class="form-group"><label>Среда обитания</label><input id="editHabitat" value="${lvl.habitat||''}"></div><div class="form-group"><label>Поведение</label><textarea id="editBehavior">${lvl.behavior||''}</textarea></div><div class="form-group"><label>Выживание</label><textarea id="editSurvival">${lvl.survival||''}</textarea></div>` : ''}
-      ${type==='items' ? `<div class="form-group"><label>Свойства</label><textarea id="editProps">${lvl.props||''}</textarea></div>` : ''}
-      ${type==='foods' ? `<div class="form-group"><label>Эффект</label><textarea id="editEffect">${lvl.effect||''}</textarea></div>` : ''}
-      <div class="form-group"><label>Главное изображение</label><input id="editThumbnail" value="${lvl.thumbnail||''}"></div>
-      <div id="imagesContainer">${(lvl.images||[]).map(img => `<div class="image-entry"><input class="image-url" value="${img.url}"><input class="image-desc" value="${img.description||''}"><button class="btn remove-image" style="background:transparent;border:1px solid #3a3d45;color:#cacaca;padding:0.2rem 0.5rem;border-radius:8px;">✕</button></div>`).join('')}</div>
-      <button class="btn" id="addImageBtn" style="margin-top:0.5rem;">+ Изображение</button>
-      <div style="margin-top:1.5rem; display:flex; gap:1rem; justify-content:flex-end;">
+      ${type==='entities' ? `
+      <div class="editor-section"><h4>Дополнительно</h4>
+        <div class="form-group"><label>Среда обитания</label><input id="editHabitat" value="${lvl.habitat||''}"></div>
+        <div class="form-group"><label>Поведение</label><textarea id="editBehavior">${lvl.behavior||''}</textarea></div>
+        <div class="form-group"><label>Выживание</label><textarea id="editSurvival">${lvl.survival||''}</textarea></div>
+      </div>` : ''}
+      ${type==='items' ? `
+      <div class="editor-section"><h4>Дополнительно</h4>
+        <div class="form-group"><label>Свойства</label><textarea id="editProps">${lvl.props||''}</textarea></div>
+      </div>` : ''}
+      ${type==='foods' ? `
+      <div class="editor-section"><h4>Дополнительно</h4>
+        <div class="form-group"><label>Эффект</label><textarea id="editEffect">${lvl.effect||''}</textarea></div>
+      </div>` : ''}
+      <div class="editor-section"><h4>Медиа</h4>
+        <div class="form-group"><label>Главное изображение</label><input id="editThumbnail" value="${lvl.thumbnail||''}"></div>
+        <div id="imagesContainer">${(lvl.images||[]).map(img => `<div class="image-entry"><input class="image-url" value="${img.url}"><input class="image-desc" value="${img.description||''}"><button class="btn remove-image" style="background:transparent;border:1px solid #3a3d45;color:#cacaca;padding:0.2rem 0.5rem;border-radius:8px;">✕</button></div>`).join('')}</div>
+        <button class="btn" id="addImageBtn" style="margin-top:0.5rem;">+ Изображение</button>
+      </div>
+      <div class="floating-actions">
         <button class="btn" onclick="editModal.classList.remove('active')">Отмена</button>
         <button class="btn primary" id="saveBtn">Сохранить</button>
       </div>`;
     editModal.classList.add('active');
     addImageListeners();
+    // Кэширование черновика
+    const draftKey = `draft_${type}`;
     document.getElementById('saveBtn').addEventListener('click', async () => {
       const images = []; document.querySelectorAll('#imagesContainer .image-entry').forEach(e => { const u=e.querySelector('.image-url').value.trim(), d=e.querySelector('.image-desc').value.trim(); if(u) images.push({url:u,description:d}); });
       const newObj = {
@@ -598,12 +680,35 @@
           const idx = data[type].findIndex(o => o.id === obj.id);
           if (idx !== -1) data[type][idx] = newObj;
         } else data[type].push(newObj);
+        localStorage.removeItem(draftKey);
         editModal.classList.remove('active');
         renderTree();
         renderContent();
       } else {
         alert('Ошибка сохранения. Проверьте токен и права доступа.');
       }
+    });
+
+    // Восстановление черновика
+    const savedDraft = localStorage.getItem(draftKey);
+    if (savedDraft) {
+      try {
+        const draft = JSON.parse(savedDraft);
+        if (draft && confirm('Найден несохранённый черновик. Загрузить?')) {
+          document.getElementById('editId').value = draft.id || '';
+          document.getElementById('editTitle').value = draft.title || '';
+          // другие поля можно восстановить аналогично
+        }
+      } catch(e) {}
+    }
+    // Сохранение черновика при закрытии
+    window.addEventListener('beforeunload', () => {
+      const draft = {
+        id: document.getElementById('editId')?.value,
+        title: document.getElementById('editTitle')?.value,
+        // другие поля
+      };
+      localStorage.setItem(draftKey, JSON.stringify(draft));
     });
   }
 
@@ -680,7 +785,11 @@
     currentSection = section;
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === section));
     breadcrumbs.innerHTML = section === 'home' ? 'Главная' : `<span onclick="switchSection('home')">Главная</span> > ${section==='levels'?'Уровни':section==='entities'?'Сущности':section==='items'?'Предметы':'Еда'}`;
-    if (section !== 'home') await loadSectionData(section);
+    if (section !== 'home') {
+      showLoading();
+      await loadSectionData(section);
+      hideLoading();
+    }
     renderTree();
     renderContent();
   }
@@ -699,7 +808,9 @@
   document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => switchSection(b.dataset.tab)));
   document.getElementById('refreshBtn').addEventListener('click', async () => { 
     fileIndexCache = {};
+    showLoading();
     await loadAllData();
+    hideLoading();
     renderTree(); renderContent(); 
   });
   document.getElementById('addBtn').addEventListener('click', () => {
@@ -710,11 +821,14 @@
   editModal.addEventListener('click', e => { if (e.target === editModal) editModal.classList.remove('active'); });
 
   (async () => { 
+    showLoading();
     await loadAllData();
+    hideLoading();
     renderTree();
     renderContent();
   })();
 })();
 </script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </body>
 </html>
