@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
   <title>"GodsFinalFarewell" Enciclopedia</title>
+  <!-- Marked.js для Markdown -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
@@ -50,7 +52,51 @@
     .tag { display:inline-block; background:#252835; color:#bca07c; padding:0.1rem 0.6rem; border-radius:12px; font-size:0.7rem; margin-right:0.3rem; }
     .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); backdrop-filter:blur(6px); align-items:center; justify-content:center; z-index:100; padding:1rem; }
     .modal.active { display:flex; }
-    .modal-content { background:#1a1c24; border:1px solid #3a3d45; border-radius:20px; padding:2rem; max-width:800px; width:100%; max-height:90vh; overflow-y:auto; }
+    .modal-content { background:#1a1c24; border:1px solid #3a3d45; border-radius:20px; padding:2rem; max-width:800px; width:100%; max-height:90vh; overflow-y:auto; position:relative; }
+    .floating-actions {
+      position: sticky;
+      bottom: 0;
+      background: linear-gradient(transparent, #1a1c24 30%);
+      padding: 1rem 0 0;
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.7rem;
+      margin-top: 1.5rem;
+      border-top: 1px solid #3a3d45;
+      z-index: 10;
+    }
+    .form-section {
+      background: #1a1d28;
+      border: 1px solid #2a2e3a;
+      border-radius: 12px;
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+    .form-section h4 {
+      color: #b8974c;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.8rem;
+    }
+    .spinner {
+      display: inline-block;
+      width: 1.2rem;
+      height: 1.2rem;
+      border: 2px solid #3a3d45;
+      border-top-color: #c9a86c;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-overlay {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15,17,21,0.7);
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 20px;
+      z-index: 10;
+    }
     .form-group { margin-bottom:1rem; }
     .form-group label { display:block; font-size:0.85rem; color:#b0b0be; margin-bottom:0.3rem; }
     .form-group input, .form-group textarea, .form-group select { width:100%; padding:0.7rem; background:#12141a; border:1px solid #3a3d45; border-radius:10px; color:#e0e0e0; font-size:0.9rem; outline:none; }
@@ -75,50 +121,6 @@
     .dropdown-search .dropdown-list { position: absolute; top: 100%; left: 0; width: 100%; background: #1a1c24; border: 1px solid #3a3d45; border-radius: 10px; max-height: 180px; overflow-y: auto; z-index: 50; display: none; }
     .dropdown-list .dropdown-item { padding: 0.5rem; cursor: pointer; color: #d0d0d0; }
     .dropdown-list .dropdown-item:hover { background: #2a2d35; }
-    .floating-actions {
-      position: sticky;
-      bottom: 1rem;
-      background: #1a1c24;
-      border: 1px solid #3a3d45;
-      border-radius: 12px;
-      padding: 0.5rem;
-      display: flex;
-      gap: 0.5rem;
-      justify-content: flex-end;
-      margin-top: 1rem;
-    }
-    .spinner {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 2px solid #3a3d45;
-      border-top: 2px solid #c9a86c;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-indicator {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      padding: 2rem;
-      color: #8c8c9a;
-    }
-    .editor-section {
-      border: 1px solid #2a2d35;
-      border-radius: 12px;
-      padding: 1rem;
-      margin-bottom: 1rem;
-      background: #15171e;
-    }
-    .editor-section h4 {
-      color: #b8974c;
-      margin-bottom: 0.8rem;
-      font-size: 0.9rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
     @media (max-width:700px) { body { flex-direction:column; } .sidebar { width:100%; height:40%; } }
   </style>
 </head>
@@ -144,10 +146,7 @@
       <button class="btn primary" id="addBtn">Создать</button>
     </div>
   </div>
-  <div class="content-area" id="contentArea">
-    <div class="loading-indicator" id="loadingIndicator" style="display:none;"><span class="spinner"></span> Загрузка...</div>
-    <div id="contentInner"></div>
-  </div>
+  <div class="content-area" id="contentArea"></div>
 </div>
 
 <div class="modal" id="viewModal"><div class="modal-content" id="viewContent"></div></div>
@@ -180,6 +179,7 @@
   let currentSection = 'home';
   let data = { levels: [], entities: [], items: [], foods: [] };
   let fileIndexCache = {};
+  let currentEditType = null; // тип редактируемого объекта
   let classStyles = JSON.parse(localStorage.getItem('classStyles')) || {
     "0": { icon:"🟢", color:"#6a9a6a", name:"Безопасный" },
     "1": { icon:"🟡", color:"#c9a64a", name:"Почти безопасный" },
@@ -217,8 +217,6 @@
   const tree = document.getElementById('tree');
   const breadcrumbs = document.getElementById('breadcrumbs');
   const contentArea = document.getElementById('contentArea');
-  const loadingIndicator = document.getElementById('loadingIndicator');
-  const contentInner = document.getElementById('contentInner');
   const viewModal = document.getElementById('viewModal');
   const viewContent = document.getElementById('viewContent');
   const editModal = document.getElementById('editModal');
@@ -226,13 +224,16 @@
   const lightbox = document.getElementById('lightbox');
   const lightboxImg = document.getElementById('lightboxImg');
 
-  function showLoading() {
-    loadingIndicator.style.display = 'flex';
-    contentInner.style.display = 'none';
+  // ── Индикатор загрузки ──────────────────────
+  function showLoading(container) {
+    const overlay = document.createElement('div');
+    overlay.className = 'loading-overlay';
+    overlay.innerHTML = '<div class="spinner"></div>';
+    container.appendChild(overlay);
+    return overlay;
   }
-  function hideLoading() {
-    loadingIndicator.style.display = 'none';
-    contentInner.style.display = 'block';
+  function hideLoading(overlay) {
+    if (overlay) overlay.remove();
   }
 
   // ── Настройки GitHub ─────────────────────────
@@ -291,6 +292,7 @@
 
   async function loadSectionData(section) {
     const folder = section;
+    const loading = showLoading(contentArea);
     const files = await fetchFileIndex(folder);
     const arr = [];
     const downloadPromises = files.map(file => (async () => {
@@ -317,11 +319,14 @@
       }
     });
     data[section] = arr;
+    hideLoading(loading);
   }
 
   async function loadAllData() {
     const sections = ['levels', 'entities', 'items', 'foods'];
+    const loading = showLoading(contentArea);
     await Promise.all(sections.map(s => loadSectionData(s)));
+    hideLoading(loading);
   }
 
   function getCurrentArray() {
@@ -379,7 +384,7 @@
 
   function renderContent() {
     if (currentSection === 'home') {
-      contentInner.innerHTML = `<div style="max-width:800px;margin:0 auto;text-align:center;">
+      contentArea.innerHTML = `<div style="max-width:800px;margin:0 auto;text-align:center;">
         <h2 style="color:#c9a86c;margin-bottom:1rem;">Добро пожаловать в каталог мира "Где бог покинет нас вновь"</h2>
         <p style="color:#b0b0be;">На этом вебсайте вы найдёте:предметы, уровни, существ, которых нашли в этом мире, пока что неизвестно насколько процентов изучена эта вселенная, но изучения проходят весьма стабильно.</p>
         <div style="display:flex;gap:1rem;justify-content:center;margin:2rem 0;">
@@ -397,7 +402,7 @@
     const filtered = arr.filter(d => (d.title||d.name||'').toLowerCase().includes(search) || (d.id||'').includes(search));
     const sort = document.getElementById('sortSelectField')?.value || 'default';
     const sorted = sortArray(filtered, sort);
-    contentInner.innerHTML = `<div class="filters-bar" style="display:flex;gap:0.8rem;margin-bottom:1.5rem;">
+    contentArea.innerHTML = `<div class="filters-bar" style="display:flex;gap:0.8rem;margin-bottom:1.5rem;">
       <input type="text" id="searchInputField" placeholder="Поиск..." value="${search}" style="background:#12141a;border:1px solid #3a3d45;color:#e0e0e0;padding:0.6rem 1rem;border-radius:12px;">
       <select id="sortSelectField" style="background:#12141a;border:1px solid #3a3d45;color:#e0e0e0;padding:0.6rem;border-radius:12px;">
         <option value="default">По умолчанию</option>
@@ -434,6 +439,9 @@
     else if (type === 'items') statsHtml = renderStatsHTML(obj.stats, {weight:'Вес (кг)',rarity:'Редкость',usefulness:'Полезность',durability:'Прочность'}, statColors);
     else if (type === 'foods') statsHtml = renderStatsHTML(obj.stats, {calories:'Насыщение (ккал)',availability:'Доступность',taste:'Вкус',shelfLife:'Хранение (дни)'}, statColors);
 
+    // Рендеринг описания через Markdown
+    const descHtml = obj.desc ? marked.parse(obj.desc) : '<p>Нет описания</p>';
+
     let linkedHtml = '';
     if (type === 'levels') {
       linkedHtml += renderLinkedCards((obj.ent||[]).map(id => data.entities.find(e => e.id === id)).filter(Boolean), 'entity', 'Сущности');
@@ -452,12 +460,11 @@
       linkedHtml += renderLinkedCards(linkedLevels, 'level', 'Встречается на уровнях');
     }
 
-    const renderedDesc = marked.parse(obj.desc || '');
     viewContent.innerHTML = `<h2 style="color:#c9a86c;">${obj.title || obj.name} (${obj.id})</h2>${thumb}
       <p>Класс: ${getClassStylesForType(type)[obj.cls]?.name || obj.cls} ${getClassIcon(type, obj.cls)}</p>
       <div class="view-section">${statsHtml}</div>
       <div style="margin:0.5rem 0;">${(obj.tags||[]).map(t => `<span class="tag">${t}</span>`).join('')}</div>
-      <div class="view-section"><h3>Описание</h3><div>${renderedDesc}</div></div>
+      <div class="view-section"><h3>Описание</h3><div>${descHtml}</div></div>
       ${linkedHtml}
       ${obj.habitat ? `<div class="view-section"><h3>Среда обитания</h3><p>${obj.habitat}</p></div>` : ''}
       ${obj.behavior ? `<div class="view-section"><h3>Поведение</h3><p>${obj.behavior}</p></div>` : ''}
@@ -507,6 +514,121 @@
     renderTree();
     renderContent();
   }
+
+  // ── Кэширование формы редактирования ─────────
+  function saveFormState() {
+    if (!currentEditType || !document.getElementById('editId')) return;
+    const state = {
+      id: document.getElementById('editId').value,
+      title: document.getElementById('editTitle').value,
+      cluster: document.getElementById('editCluster')?.value || '',
+      cls: document.getElementById('editClass').value,
+      tags: document.getElementById('editTags').value,
+      stats: {},
+      desc: document.getElementById('editDesc').value,
+      thumbnail: document.getElementById('editThumbnail').value,
+      in: document.getElementById('editIn')?.value || '',
+      out: document.getElementById('editOut')?.value || '',
+      habitat: document.getElementById('editHabitat')?.value || '',
+      behavior: document.getElementById('editBehavior')?.value || '',
+      survival: document.getElementById('editSurvival')?.value || '',
+      props: document.getElementById('editProps')?.value || '',
+      effect: document.getElementById('editEffect')?.value || ''
+    };
+    // Статистики
+    const statFields = ['editSafety','editStability','editEntities','editResources','editMental','editNavigation',
+                       'editDanger','editFrequency','editIntelligence','editAggression',
+                       'editWeight','editRarity','editUsefulness','editDurability',
+                       'editCalories','editAvailability','editTaste','editShelfLife'];
+    statFields.forEach(f => {
+      const el = document.getElementById(f);
+      if (el) state.stats[f] = el.value;
+    });
+    // Выбранные связи (дропдауны)
+    const dropdowns = ['entity_','food_','item_','in_','out_'];
+    dropdowns.forEach(prefix => {
+      const container = document.querySelector(`[id^="${prefix}"]`);
+      if (container && container._getSelected) {
+        state[prefix + 'selected'] = container._getSelected();
+      }
+    });
+    localStorage.setItem('formDraft_' + currentEditType, JSON.stringify(state));
+  }
+
+  function restoreFormState(type) {
+    const saved = localStorage.getItem('formDraft_' + type);
+    if (!saved) return false;
+    try {
+      const state = JSON.parse(saved);
+      if (confirm('У вас есть несохранённые изменения. Восстановить?')) {
+        // Заполнение полей
+        document.getElementById('editId').value = state.id || '';
+        document.getElementById('editTitle').value = state.title || '';
+        if (document.getElementById('editCluster')) document.getElementById('editCluster').value = state.cluster || '';
+        document.getElementById('editClass').value = state.cls || '0';
+        document.getElementById('editTags').value = state.tags || '';
+        document.getElementById('editDesc').value = state.desc || '';
+        document.getElementById('editThumbnail').value = state.thumbnail || '';
+        if (document.getElementById('editIn')) document.getElementById('editIn').value = state.in || '';
+        if (document.getElementById('editOut')) document.getElementById('editOut').value = state.out || '';
+        if (document.getElementById('editHabitat')) document.getElementById('editHabitat').value = state.habitat || '';
+        if (document.getElementById('editBehavior')) document.getElementById('editBehavior').value = state.behavior || '';
+        if (document.getElementById('editSurvival')) document.getElementById('editSurvival').value = state.survival || '';
+        if (document.getElementById('editProps')) document.getElementById('editProps').value = state.props || '';
+        if (document.getElementById('editEffect')) document.getElementById('editEffect').value = state.effect || '';
+        // Статистики
+        Object.entries(state.stats || {}).forEach(([key, value]) => {
+          const el = document.getElementById(key);
+          if (el) el.value = value;
+        });
+        // Дропдауны
+        Object.entries(state).forEach(([key, value]) => {
+          if (key.endsWith('selected')) {
+            const prefix = key.replace('selected', '');
+            const container = document.querySelector(`[id^="${prefix}"]`);
+            if (container && container._getSelected) {
+              // Устанавливаем через внутренний метод (если дропдаун уже инициализирован)
+              // Проще просто очистить и установить заново через создание нового дропдауна
+              // Но так как мы вызываем createDropdown заново, то старые значения перезаписываются.
+              // Мы можем просто передать value в selectedIdsStr при создании дропдауна.
+              // Поэтому просто сохраняем значение, оно будет использовано при создании дропдауна.
+              state[key] = value;
+            }
+          }
+        });
+        return true;
+      } else {
+        localStorage.removeItem('formDraft_' + type);
+      }
+    } catch(e) {}
+    return false;
+  }
+
+  function clearFormDraft() {
+    if (currentEditType) localStorage.removeItem('formDraft_' + currentEditType);
+  }
+
+  // Автосохранение при закрытии окна или обновлении
+  window.addEventListener('beforeunload', () => {
+    if (editModal.classList.contains('active')) saveFormState();
+  });
+
+  // При закрытии модального окна редактирования
+  function closeEditModal() {
+    saveFormState();
+    editModal.classList.remove('active');
+    currentEditType = null;
+  }
+  // Привяжем к кнопке отмены и клику вне окна
+  editModal.addEventListener('click', (e) => {
+    if (e.target === editModal) closeEditModal();
+  });
+  // Кнопка отмены
+  document.addEventListener('click', (e) => {
+    if (e.target.matches('#editContent .btn[onclick*="editModal.classList.remove"]')) {
+      saveFormState();
+    }
+  });
 
   function createDropdown(containerId, items, selectedIdsStr, placeholder) {
     if (!items || items.length === 0) {
@@ -562,6 +684,7 @@
   }
 
   function openEditModal(type, obj = null) {
+    currentEditType = type;
     const folder = type;
     const styles = getClassStylesForType(type);
     const defaultCls = type === 'levels' ? '0' : type === 'entities' ? '0' : type === 'items' ? 'cold_weapon' : 'drink';
@@ -572,21 +695,48 @@
     const itemContainerId = 'item_' + Date.now();
     const inContainerId = 'in_' + Date.now();
     const outContainerId = 'out_' + Date.now();
-    const selectedEntities = obj?.ent ? (Array.isArray(obj.ent) ? obj.ent.join(',') : obj.ent) : '';
-    const selectedFoods = obj?.foodIds ? (Array.isArray(obj.foodIds) ? obj.foodIds.join(',') : obj.foodIds) : '';
-    const selectedItems = obj?.itemIds ? (Array.isArray(obj.itemIds) ? obj.itemIds.join(',') : obj.itemIds) : '';
-    const selectedIn = obj?.in || '';
-    const selectedOut = obj?.out || '';
+
+    // Попытка восстановить черновик
+    if (!obj && restoreFormState(type)) {
+      // Восстановили – не будем перезаписывать поля значениями по умолчанию
+      // Просто перерисуем с восстановленными данными
+      // Для этого перечитаем сохранённое состояние и используем его как lvl
+      const saved = JSON.parse(localStorage.getItem('formDraft_' + type));
+      if (saved) {
+        lvl.id = saved.id || '';
+        lvl.title = saved.title || '';
+        lvl.cluster = saved.cluster || '';
+        lvl.cls = saved.cls || defaultCls;
+        lvl.desc = saved.desc || '';
+        lvl.tags = saved.tags ? saved.tags.split(',').map(s=>s.trim()).filter(Boolean) : [];
+        lvl.thumbnail = saved.thumbnail || '';
+        lvl.in = saved.in || '';
+        lvl.out = saved.out || '';
+        lvl.habitat = saved.habitat || '';
+        lvl.behavior = saved.behavior || '';
+        lvl.survival = saved.survival || '';
+        lvl.props = saved.props || '';
+        lvl.effect = saved.effect || '';
+        lvl.stats = {};
+        Object.entries(saved.stats||{}).forEach(([k,v]) => { lvl.stats[k.replace('edit','').toLowerCase()] = v; });
+      }
+    }
+
+    const selectedEntities = lvl.ent ? (Array.isArray(lvl.ent) ? lvl.ent.join(',') : lvl.ent) : '';
+    const selectedFoods = lvl.foodIds ? (Array.isArray(lvl.foodIds) ? lvl.foodIds.join(',') : lvl.foodIds) : '';
+    const selectedItems = lvl.itemIds ? (Array.isArray(lvl.itemIds) ? lvl.itemIds.join(',') : lvl.itemIds) : '';
+    const selectedIn = lvl.in || '';
+    const selectedOut = lvl.out || '';
 
     editContent.innerHTML = `<h3 style="color:#c9a86c;">${obj?'Редактировать':'Новый'} ${type==='levels'?'уровень':type==='entities'?'сущность':type==='items'?'предмет':'еда'}</h3>
-      <div class="editor-section"><h4>Основное</h4>
+      <div class="form-section"><h4>Основная информация</h4>
         <div class="form-group"><label>ID</label><input id="editId" value="${lvl.id}"></div>
         <div class="form-group"><label>Название</label><input id="editTitle" value="${lvl.title||lvl.name||''}"></div>
         ${type==='levels' ? `<div class="form-group"><label>Кластер</label><input id="editCluster" value="${lvl.cluster||''}"></div>` : ''}
         <div class="form-group"><label>Класс</label><select id="editClass">${classOptions}</select></div>
         <div class="form-group"><label>Теги</label><input id="editTags" value="${(lvl.tags||[]).join(', ')}"></div>
       </div>
-      <div class="editor-section"><h4>Характеристики</h4>
+      <div class="form-section"><h4>Характеристики</h4>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
           ${type==='levels' ? ` <div><label>Безопасность</label><input type="number" id="editSafety" value="${lvl.stats.safety||3}" min="1" max="5"></div><div><label>Стабильность</label><input type="number" id="editStability" value="${lvl.stats.stability||3}" min="1" max="5"></div><div><label>Заселённость</label><input type="number" id="editEntities" value="${lvl.stats.entities||3}" min="1" max="5"></div><div><label>Ресурсы</label><input type="number" id="editResources" value="${lvl.stats.resources||3}" min="1" max="5"></div><div><label>Психика</label><input type="number" id="editMental" value="${lvl.stats.mental||3}" min="1" max="5"></div><div><label>Навигация</label><input type="number" id="editNavigation" value="${lvl.stats.navigation||3}" min="1" max="5"></div>` : ''}
           ${type==='entities' ? ` <div><label>Опасность</label><input type="number" id="editDanger" value="${lvl.stats.danger||3}" min="1" max="5"></div><div><label>Частота</label><input type="number" id="editFrequency" value="${lvl.stats.frequency||3}" min="1" max="5"></div><div><label>Интеллект</label><input type="number" id="editIntelligence" value="${lvl.stats.intelligence||3}" min="1" max="5"></div><div><label>Агрессия</label><input type="number" id="editAggression" value="${lvl.stats.aggression||3}" min="1" max="5"></div>` : ''}
@@ -594,45 +744,38 @@
           ${type==='foods' ? ` <div><label>Насыщение (ккал)</label><input type="number" id="editCalories" value="${lvl.stats.calories||500}" step="any"></div><div><label>Доступность</label><input type="number" id="editAvailability" value="${lvl.stats.availability||5}" min="1" max="10"></div><div><label>Вкус</label><input type="number" id="editTaste" value="${lvl.stats.taste||3}" min="1" max="5"></div><div><label>Хранение (дни)</label><input type="number" id="editShelfLife" value="${lvl.stats.shelfLife||7}" min="1" max="365"></div>` : ''}
         </div>
       </div>
-      <div class="editor-section"><h4>Описание</h4>
-        <div class="form-group"><textarea id="editDesc" style="min-height:150px;">${lvl.desc||''}</textarea></div>
+      <div class="form-section"><h4>Описание</h4>
+        <div class="form-group"><label>Текст (поддерживается Markdown)</label><textarea id="editDesc" rows="6">${lvl.desc||''}</textarea></div>
       </div>
-      ${type==='levels' ? `
-      <div class="editor-section"><h4>Связи</h4>
+      ${type==='levels' ? `<div class="form-section"><h4>Связи</h4>
         <div class="form-group"><label>Сущности</label>${createDropdown(entityContainerId, data.entities, selectedEntities, 'Выберите сущностей')}</div>
         <div class="form-group"><label>Еда</label>${createDropdown(foodContainerId, data.foods, selectedFoods, 'Выберите еду')}</div>
         <div class="form-group"><label>Предметы</label>${createDropdown(itemContainerId, data.items, selectedItems, 'Выберите предметы')}</div>
         <div class="form-group"><label>Входы</label>${createDropdown(inContainerId, data.levels, selectedIn, 'Выберите уровни входа')}</div>
         <div class="form-group"><label>Выходы</label>${createDropdown(outContainerId, data.levels, selectedOut, 'Выберите уровни выхода')}</div>
-      </div>
-      ` : ''}
-      ${type==='entities' ? `
-      <div class="editor-section"><h4>Дополнительно</h4>
+      </div>` : ''}
+      ${type==='entities' ? `<div class="form-section"><h4>Дополнительно</h4>
         <div class="form-group"><label>Среда обитания</label><input id="editHabitat" value="${lvl.habitat||''}"></div>
         <div class="form-group"><label>Поведение</label><textarea id="editBehavior">${lvl.behavior||''}</textarea></div>
         <div class="form-group"><label>Выживание</label><textarea id="editSurvival">${lvl.survival||''}</textarea></div>
       </div>` : ''}
-      ${type==='items' ? `
-      <div class="editor-section"><h4>Дополнительно</h4>
-        <div class="form-group"><label>Свойства</label><textarea id="editProps">${lvl.props||''}</textarea></div>
+      ${type==='items' ? `<div class="form-section"><h4>Свойства</h4>
+        <div class="form-group"><label>Описание свойств</label><textarea id="editProps">${lvl.props||''}</textarea></div>
       </div>` : ''}
-      ${type==='foods' ? `
-      <div class="editor-section"><h4>Дополнительно</h4>
-        <div class="form-group"><label>Эффект</label><textarea id="editEffect">${lvl.effect||''}</textarea></div>
+      ${type==='foods' ? `<div class="form-section"><h4>Эффекты</h4>
+        <div class="form-group"><label>Эффект при употреблении</label><textarea id="editEffect">${lvl.effect||''}</textarea></div>
       </div>` : ''}
-      <div class="editor-section"><h4>Медиа</h4>
+      <div class="form-section"><h4>Медиа</h4>
         <div class="form-group"><label>Главное изображение</label><input id="editThumbnail" value="${lvl.thumbnail||''}"></div>
         <div id="imagesContainer">${(lvl.images||[]).map(img => `<div class="image-entry"><input class="image-url" value="${img.url}"><input class="image-desc" value="${img.description||''}"><button class="btn remove-image" style="background:transparent;border:1px solid #3a3d45;color:#cacaca;padding:0.2rem 0.5rem;border-radius:8px;">✕</button></div>`).join('')}</div>
         <button class="btn" id="addImageBtn" style="margin-top:0.5rem;">+ Изображение</button>
       </div>
-      <div class="floating-actions">
-        <button class="btn" onclick="editModal.classList.remove('active')">Отмена</button>
+      <div style="margin-top:1.5rem; display:flex; gap:1rem; justify-content:flex-end;">
+        <button class="btn" onclick="document.querySelector('#editModal').classList.remove('active')">Отмена</button>
         <button class="btn primary" id="saveBtn">Сохранить</button>
       </div>`;
     editModal.classList.add('active');
     addImageListeners();
-    // Кэширование черновика
-    const draftKey = `draft_${type}`;
     document.getElementById('saveBtn').addEventListener('click', async () => {
       const images = []; document.querySelectorAll('#imagesContainer .image-entry').forEach(e => { const u=e.querySelector('.image-url').value.trim(), d=e.querySelector('.image-desc').value.trim(); if(u) images.push({url:u,description:d}); });
       const newObj = {
@@ -674,41 +817,22 @@
         newObj.effect = document.getElementById('editEffect').value;
       }
       const filename = `${folder}/${type}_${newObj.id}.json`;
+      const loading = showLoading(editContent);
       const success = await commitFile(filename, newObj, obj?._sha);
+      hideLoading(loading);
       if (success) {
+        clearFormDraft();
         if (obj) {
           const idx = data[type].findIndex(o => o.id === obj.id);
           if (idx !== -1) data[type][idx] = newObj;
         } else data[type].push(newObj);
-        localStorage.removeItem(draftKey);
         editModal.classList.remove('active');
+        currentEditType = null;
         renderTree();
         renderContent();
       } else {
         alert('Ошибка сохранения. Проверьте токен и права доступа.');
       }
-    });
-
-    // Восстановление черновика
-    const savedDraft = localStorage.getItem(draftKey);
-    if (savedDraft) {
-      try {
-        const draft = JSON.parse(savedDraft);
-        if (draft && confirm('Найден несохранённый черновик. Загрузить?')) {
-          document.getElementById('editId').value = draft.id || '';
-          document.getElementById('editTitle').value = draft.title || '';
-          // другие поля можно восстановить аналогично
-        }
-      } catch(e) {}
-    }
-    // Сохранение черновика при закрытии
-    window.addEventListener('beforeunload', () => {
-      const draft = {
-        id: document.getElementById('editId')?.value,
-        title: document.getElementById('editTitle')?.value,
-        // другие поля
-      };
-      localStorage.setItem(draftKey, JSON.stringify(draft));
     });
   }
 
@@ -785,11 +909,7 @@
     currentSection = section;
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === section));
     breadcrumbs.innerHTML = section === 'home' ? 'Главная' : `<span onclick="switchSection('home')">Главная</span> > ${section==='levels'?'Уровни':section==='entities'?'Сущности':section==='items'?'Предметы':'Еда'}`;
-    if (section !== 'home') {
-      showLoading();
-      await loadSectionData(section);
-      hideLoading();
-    }
+    if (section !== 'home') await loadSectionData(section);
     renderTree();
     renderContent();
   }
@@ -808,9 +928,7 @@
   document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => switchSection(b.dataset.tab)));
   document.getElementById('refreshBtn').addEventListener('click', async () => { 
     fileIndexCache = {};
-    showLoading();
     await loadAllData();
-    hideLoading();
     renderTree(); renderContent(); 
   });
   document.getElementById('addBtn').addEventListener('click', () => {
@@ -818,17 +936,13 @@
     openEditModal(currentSection);
   });
   viewModal.addEventListener('click', e => { if (e.target === viewModal) viewModal.classList.remove('active'); });
-  editModal.addEventListener('click', e => { if (e.target === editModal) editModal.classList.remove('active'); });
 
   (async () => { 
-    showLoading();
     await loadAllData();
-    hideLoading();
     renderTree();
     renderContent();
   })();
 })();
 </script>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </body>
 </html>
