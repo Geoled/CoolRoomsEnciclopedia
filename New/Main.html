@@ -6,6 +6,8 @@
   <title>"GodsFinalFarewell" Enciclopedia</title>
   <!-- Marked.js для Markdown -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- JSZip для экспорта/импорта -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
@@ -31,7 +33,7 @@
     .tab-btn.active { background:#252835; border-color:#c9a86c; color:#c9a86c; }
     .breadcrumbs { font-size:0.85rem; color:#8c8c9a; }
     .breadcrumbs span { color:#bca07c; cursor:pointer; }
-    .actions { display:flex; gap:0.5rem; align-items:center; }
+    .actions { display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap; }
     .btn { background:#1e2028; border:1px solid #3a3d45; color:#cacaca; padding:0.5rem 1rem; border-radius:20px; font-size:0.85rem; cursor:pointer; transition:0.2s; display:inline-flex; align-items:center; gap:0.3rem; }
     .btn:hover { background:#2a2d35; border-color:#c9a86c; color:#e8dcc8; }
     .btn.primary { background:#2c2a1f; border-color:#b8974c; color:#e5c97a; }
@@ -141,6 +143,8 @@
     </div>
     <div class="breadcrumbs" id="breadcrumbs">Главная</div>
     <div class="actions">
+      <button class="btn" id="exportBtn">📤 Экспорт</button>
+      <button class="btn" id="importBtn">📥 Импорт</button>
       <button class="btn" id="luckyBtn">Лаки-Блок</button>
       <button class="btn" id="refreshBtn">Обновить</button>
       <button class="btn primary" id="addBtn">Создать</button>
@@ -163,6 +167,17 @@
     </div>
   </div>
 </div>
+<div class="modal" id="importModal">
+  <div class="modal-content">
+    <h3 style="color:#c9a86c;">Импорт данных</h3>
+    <p>Выберите ZIP-файл, который вы ранее экспортировали. Все текущие данные будут заменены.</p>
+    <div class="form-group"><input type="file" id="importFileInput" accept=".zip"></div>
+    <div class="modal-actions" style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:1rem;">
+      <button class="btn" id="closeImportBtn">Отмена</button>
+      <button class="btn primary" id="startImportBtn">Импортировать</button>
+    </div>
+  </div>
+</div>
 <div class="lightbox" id="lightbox" onclick="this.style.display='none'"><img id="lightboxImg" src="" loading="lazy"></div>
 
 <script>
@@ -179,7 +194,7 @@
   let currentSection = 'home';
   let data = { levels: [], entities: [], items: [], foods: [] };
   let fileIndexCache = {};
-  let currentEditType = null; // тип редактируемого объекта
+  let currentEditType = null;
   let classStyles = JSON.parse(localStorage.getItem('classStyles')) || {
     "0": { icon:"🟢", color:"#6a9a6a", name:"Безопасный" },
     "1": { icon:"🟡", color:"#c9a64a", name:"Почти безопасный" },
@@ -257,6 +272,79 @@
     if (e.target === document.getElementById('settingsModal')) document.getElementById('settingsModal').classList.remove('active');
   });
 
+  // ── Экспорт ────────────────────────────────
+  document.getElementById('exportBtn').addEventListener('click', async () => {
+    const zip = new JSZip();
+    const folders = ['levels','entities','items','foods'];
+    for (const folder of folders) {
+      const section = data[folder];
+      const folderZip = zip.folder(folder);
+      section.forEach(obj => {
+        folderZip.file(`${obj.id || obj.name || 'unknown'}.json`, JSON.stringify(obj, null, 2));
+      });
+    }
+    const blob = await zip.generateAsync({type:'blob'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'godsFinalFarewell_backup.zip';
+    a.click();
+  });
+
+  // ── Импорт ────────────────────────────────
+  document.getElementById('importBtn').addEventListener('click', () => {
+    document.getElementById('importModal').classList.add('active');
+  });
+  document.getElementById('closeImportBtn').addEventListener('click', () => {
+    document.getElementById('importModal').classList.remove('active');
+  });
+  document.getElementById('startImportBtn').addEventListener('click', async () => {
+    const fileInput = document.getElementById('importFileInput');
+    const file = fileInput.files[0];
+    if (!file) return alert('Выберите ZIP-файл.');
+    const token = API.token();
+    if (!token) return alert('Настройте GitHub токен.');
+    const loading = showLoading(document.getElementById('importModal'));
+    try {
+      const zip = await JSZip.loadAsync(file);
+      const folders = ['levels','entities','items','foods'];
+      for (const folder of folders) {
+        const folderZip = zip.folder(folder);
+        if (!folderZip) continue;
+        const files = [];
+        folderZip.forEach((relativePath, fileEntry) => {
+          if (!fileEntry.dir) files.push(fileEntry);
+        });
+        for (const fileEntry of files) {
+          const jsonContent = await fileEntry.async('string');
+          const filename = `${folder}/${fileEntry.name}`;
+          const url = `${API.base()}/${filename}`;
+          let sha = null;
+          try {
+            const resp = await fetch(url, { headers: { Authorization: `token ${token}` } });
+            if (resp.ok) sha = (await resp.json()).sha;
+          } catch(e) {}
+          const body = {
+            message: `Import ${filename}`,
+            content: btoa(unescape(encodeURIComponent(jsonContent))),
+            branch: 'main'
+          };
+          if (sha) body.sha = sha;
+          await fetch(url, {
+            method: 'PUT',
+            headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+          });
+        }
+      }
+      alert('Импорт завершён. Обновите страницу.');
+    } catch(e) {
+      alert('Ошибка импорта: ' + e.message);
+    }
+    hideLoading(loading);
+    document.getElementById('importModal').classList.remove('active');
+    fileInput.value = '';
+  });
+
   // ── Вспомогательные функции ──────────────────
   function getClassStylesForType(type) {
     if (type === 'entities') return entityClassStyles;
@@ -292,7 +380,6 @@
 
   async function loadSectionData(section) {
     const folder = section;
-    const loading = showLoading(contentArea);
     const files = await fetchFileIndex(folder);
     const arr = [];
     const downloadPromises = files.map(file => (async () => {
@@ -319,7 +406,6 @@
       }
     });
     data[section] = arr;
-    hideLoading(loading);
   }
 
   async function loadAllData() {
@@ -439,7 +525,6 @@
     else if (type === 'items') statsHtml = renderStatsHTML(obj.stats, {weight:'Вес (кг)',rarity:'Редкость',usefulness:'Полезность',durability:'Прочность'}, statColors);
     else if (type === 'foods') statsHtml = renderStatsHTML(obj.stats, {calories:'Насыщение (ккал)',availability:'Доступность',taste:'Вкус',shelfLife:'Хранение (дни)'}, statColors);
 
-    // Рендеринг описания через Markdown
     const descHtml = obj.desc ? marked.parse(obj.desc) : '<p>Нет описания</p>';
 
     let linkedHtml = '';
@@ -524,7 +609,6 @@
       cluster: document.getElementById('editCluster')?.value || '',
       cls: document.getElementById('editClass').value,
       tags: document.getElementById('editTags').value,
-      stats: {},
       desc: document.getElementById('editDesc').value,
       thumbnail: document.getElementById('editThumbnail').value,
       in: document.getElementById('editIn')?.value || '',
@@ -535,22 +619,14 @@
       props: document.getElementById('editProps')?.value || '',
       effect: document.getElementById('editEffect')?.value || ''
     };
-    // Статистики
     const statFields = ['editSafety','editStability','editEntities','editResources','editMental','editNavigation',
                        'editDanger','editFrequency','editIntelligence','editAggression',
                        'editWeight','editRarity','editUsefulness','editDurability',
                        'editCalories','editAvailability','editTaste','editShelfLife'];
+    state.stats = {};
     statFields.forEach(f => {
       const el = document.getElementById(f);
       if (el) state.stats[f] = el.value;
-    });
-    // Выбранные связи (дропдауны)
-    const dropdowns = ['entity_','food_','item_','in_','out_'];
-    dropdowns.forEach(prefix => {
-      const container = document.querySelector(`[id^="${prefix}"]`);
-      if (container && container._getSelected) {
-        state[prefix + 'selected'] = container._getSelected();
-      }
     });
     localStorage.setItem('formDraft_' + currentEditType, JSON.stringify(state));
   }
@@ -561,7 +637,6 @@
     try {
       const state = JSON.parse(saved);
       if (confirm('У вас есть несохранённые изменения. Восстановить?')) {
-        // Заполнение полей
         document.getElementById('editId').value = state.id || '';
         document.getElementById('editTitle').value = state.title || '';
         if (document.getElementById('editCluster')) document.getElementById('editCluster').value = state.cluster || '';
@@ -576,25 +651,9 @@
         if (document.getElementById('editSurvival')) document.getElementById('editSurvival').value = state.survival || '';
         if (document.getElementById('editProps')) document.getElementById('editProps').value = state.props || '';
         if (document.getElementById('editEffect')) document.getElementById('editEffect').value = state.effect || '';
-        // Статистики
-        Object.entries(state.stats || {}).forEach(([key, value]) => {
+        Object.entries(state.stats||{}).forEach(([key, value]) => {
           const el = document.getElementById(key);
           if (el) el.value = value;
-        });
-        // Дропдауны
-        Object.entries(state).forEach(([key, value]) => {
-          if (key.endsWith('selected')) {
-            const prefix = key.replace('selected', '');
-            const container = document.querySelector(`[id^="${prefix}"]`);
-            if (container && container._getSelected) {
-              // Устанавливаем через внутренний метод (если дропдаун уже инициализирован)
-              // Проще просто очистить и установить заново через создание нового дропдауна
-              // Но так как мы вызываем createDropdown заново, то старые значения перезаписываются.
-              // Мы можем просто передать value в selectedIdsStr при создании дропдауна.
-              // Поэтому просто сохраняем значение, оно будет использовано при создании дропдауна.
-              state[key] = value;
-            }
-          }
         });
         return true;
       } else {
@@ -619,15 +678,8 @@
     editModal.classList.remove('active');
     currentEditType = null;
   }
-  // Привяжем к кнопке отмены и клику вне окна
   editModal.addEventListener('click', (e) => {
     if (e.target === editModal) closeEditModal();
-  });
-  // Кнопка отмены
-  document.addEventListener('click', (e) => {
-    if (e.target.matches('#editContent .btn[onclick*="editModal.classList.remove"]')) {
-      saveFormState();
-    }
   });
 
   function createDropdown(containerId, items, selectedIdsStr, placeholder) {
@@ -696,11 +748,7 @@
     const inContainerId = 'in_' + Date.now();
     const outContainerId = 'out_' + Date.now();
 
-    // Попытка восстановить черновик
     if (!obj && restoreFormState(type)) {
-      // Восстановили – не будем перезаписывать поля значениями по умолчанию
-      // Просто перерисуем с восстановленными данными
-      // Для этого перечитаем сохранённое состояние и используем его как lvl
       const saved = JSON.parse(localStorage.getItem('formDraft_' + type));
       if (saved) {
         lvl.id = saved.id || '';
