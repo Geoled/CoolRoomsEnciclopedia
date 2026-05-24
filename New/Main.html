@@ -4,10 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
   <title>"GodsFinalFarewell" Enciclopedia</title>
-  <!-- Marked.js для Markdown -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <!-- JSZip для экспорта/импорта -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
@@ -33,7 +30,7 @@
     .tab-btn.active { background:#252835; border-color:#c9a86c; color:#c9a86c; }
     .breadcrumbs { font-size:0.85rem; color:#8c8c9a; }
     .breadcrumbs span { color:#bca07c; cursor:pointer; }
-    .actions { display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap; }
+    .actions { display:flex; gap:0.5rem; align-items:center; }
     .btn { background:#1e2028; border:1px solid #3a3d45; color:#cacaca; padding:0.5rem 1rem; border-radius:20px; font-size:0.85rem; cursor:pointer; transition:0.2s; display:inline-flex; align-items:center; gap:0.3rem; }
     .btn:hover { background:#2a2d35; border-color:#c9a86c; color:#e8dcc8; }
     .btn.primary { background:#2c2a1f; border-color:#b8974c; color:#e5c97a; }
@@ -51,54 +48,22 @@
     .stat-fill { height:100%; border-radius:3px; }
     .stat-value { width:24px; text-align:center; color:#c9a86c; font-weight:500; }
     .card-desc { font-size:0.85rem; color:#a0a0b0; margin-top:0.3rem; line-height:1.5; }
-    .tag { display:inline-block; background:#252835; color:#bca07c; padding:0.1rem 0.6rem; border-radius:12px; font-size:0.7rem; margin-right:0.3rem; }
+    .card-date { font-size:0.7rem; color:#707070; margin-top:0.3rem; }
+    .tag { display:inline-block; background:#252835; color:#bca07c; padding:0.1rem 0.6rem; border-radius:12px; font-size:0.7rem; margin-right:0.3rem; cursor:pointer; }
+    .tag:hover { background:#3a3d45; }
     .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); backdrop-filter:blur(6px); align-items:center; justify-content:center; z-index:100; padding:1rem; }
     .modal.active { display:flex; }
     .modal-content { background:#1a1c24; border:1px solid #3a3d45; border-radius:20px; padding:2rem; max-width:800px; width:100%; max-height:90vh; overflow-y:auto; position:relative; }
     .floating-actions {
-      position: sticky;
-      bottom: 0;
-      background: linear-gradient(transparent, #1a1c24 30%);
-      padding: 1rem 0 0;
-      display: flex;
-      justify-content: flex-end;
-      gap: 0.7rem;
-      margin-top: 1.5rem;
-      border-top: 1px solid #3a3d45;
-      z-index: 10;
+      position: sticky; bottom: 0; background: linear-gradient(transparent, #1a1c24 30%);
+      padding: 1rem 0 0; display: flex; justify-content: flex-end; gap: 0.7rem;
+      margin-top: 1.5rem; border-top: 1px solid #3a3d45; z-index: 10;
     }
-    .form-section {
-      background: #1a1d28;
-      border: 1px solid #2a2e3a;
-      border-radius: 12px;
-      padding: 1rem;
-      margin: 1rem 0;
-    }
-    .form-section h4 {
-      color: #b8974c;
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 0.8rem;
-    }
-    .spinner {
-      display: inline-block;
-      width: 1.2rem;
-      height: 1.2rem;
-      border: 2px solid #3a3d45;
-      border-top-color: #c9a86c;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
+    .form-section { background: #1a1d28; border: 1px solid #2a2e3a; border-radius: 12px; padding: 1rem; margin: 1rem 0; }
+    .form-section h4 { color: #b8974c; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.8rem; }
+    .spinner { display: inline-block; width: 1.2rem; height: 1.2rem; border: 2px solid #3a3d45; border-top-color: #c9a86c; border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-overlay {
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(15,17,21,0.7);
-      display: flex; align-items: center; justify-content: center;
-      border-radius: 20px;
-      z-index: 10;
-    }
+    .loading-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,17,21,0.7); display: flex; align-items: center; justify-content: center; border-radius: 20px; z-index: 10; }
     .form-group { margin-bottom:1rem; }
     .form-group label { display:block; font-size:0.85rem; color:#b0b0be; margin-bottom:0.3rem; }
     .form-group input, .form-group textarea, .form-group select { width:100%; padding:0.7rem; background:#12141a; border:1px solid #3a3d45; border-radius:10px; color:#e0e0e0; font-size:0.9rem; outline:none; }
@@ -123,6 +88,8 @@
     .dropdown-search .dropdown-list { position: absolute; top: 100%; left: 0; width: 100%; background: #1a1c24; border: 1px solid #3a3d45; border-radius: 10px; max-height: 180px; overflow-y: auto; z-index: 50; display: none; }
     .dropdown-list .dropdown-item { padding: 0.5rem; cursor: pointer; color: #d0d0d0; }
     .dropdown-list .dropdown-item:hover { background: #2a2d35; }
+    .tag-cloud { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 1rem 0; }
+    .tag-cloud .tag { cursor: pointer; }
     @media (max-width:700px) { body { flex-direction:column; } .sidebar { width:100%; height:40%; } }
   </style>
 </head>
@@ -143,8 +110,6 @@
     </div>
     <div class="breadcrumbs" id="breadcrumbs">Главная</div>
     <div class="actions">
-      <button class="btn" id="exportBtn">Экспорт</button>
-      <button class="btn" id="importBtn">Импорт</button>
       <button class="btn" id="luckyBtn">Лаки-Блок</button>
       <button class="btn" id="refreshBtn">Обновить</button>
       <button class="btn primary" id="addBtn">Создать</button>
@@ -164,17 +129,6 @@
     <div class="modal-actions" style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:1rem;">
       <button class="btn" id="closeSettingsBtn">Закрыть</button>
       <button class="btn primary" id="saveSettingsBtn">Сохранить</button>
-    </div>
-  </div>
-</div>
-<div class="modal" id="importModal">
-  <div class="modal-content">
-    <h3 style="color:#c9a86c;">Импорт данных</h3>
-    <p>Выберите ZIP-файл, который вы ранее экспортировали. Все текущие данные будут заменены.</p>
-    <div class="form-group"><input type="file" id="importFileInput" accept=".zip"></div>
-    <div class="modal-actions" style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:1rem;">
-      <button class="btn" id="closeImportBtn">Отмена</button>
-      <button class="btn primary" id="startImportBtn">Импортировать</button>
     </div>
   </div>
 </div>
@@ -239,7 +193,6 @@
   const lightbox = document.getElementById('lightbox');
   const lightboxImg = document.getElementById('lightboxImg');
 
-  // ── Индикатор загрузки ──────────────────────
   function showLoading(container) {
     const overlay = document.createElement('div');
     overlay.className = 'loading-overlay';
@@ -247,9 +200,7 @@
     container.appendChild(overlay);
     return overlay;
   }
-  function hideLoading(overlay) {
-    if (overlay) overlay.remove();
-  }
+  function hideLoading(overlay) { if (overlay) overlay.remove(); }
 
   // ── Настройки GitHub ─────────────────────────
   document.getElementById('settingsBtn').addEventListener('click', () => {
@@ -258,9 +209,7 @@
     document.getElementById('settingsToken').value = localStorage.getItem('gh_token') || '';
     document.getElementById('settingsModal').classList.add('active');
   });
-  document.getElementById('closeSettingsBtn').addEventListener('click', () => {
-    document.getElementById('settingsModal').classList.remove('active');
-  });
+  document.getElementById('closeSettingsBtn').addEventListener('click', () => document.getElementById('settingsModal').classList.remove('active'));
   document.getElementById('saveSettingsBtn').addEventListener('click', () => {
     localStorage.setItem('gh_owner', document.getElementById('settingsOwner').value.trim());
     localStorage.setItem('gh_repo', document.getElementById('settingsRepo').value.trim());
@@ -268,82 +217,7 @@
     alert('Настройки сохранены.');
     document.getElementById('settingsModal').classList.remove('active');
   });
-  document.getElementById('settingsModal').addEventListener('click', (e) => {
-    if (e.target === document.getElementById('settingsModal')) document.getElementById('settingsModal').classList.remove('active');
-  });
-
-  // ── Экспорт ────────────────────────────────
-  document.getElementById('exportBtn').addEventListener('click', async () => {
-    const zip = new JSZip();
-    const folders = ['levels','entities','items','foods'];
-    for (const folder of folders) {
-      const section = data[folder];
-      const folderZip = zip.folder(folder);
-      section.forEach(obj => {
-        folderZip.file(`${obj.id || obj.name || 'unknown'}.json`, JSON.stringify(obj, null, 2));
-      });
-    }
-    const blob = await zip.generateAsync({type:'blob'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'godsFinalFarewell_backup.zip';
-    a.click();
-  });
-
-  // ── Импорт ────────────────────────────────
-  document.getElementById('importBtn').addEventListener('click', () => {
-    document.getElementById('importModal').classList.add('active');
-  });
-  document.getElementById('closeImportBtn').addEventListener('click', () => {
-    document.getElementById('importModal').classList.remove('active');
-  });
-  document.getElementById('startImportBtn').addEventListener('click', async () => {
-    const fileInput = document.getElementById('importFileInput');
-    const file = fileInput.files[0];
-    if (!file) return alert('Выберите ZIP-файл.');
-    const token = API.token();
-    if (!token) return alert('Настройте GitHub токен.');
-    const loading = showLoading(document.getElementById('importModal'));
-    try {
-      const zip = await JSZip.loadAsync(file);
-      const folders = ['levels','entities','items','foods'];
-      for (const folder of folders) {
-        const folderZip = zip.folder(folder);
-        if (!folderZip) continue;
-        const files = [];
-        folderZip.forEach((relativePath, fileEntry) => {
-          if (!fileEntry.dir) files.push(fileEntry);
-        });
-        for (const fileEntry of files) {
-          const jsonContent = await fileEntry.async('string');
-          const filename = `${folder}/${fileEntry.name}`;
-          const url = `${API.base()}/${filename}`;
-          let sha = null;
-          try {
-            const resp = await fetch(url, { headers: { Authorization: `token ${token}` } });
-            if (resp.ok) sha = (await resp.json()).sha;
-          } catch(e) {}
-          const body = {
-            message: `Import ${filename}`,
-            content: btoa(unescape(encodeURIComponent(jsonContent))),
-            branch: 'main'
-          };
-          if (sha) body.sha = sha;
-          await fetch(url, {
-            method: 'PUT',
-            headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
-          });
-        }
-      }
-      alert('Импорт завершён. Обновите страницу.');
-    } catch(e) {
-      alert('Ошибка импорта: ' + e.message);
-    }
-    hideLoading(loading);
-    document.getElementById('importModal').classList.remove('active');
-    fileInput.value = '';
-  });
+  document.getElementById('settingsModal').addEventListener('click', (e) => { if (e.target === document.getElementById('settingsModal')) document.getElementById('settingsModal').classList.remove('active'); });
 
   // ── Вспомогательные функции ──────────────────
   function getClassStylesForType(type) {
@@ -361,10 +235,20 @@
     if (!obj.stats) obj.stats = {};
     Object.keys(defaults).forEach(k => { if (obj.stats[k] === undefined) obj.stats[k] = defaults[k]; });
     if (!obj.tags) obj.tags = [];
+    if (!obj.discoveredAt) obj.discoveredAt = new Date().toISOString().split('T')[0];
     return obj;
   }
 
-  // ── Загрузка индекса файлов раздела ──────────
+  function getMaxId(arr) {
+    let max = 0;
+    arr.forEach(obj => {
+      const num = parseInt(obj.id, 10);
+      if (!isNaN(num) && num > max) max = num;
+    });
+    return max;
+  }
+
+  // ── Загрузка данных ──────────────────────────
   async function fetchFileIndex(folder) {
     if (!API.owner() || !API.repo()) return [];
     const url = `${API.base()}/${folder}`;
@@ -432,6 +316,8 @@
       case 'name_desc': return a.sort((x,y) => (y.title||y.name||'').localeCompare(x.title||x.name||''));
       case 'class_asc': return a.sort((x,y) => parseInt(x.cls||0) - parseInt(y.cls||0));
       case 'class_desc': return a.sort((x,y) => parseInt(y.cls||0) - parseInt(x.cls||0));
+      case 'date_asc': return a.sort((x,y) => (x.discoveredAt||'').localeCompare(y.discoveredAt||''));
+      case 'date_desc': return a.sort((x,y) => (y.discoveredAt||'').localeCompare(x.discoveredAt||''));
       default: return a;
     }
   }
@@ -458,14 +344,32 @@
       else if (type === 'entities') statsHtml = renderStatsHTML(obj.stats, {danger:'Опасность',frequency:'Частота',intelligence:'Интеллект',aggression:'Агрессия'}, statColors);
       else if (type === 'items') statsHtml = renderStatsHTML(obj.stats, {weight:'Вес (кг)',rarity:'Редкость',usefulness:'Полезность',durability:'Прочность'}, statColors);
       else if (type === 'foods') statsHtml = renderStatsHTML(obj.stats, {calories:'Насыщение (ккал)',availability:'Доступность',taste:'Вкус',shelfLife:'Хранение (дни)'}, statColors);
+      const dateStr = obj.discoveredAt ? `<div class="card-date">Найден: ${obj.discoveredAt}</div>` : '';
       return `<div class="card" data-type="${type}" data-id="${obj.id}">${thumb}
         <div class="card-header"><span class="card-id">${obj.id}</span><span class="class-icon">${getClassIcon(type, obj.cls)}</span></div>
         <div style="font-weight:500;">${obj.title || obj.name}</div>
         <div style="margin:0.3rem 0;">${statsHtml}</div>
         <div class="card-desc">${(obj.desc||'').substring(0,80)}...</div>
-        <div style="margin-top:0.3rem;">${(obj.tags||[]).map(t => `<span class="tag">${t}</span>`).join('')}</div>
+        <div style="margin-top:0.3rem;">${(obj.tags||[]).map(t => `<span class="tag" data-tag="${t}">${t}</span>`).join('')}</div>
+        ${dateStr}
       </div>`;
     }).join('');
+  }
+
+  function renderTagCloud() {
+    const allTags = new Map();
+    ['levels','entities','items','foods'].forEach(type => {
+      data[type].forEach(obj => {
+        (obj.tags||[]).forEach(tag => {
+          allTags.set(tag, (allTags.get(tag)||0) + 1);
+        });
+      });
+    });
+    if (allTags.size === 0) return '';
+    const sorted = [...allTags.entries()].sort((a,b) => b[1]-a[1]).slice(0, 20);
+    return `<div style="margin:1.5rem 0;"><h4 style="color:#b8974c; margin-bottom:0.5rem;">Облако тегов</h4><div class="tag-cloud">` +
+      sorted.map(([tag, count]) => `<span class="tag" data-tag="${tag}" style="font-size:${0.7 + count*0.05}rem;">${tag} (${count})</span>`).join('') +
+      `</div></div>`;
   }
 
   function renderContent() {
@@ -479,28 +383,47 @@
           <div class="card" style="min-width:100px;"><div style="font-size:1.8rem;color:#c9a86c;">${data.items.length}</div><div>Предметов</div></div>
           <div class="card" style="min-width:100px;"><div style="font-size:1.8rem;color:#c9a86c;">${data.foods.length}</div><div>Еды</div></div>
         </div>
+        ${renderTagCloud()}
       </div>`;
       tree.innerHTML = '<div style="padding:1rem;color:#8c8c9a;">Выберите раздел</div>';
       return;
     }
     const arr = getCurrentArray();
     const search = document.getElementById('searchInputField')?.value?.toLowerCase() || '';
-    const filtered = arr.filter(d => (d.title||d.name||'').toLowerCase().includes(search) || (d.id||'').includes(search));
+    const tagFilter = document.getElementById('tagFilter')?.value || '';
+    let filtered = arr;
+    if (search) filtered = filtered.filter(d => (d.title||d.name||'').toLowerCase().includes(search) || (d.id||'').includes(search));
+    if (tagFilter) filtered = filtered.filter(d => (d.tags||[]).includes(tagFilter));
     const sort = document.getElementById('sortSelectField')?.value || 'default';
     const sorted = sortArray(filtered, sort);
-    contentArea.innerHTML = `<div class="filters-bar" style="display:flex;gap:0.8rem;margin-bottom:1.5rem;">
+    contentArea.innerHTML = `<div class="filters-bar" style="display:flex;gap:0.8rem;margin-bottom:1.5rem;flex-wrap:wrap;">
       <input type="text" id="searchInputField" placeholder="Поиск..." value="${search}" style="background:#12141a;border:1px solid #3a3d45;color:#e0e0e0;padding:0.6rem 1rem;border-radius:12px;">
+      <select id="tagFilter" style="background:#12141a;border:1px solid #3a3d45;color:#e0e0e0;padding:0.6rem;border-radius:12px;">
+        <option value="">Все теги</option>
+        ${[...new Set(arr.flatMap(d=>d.tags||[]))].map(t => `<option value="${t}" ${t===tagFilter?'selected':''}>${t}</option>`).join('')}
+      </select>
       <select id="sortSelectField" style="background:#12141a;border:1px solid #3a3d45;color:#e0e0e0;padding:0.6rem;border-radius:12px;">
         <option value="default">По умолчанию</option>
         <option value="id_asc">ID возр.</option><option value="id_desc">ID убыв.</option>
         <option value="name_asc">Название А-Я</option><option value="name_desc">Название Я-А</option>
         <option value="class_asc">Класс (0→5)</option><option value="class_desc">Класс (5→0)</option>
+        <option value="date_asc">Дата (старые)</option><option value="date_desc">Дата (новые)</option>
       </select>
     </div><div class="grid" id="grid"></div>`;
     document.getElementById('grid').innerHTML = renderCards(sorted, currentSection);
     document.querySelectorAll('.card').forEach(card => card.addEventListener('click', () => openView(card.dataset.type, card.dataset.id)));
     document.getElementById('searchInputField').addEventListener('input', renderContent);
     document.getElementById('sortSelectField').addEventListener('change', renderContent);
+    document.getElementById('tagFilter').addEventListener('change', renderContent);
+    // Клики по тегам
+    document.querySelectorAll('.tag[data-tag]').forEach(tag => {
+      tag.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const tagVal = tag.dataset.tag;
+        document.getElementById('tagFilter').value = tagVal;
+        renderContent();
+      });
+    });
   }
 
   function renderLinkedCards(items, type, label) {
@@ -526,6 +449,7 @@
     else if (type === 'foods') statsHtml = renderStatsHTML(obj.stats, {calories:'Насыщение (ккал)',availability:'Доступность',taste:'Вкус',shelfLife:'Хранение (дни)'}, statColors);
 
     const descHtml = obj.desc ? marked.parse(obj.desc) : '<p>Нет описания</p>';
+    const dateStr = obj.discoveredAt ? `<p><strong>Дата нахождения:</strong> ${obj.discoveredAt}</p>` : '';
 
     let linkedHtml = '';
     if (type === 'levels') {
@@ -547,6 +471,7 @@
 
     viewContent.innerHTML = `<h2 style="color:#c9a86c;">${obj.title || obj.name} (${obj.id})</h2>${thumb}
       <p>Класс: ${getClassStylesForType(type)[obj.cls]?.name || obj.cls} ${getClassIcon(type, obj.cls)}</p>
+      ${dateStr}
       <div class="view-section">${statsHtml}</div>
       <div style="margin:0.5rem 0;">${(obj.tags||[]).map(t => `<span class="tag">${t}</span>`).join('')}</div>
       <div class="view-section"><h3>Описание</h3><div>${descHtml}</div></div>
@@ -600,6 +525,40 @@
     renderContent();
   }
 
+  // ── Загрузка изображения в репозиторий ──────
+  async function uploadImageToRepo(file) {
+    const token = API.token();
+    if (!token) { alert('Настройте GitHub токен.'); return null; }
+    const filename = `images/${Date.now()}_${file.name}`;
+    const url = `${API.base()}/${filename}`;
+    const reader = new FileReader();
+    return new Promise((resolve) => {
+      reader.onload = async () => {
+        const base64 = reader.result.split(',')[1];
+        const body = {
+          message: `Upload ${filename}`,
+          content: base64,
+          branch: 'main'
+        };
+        try {
+          const resp = await fetch(url, {
+            method: 'PUT',
+            headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+          });
+          if (resp.ok) {
+            const data = await resp.json();
+            resolve(data.content.download_url);
+          } else {
+            alert('Ошибка загрузки изображения.');
+            resolve(null);
+          }
+        } catch(e) { resolve(null); }
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
   // ── Кэширование формы редактирования ─────────
   function saveFormState() {
     if (!currentEditType || !document.getElementById('editId')) return;
@@ -609,8 +568,10 @@
       cluster: document.getElementById('editCluster')?.value || '',
       cls: document.getElementById('editClass').value,
       tags: document.getElementById('editTags').value,
+      stats: {},
       desc: document.getElementById('editDesc').value,
       thumbnail: document.getElementById('editThumbnail').value,
+      discoveredAt: document.getElementById('editDiscoveredAt')?.value || '',
       in: document.getElementById('editIn')?.value || '',
       out: document.getElementById('editOut')?.value || '',
       habitat: document.getElementById('editHabitat')?.value || '',
@@ -623,10 +584,16 @@
                        'editDanger','editFrequency','editIntelligence','editAggression',
                        'editWeight','editRarity','editUsefulness','editDurability',
                        'editCalories','editAvailability','editTaste','editShelfLife'];
-    state.stats = {};
     statFields.forEach(f => {
       const el = document.getElementById(f);
       if (el) state.stats[f] = el.value;
+    });
+    const dropdowns = ['entity_','food_','item_','in_','out_'];
+    dropdowns.forEach(prefix => {
+      const container = document.querySelector(`[id^="${prefix}"]`);
+      if (container && container._getSelected) {
+        state[prefix + 'selected'] = container._getSelected();
+      }
     });
     localStorage.setItem('formDraft_' + currentEditType, JSON.stringify(state));
   }
@@ -644,6 +611,7 @@
         document.getElementById('editTags').value = state.tags || '';
         document.getElementById('editDesc').value = state.desc || '';
         document.getElementById('editThumbnail').value = state.thumbnail || '';
+        if (document.getElementById('editDiscoveredAt')) document.getElementById('editDiscoveredAt').value = state.discoveredAt || '';
         if (document.getElementById('editIn')) document.getElementById('editIn').value = state.in || '';
         if (document.getElementById('editOut')) document.getElementById('editOut').value = state.out || '';
         if (document.getElementById('editHabitat')) document.getElementById('editHabitat').value = state.habitat || '';
@@ -667,19 +635,12 @@
     if (currentEditType) localStorage.removeItem('formDraft_' + currentEditType);
   }
 
-  // Автосохранение при закрытии окна или обновлении
   window.addEventListener('beforeunload', () => {
     if (editModal.classList.contains('active')) saveFormState();
   });
 
-  // При закрытии модального окна редактирования
-  function closeEditModal() {
-    saveFormState();
-    editModal.classList.remove('active');
-    currentEditType = null;
-  }
   editModal.addEventListener('click', (e) => {
-    if (e.target === editModal) closeEditModal();
+    if (e.target === editModal) { saveFormState(); editModal.classList.remove('active'); currentEditType = null; }
   });
 
   function createDropdown(containerId, items, selectedIdsStr, placeholder) {
@@ -740,7 +701,12 @@
     const folder = type;
     const styles = getClassStylesForType(type);
     const defaultCls = type === 'levels' ? '0' : type === 'entities' ? '0' : type === 'items' ? 'cold_weapon' : 'drink';
-    const lvl = obj || { id:'', title:'', cluster:'', cls:defaultCls, desc:'', ent:[], foodIds:[], itemIds:[], in:'', out:'', stats:{}, tags:[], thumbnail:'', images:[], _sha:null };
+    let lvl = obj || { id:'', title:'', cluster:'', cls:defaultCls, desc:'', ent:[], foodIds:[], itemIds:[], in:'', out:'', stats:{}, tags:[], thumbnail:'', images:[], _sha:null, discoveredAt: new Date().toISOString().split('T')[0] };
+    // Автогенерация ID если пустой
+    if (!obj && !lvl.id) {
+      const maxId = getMaxId(data[type]||[]);
+      lvl.id = String(maxId + 1);
+    }
     const classOptions = Object.entries(styles).map(([v,s]) => `<option value="${v}" ${(obj?.cls||defaultCls)==v?'selected':''}>${s.name}</option>`).join('');
     const entityContainerId = 'entity_' + Date.now();
     const foodContainerId = 'food_' + Date.now();
@@ -751,13 +717,14 @@
     if (!obj && restoreFormState(type)) {
       const saved = JSON.parse(localStorage.getItem('formDraft_' + type));
       if (saved) {
-        lvl.id = saved.id || '';
+        lvl.id = saved.id || lvl.id;
         lvl.title = saved.title || '';
         lvl.cluster = saved.cluster || '';
         lvl.cls = saved.cls || defaultCls;
         lvl.desc = saved.desc || '';
         lvl.tags = saved.tags ? saved.tags.split(',').map(s=>s.trim()).filter(Boolean) : [];
         lvl.thumbnail = saved.thumbnail || '';
+        lvl.discoveredAt = saved.discoveredAt || lvl.discoveredAt;
         lvl.in = saved.in || '';
         lvl.out = saved.out || '';
         lvl.habitat = saved.habitat || '';
@@ -778,11 +745,12 @@
 
     editContent.innerHTML = `<h3 style="color:#c9a86c;">${obj?'Редактировать':'Новый'} ${type==='levels'?'уровень':type==='entities'?'сущность':type==='items'?'предмет':'еда'}</h3>
       <div class="form-section"><h4>Основная информация</h4>
-        <div class="form-group"><label>ID</label><input id="editId" value="${lvl.id}"></div>
+        <div class="form-group"><label>ID</label><input id="editId" value="${lvl.id}" placeholder="Оставьте пустым для автогенерации"></div>
         <div class="form-group"><label>Название</label><input id="editTitle" value="${lvl.title||lvl.name||''}"></div>
         ${type==='levels' ? `<div class="form-group"><label>Кластер</label><input id="editCluster" value="${lvl.cluster||''}"></div>` : ''}
         <div class="form-group"><label>Класс</label><select id="editClass">${classOptions}</select></div>
         <div class="form-group"><label>Теги</label><input id="editTags" value="${(lvl.tags||[]).join(', ')}"></div>
+        <div class="form-group"><label>Дата нахождения</label><input type="date" id="editDiscoveredAt" value="${lvl.discoveredAt||''}"></div>
       </div>
       <div class="form-section"><h4>Характеристики</h4>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
@@ -815,73 +783,100 @@
       </div>` : ''}
       <div class="form-section"><h4>Медиа</h4>
         <div class="form-group"><label>Главное изображение</label><input id="editThumbnail" value="${lvl.thumbnail||''}"></div>
+        <div class="form-group"><label>Загрузить изображение в репозиторий</label><input type="file" id="fileUpload" accept="image/*"></div>
         <div id="imagesContainer">${(lvl.images||[]).map(img => `<div class="image-entry"><input class="image-url" value="${img.url}"><input class="image-desc" value="${img.description||''}"><button class="btn remove-image" style="background:transparent;border:1px solid #3a3d45;color:#cacaca;padding:0.2rem 0.5rem;border-radius:8px;">✕</button></div>`).join('')}</div>
         <button class="btn" id="addImageBtn" style="margin-top:0.5rem;">+ Изображение</button>
       </div>
       <div style="margin-top:1.5rem; display:flex; gap:1rem; justify-content:flex-end;">
         <button class="btn" onclick="document.querySelector('#editModal').classList.remove('active')">Отмена</button>
+        ${obj ? `<button class="btn" id="duplicateBtn">Сохранить как копию</button>` : ''}
         <button class="btn primary" id="saveBtn">Сохранить</button>
       </div>`;
     editModal.classList.add('active');
     addImageListeners();
-    document.getElementById('saveBtn').addEventListener('click', async () => {
-      const images = []; document.querySelectorAll('#imagesContainer .image-entry').forEach(e => { const u=e.querySelector('.image-url').value.trim(), d=e.querySelector('.image-desc').value.trim(); if(u) images.push({url:u,description:d}); });
-      const newObj = {
-        id: document.getElementById('editId').value,
-        title: document.getElementById('editTitle').value,
-        cluster: type==='levels' ? document.getElementById('editCluster')?.value : undefined,
-        cls: document.getElementById('editClass').value,
-        tags: document.getElementById('editTags').value.split(',').map(s=>s.trim()).filter(Boolean),
-        stats: {},
-        desc: document.getElementById('editDesc').value,
-        thumbnail: document.getElementById('editThumbnail').value,
-        images
-      };
-      if (type==='levels') {
-        newObj.stats = { safety:+document.getElementById('editSafety').value, stability:+document.getElementById('editStability').value, entities:+document.getElementById('editEntities').value, resources:+document.getElementById('editResources').value, mental:+document.getElementById('editMental').value, navigation:+document.getElementById('editNavigation').value };
-        const eDrop = document.getElementById(entityContainerId);
-        const fDrop = document.getElementById(foodContainerId);
-        const iDrop = document.getElementById(itemContainerId);
-        const inDrop = document.getElementById(inContainerId);
-        const outDrop = document.getElementById(outContainerId);
-        newObj.ent = (eDrop && eDrop._getSelected) ? eDrop._getSelected().split(',').map(s=>s.trim()).filter(Boolean) : [];
-        newObj.foodIds = (fDrop && fDrop._getSelected) ? fDrop._getSelected().split(',').map(s=>s.trim()).filter(Boolean) : [];
-        newObj.itemIds = (iDrop && iDrop._getSelected) ? iDrop._getSelected().split(',').map(s=>s.trim()).filter(Boolean) : [];
-        newObj.in = (inDrop && inDrop._getSelected) ? inDrop._getSelected() : '';
-        newObj.out = (outDrop && outDrop._getSelected) ? outDrop._getSelected() : '';
-      } else if (type==='entities') {
-        newObj.name = newObj.title; delete newObj.title;
-        newObj.stats = { danger:+document.getElementById('editDanger').value, frequency:+document.getElementById('editFrequency').value, intelligence:+document.getElementById('editIntelligence').value, aggression:+document.getElementById('editAggression').value };
-        newObj.habitat = document.getElementById('editHabitat').value;
-        newObj.behavior = document.getElementById('editBehavior').value;
-        newObj.survival = document.getElementById('editSurvival').value;
-      } else if (type==='items') {
-        newObj.name = newObj.title; delete newObj.title;
-        newObj.stats = { weight:+document.getElementById('editWeight').value, rarity:+document.getElementById('editRarity').value, usefulness:+document.getElementById('editUsefulness').value, durability:+document.getElementById('editDurability').value };
-        newObj.props = document.getElementById('editProps').value;
-      } else if (type==='foods') {
-        newObj.name = newObj.title; delete newObj.title;
-        newObj.stats = { calories:+document.getElementById('editCalories').value, availability:+document.getElementById('editAvailability').value, taste:+document.getElementById('editTaste').value, shelfLife:+document.getElementById('editShelfLife').value };
-        newObj.effect = document.getElementById('editEffect').value;
-      }
-      const filename = `${folder}/${type}_${newObj.id}.json`;
+
+    // Загрузка изображения
+    document.getElementById('fileUpload')?.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
       const loading = showLoading(editContent);
-      const success = await commitFile(filename, newObj, obj?._sha);
+      const url = await uploadImageToRepo(file);
       hideLoading(loading);
-      if (success) {
-        clearFormDraft();
-        if (obj) {
-          const idx = data[type].findIndex(o => o.id === obj.id);
-          if (idx !== -1) data[type][idx] = newObj;
-        } else data[type].push(newObj);
-        editModal.classList.remove('active');
-        currentEditType = null;
-        renderTree();
-        renderContent();
-      } else {
-        alert('Ошибка сохранения. Проверьте токен и права доступа.');
+      if (url) {
+        document.getElementById('editThumbnail').value = url;
+        alert('Изображение загружено! URL вставлен в поле главного изображения.');
       }
     });
+
+    document.getElementById('saveBtn').addEventListener('click', () => saveEdit(type, obj));
+    if (obj) {
+      document.getElementById('duplicateBtn').addEventListener('click', () => {
+        document.getElementById('editId').value = String(getMaxId(data[type]) + 1);
+        saveEdit(type, null);
+      });
+    }
+  }
+
+  async function saveEdit(type, obj) {
+    const images = []; document.querySelectorAll('#imagesContainer .image-entry').forEach(e => { const u=e.querySelector('.image-url').value.trim(), d=e.querySelector('.image-desc').value.trim(); if(u) images.push({url:u,description:d}); });
+    let newId = document.getElementById('editId').value.trim();
+    if (!newId) newId = String(getMaxId(data[type]) + 1);
+    const newObj = {
+      id: newId,
+      title: document.getElementById('editTitle').value,
+      cluster: type==='levels' ? document.getElementById('editCluster')?.value : undefined,
+      cls: document.getElementById('editClass').value,
+      tags: document.getElementById('editTags').value.split(',').map(s=>s.trim()).filter(Boolean),
+      stats: {},
+      desc: document.getElementById('editDesc').value,
+      discoveredAt: document.getElementById('editDiscoveredAt')?.value || new Date().toISOString().split('T')[0],
+      thumbnail: document.getElementById('editThumbnail').value,
+      images
+    };
+    if (type==='levels') {
+      newObj.stats = { safety:+document.getElementById('editSafety').value, stability:+document.getElementById('editStability').value, entities:+document.getElementById('editEntities').value, resources:+document.getElementById('editResources').value, mental:+document.getElementById('editMental').value, navigation:+document.getElementById('editNavigation').value };
+      const eDrop = document.querySelector('[id^="entity_"]');
+      const fDrop = document.querySelector('[id^="food_"]');
+      const iDrop = document.querySelector('[id^="item_"]');
+      const inDrop = document.querySelector('[id^="in_"]');
+      const outDrop = document.querySelector('[id^="out_"]');
+      newObj.ent = (eDrop && eDrop._getSelected) ? eDrop._getSelected().split(',').map(s=>s.trim()).filter(Boolean) : [];
+      newObj.foodIds = (fDrop && fDrop._getSelected) ? fDrop._getSelected().split(',').map(s=>s.trim()).filter(Boolean) : [];
+      newObj.itemIds = (iDrop && iDrop._getSelected) ? iDrop._getSelected().split(',').map(s=>s.trim()).filter(Boolean) : [];
+      newObj.in = (inDrop && inDrop._getSelected) ? inDrop._getSelected() : '';
+      newObj.out = (outDrop && outDrop._getSelected) ? outDrop._getSelected() : '';
+    } else if (type==='entities') {
+      newObj.name = newObj.title; delete newObj.title;
+      newObj.stats = { danger:+document.getElementById('editDanger').value, frequency:+document.getElementById('editFrequency').value, intelligence:+document.getElementById('editIntelligence').value, aggression:+document.getElementById('editAggression').value };
+      newObj.habitat = document.getElementById('editHabitat').value;
+      newObj.behavior = document.getElementById('editBehavior').value;
+      newObj.survival = document.getElementById('editSurvival').value;
+    } else if (type==='items') {
+      newObj.name = newObj.title; delete newObj.title;
+      newObj.stats = { weight:+document.getElementById('editWeight').value, rarity:+document.getElementById('editRarity').value, usefulness:+document.getElementById('editUsefulness').value, durability:+document.getElementById('editDurability').value };
+      newObj.props = document.getElementById('editProps').value;
+    } else if (type==='foods') {
+      newObj.name = newObj.title; delete newObj.title;
+      newObj.stats = { calories:+document.getElementById('editCalories').value, availability:+document.getElementById('editAvailability').value, taste:+document.getElementById('editTaste').value, shelfLife:+document.getElementById('editShelfLife').value };
+      newObj.effect = document.getElementById('editEffect').value;
+    }
+    const filename = `${folder}/${type}_${newObj.id}.json`;
+    const loading = showLoading(editContent);
+    const success = await commitFile(filename, newObj, obj?._sha);
+    hideLoading(loading);
+    if (success) {
+      clearFormDraft();
+      if (obj) {
+        const idx = data[type].findIndex(o => o.id === obj.id);
+        if (idx !== -1) data[type][idx] = newObj;
+      } else data[type].push(newObj);
+      editModal.classList.remove('active');
+      currentEditType = null;
+      renderTree();
+      renderContent();
+    } else {
+      alert('Ошибка сохранения. Проверьте токен и права доступа.');
+    }
   }
 
   async function commitFile(filename, content, oldSha) {
@@ -891,10 +886,7 @@
     let sha = null;
     try {
       const resp = await fetch(url, { headers: { Authorization: `token ${token}` } });
-      if (resp.ok) {
-        const info = await resp.json();
-        sha = info.sha;
-      }
+      if (resp.ok) { const info = await resp.json(); sha = info.sha; }
     } catch (e) {}
     const body = {
       message: `Update ${filename}`,
@@ -903,11 +895,7 @@
     };
     if (sha) body.sha = sha;
     try {
-      const resp = await fetch(url, {
-        method: 'PUT',
-        headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
+      const resp = await fetch(url, { method: 'PUT', headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
       return resp.ok;
     } catch (e) { return false; }
   }
