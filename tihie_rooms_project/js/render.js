@@ -115,7 +115,7 @@ function renderContent(){
     var allItems=[];
     bm.forEach(function(key){var parts=key.split(':');var type=parts[0];var id=parts.slice(1).join(':');var arr=data[type];if(arr){var obj=arr.find(function(o){return idsMatch(o.id,id);});if(obj)allItems.push({obj:obj,type:type});}});
     contentArea.innerHTML='<div class="terminal-line">BOOKMARKS — '+allItems.length+' SAVED</div><div class="grid" id="grid">'+allItems.map(function(x){var obj=x.obj;var type=x.type;var thumb=obj.thumbnail?'<div class="card-img-wrap"><img class="card-img" src="'+escapeHtml(obj.thumbnail)+'" onerror="this.parentElement.innerHTML=\'<div class=card-img-placeholder>'+getClassIcon(type,obj.cls)+'</div>\'" alt=""></div>':'<div class="card-img-wrap"><div class="card-img-placeholder">'+getClassIcon(type,obj.cls)+'</div></div>';return'<div class="card" data-type="'+type+'" data-id="'+strId(obj.id)+'">'+thumb+'<div class="card-header-bar"><span class="card-id">#'+obj.id+'</span></div><div class="card-inner"><div class="card-title">'+(obj.title||obj.name)+'</div><div class="card-desc">'+escapeHtml((obj.desc||'').substring(0,80))+'</div></div></div>';}).join('')+'</div>';
-    if(!allItems.length)contentArea.innerHTML='<div class="terminal-line">BOOKMARKS — EMPTY</div><p style="color:var(--text-dim);text-align:center;margin:3rem 0">Click the \u2606 icon on any record to bookmark it.</p>';
+    if(!allItems.length)contentArea.innerHTML='<div class="empty-state"><div class="empty-icon">\u2606</div><div class="terminal-line">NO BOOKMARKS YET</div><p>Click the star icon on any record to save it for quick access.</p></div>';
     document.querySelectorAll('#grid .card').forEach(function(c){c.addEventListener('click',function(){openView(c.dataset.type,c.dataset.id);});});
     treeEl.innerHTML='<div style="padding:1rem;color:var(--text-muted);text-align:center;font-size:.62rem">\u2605 BOOKMARKS</div>';
     return;
@@ -162,12 +162,12 @@ function renderContent(){
 
   document.getElementById('grid').innerHTML=renderCards(sorted,currentSection);
   document.querySelectorAll('#grid .card').forEach(function(c){c.addEventListener('click',function(){openView(c.dataset.type,c.dataset.id);});});
-  document.getElementById('searchInput').addEventListener('input',function(){isDirty=true;updateSaveIndicator();renderContent();});
+  document.getElementById('searchInput').addEventListener('input',function(){isDirty=true;updateSaveIndicator();clearTimeout(this._t);var s=this;this._t=setTimeout(function(){renderContent();},250);});
   document.getElementById('sortSelect').addEventListener('change',renderContent);
   document.getElementById('tagFilter').addEventListener('change',renderContent);
   var trb=document.getElementById('toggleRangeBtn');
   if(trb)trb.addEventListener('click',function(){var rp=document.getElementById('rangePanel');if(rp)rp.classList.toggle('open');});
-  document.querySelectorAll('.range-min,.range-max').forEach(function(el){el.addEventListener('input',renderContent);});
+  document.querySelectorAll('.range-min,.range-max').forEach(function(el){el.addEventListener('input',function(){clearTimeout(el._t);el._t=setTimeout(function(){renderContent();},300);});});
   document.querySelectorAll('.bookmark-btn').forEach(function(b){b.addEventListener('click',function(e){e.stopPropagation();var active=toggleBookmark(b.dataset.bmType,b.dataset.bmId);b.classList.toggle('active',active);b.textContent=active?'\u2605':'\u2606';});});
   document.querySelectorAll('#grid .tag[data-tag]').forEach(function(t){t.addEventListener('click',function(e){e.stopPropagation();document.getElementById('tagFilter').value=t.dataset.tag;renderContent();});});
 }
@@ -474,7 +474,7 @@ document.getElementById('encounterBtn').addEventListener('click',function(){
 document.getElementById('closeEncounterBtn').addEventListener('click',function(){document.getElementById('encounterModal').classList.remove('active');document.body.style.overflow='';});
 document.getElementById('rollEncounterBtn').addEventListener('click',function(){
   var entities=data.entities;var levels=data.levels;
-  if(!entities.length){document.getElementById('encounterResult').innerHTML='<p style="color:var(--text-dim)">NO ENTITIES IN DATABASE</p>';return;}
+  if(!entities.length){document.getElementById('encounterResult').innerHTML='<div class="empty-state"><div class="empty-icon">\u{1F47B}</div><p>NO ENTITIES IN DATABASE</p><p>Add entity records via the ENTITIES tab to use the encounter simulator.</p></div>';return;}
   var entity=entities[Math.floor(Math.random()*entities.length)];
   var level=levels.length?levels[Math.floor(Math.random()*levels.length)]:null;
   var outcomes=['SURVIVED','SURVIVED WITH INJURIES','ESCAPED','LOST CONSCIOUSNESS','DECEASED','UNKNOWN FATE'];
