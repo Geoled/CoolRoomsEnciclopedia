@@ -40,6 +40,47 @@ function switchSection(section){
 window._sw=switchSection;
 window.openView=openView;
 
+// ── SCROLL TO TOP BUTTON ────────────────────────
+(function(){
+  var btn=document.createElement('div');
+  btn.className='scroll-top';
+  btn.innerHTML='\u25B2';
+  btn.title='Scroll to top';
+  document.body.appendChild(btn);
+  btn.addEventListener('click',function(){contentArea.scrollTo({top:0,behavior:'smooth'});});
+  contentArea.addEventListener('scroll',function(){
+    if(contentArea.scrollTop>400)btn.classList.add('visible');
+    else btn.classList.remove('visible');
+  });
+})();
+
+// ── SHORTCUTS PANEL ────────────────────────────
+(function(){
+  var panel=document.createElement('div');
+  panel.className='shortcuts-panel';
+  panel.id='shortcutsPanel';
+  panel.innerHTML='<div style="color:var(--amber);font-size:.55rem;margin-bottom:.4rem">KEYBOARD SHORTCUTS</div>'+
+    '<div class="sc-row"><span>/</span><span class="shortcut-hint">Search</span></div>'+
+    '<div class="sc-row"><span>Esc</span><span class="shortcut-hint">Close</span></div>'+
+    '<div class="sc-row"><span>?</span><span class="shortcut-hint">Shortcuts</span></div>'+
+    '<div class="sc-row"><span>Ctrl+D</span><span class="shortcut-hint">Compact</span></div>'+
+    '<div class="sc-row"><span>Ctrl+F</span><span class="shortcut-hint">Fullscreen</span></div>';
+  document.body.appendChild(panel);
+  window._toggleShortcuts=function(){panel.classList.toggle('open');};
+})();
+
+// ── COMPACT MODE ───────────────────────────────
+(function(){
+  if(localStorage.getItem('tihie_compact')==='1')document.body.classList.add('compact');
+  window._toggleCompact=function(){
+    document.body.classList.toggle('compact');
+    var c=document.body.classList.contains('compact');
+    localStorage.setItem('tihie_compact',c?'1':'0');
+    toast(c?'COMPACT MODE ON':'COMPACT MODE OFF','info');
+  };
+})();
+
+
 // ── KEYBOARD ─────────────────────────────────────
 document.addEventListener('keydown',function(e){
   if(e.key==='Escape'){
@@ -49,6 +90,8 @@ document.addEventListener('keydown',function(e){
     else{[settingsModal,compareModal,document.getElementById('encounterModal'),document.getElementById('statsModal')].forEach(function(m){if(m&&m.classList.contains('active')){m.classList.remove('active');document.body.style.overflow='';}});}
   }
   if(e.key==='/'&&['INPUT','TEXTAREA','SELECT'].indexOf(document.activeElement.tagName)===-1){e.preventDefault();var s=document.getElementById('searchInput');if(s)s.focus();}
+  if(e.key==='?'&&['INPUT','TEXTAREA','SELECT'].indexOf(document.activeElement.tagName)===-1){e.preventDefault();window._toggleShortcuts();}
+  if(e.key==='d'&&e.ctrlKey){e.preventDefault();window._toggleCompact();}
 });
 
 // ── SETTINGS ─────────────────────────────────────
