@@ -92,6 +92,8 @@ document.addEventListener('keydown',function(e){
   if(e.key==='/'&&['INPUT','TEXTAREA','SELECT'].indexOf(document.activeElement.tagName)===-1){e.preventDefault();var s=document.getElementById('searchInput');if(s)s.focus();}
   if(e.key==='?'&&['INPUT','TEXTAREA','SELECT'].indexOf(document.activeElement.tagName)===-1){e.preventDefault();window._toggleShortcuts();}
   if(e.key==='d'&&e.ctrlKey){e.preventDefault();window._toggleCompact();}
+  if(e.key==='ArrowRight'&&e.ctrlKey){e.preventDefault();setTheme(currentThemeIdx+1);}
+  if(e.key==='ArrowLeft'&&e.ctrlKey){e.preventDefault();setTheme(currentThemeIdx-1);}
 });
 
 // ── SETTINGS ─────────────────────────────────────
