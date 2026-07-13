@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TIHIE ROOMS ARCHIVE v3.0</title>
+<script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js">
+</script>
+<link rel="stylesheet" href="css/styles.css">
+
+</head>
+<body data-theme="amber">
+
+<div class="boot-overlay" id="bootOverlay"></div>
+<noscript><div>JAVASCRIPT IS DISABLED — ENABLE IT TO USE THE ARCHIVE</div></noscript>
+
+<button class="mobile-menu-btn" id="mobileMenuBtn">&#9776;</button>
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">&#9672; TIHIE ROOMS ARCHIVE</div>
+  <div class="sidebar-section">NAVIGATION</div>
+  <div class="tree" id="tree"></div>
+  <div class="sidebar-section" id="historyTitle" style="display:none">RECENT HISTORY</div>
+  <div id="historyPanel" style="max-height:130px;overflow-y:auto"></div>
+  <button class="btn" id="settingsBtn" style="margin:.5rem 1rem;width:calc(100% - 2rem)">&#9881; REPO SETTINGS</button>
+  <button class="btn" id="themeBtn" style="margin:0 1rem .5rem;width:calc(100% - 2rem)">&#127912; Amber [1/25]</button>
+  <button class="btn" id="fullscreenBtn" style="margin:0 1rem .5rem;width:calc(100% - 2rem)">&#9102; FULLSCREEN</button>
+  <button class="btn" id="profileBtn" style="margin:0 1rem .5rem;width:calc(100% - 2rem)">&#128100; PROFILE</button>
+</div>
+
+<div class="main">
+  <div class="top-bar">
+    <span class="save-indicator" id="saveIndicator"><span class="save-dot" id="saveDot"></span> READY</span>
+    <div class="tabs">
+      <span class="tab-btn active" data-tab="home">TERMINAL</span>
+      <span class="tab-btn" data-tab="levels">LEVELS</span>
+      <span class="tab-btn" data-tab="entities">ENTITIES</span>
+      <span class="tab-btn" data-tab="items">OBJECTS</span>
+      <span class="tab-btn" data-tab="foods">SUSTENANCE</span>
+      <span class="tab-btn" data-tab="bookmarks">&#9733;</span>
+      <span class="tab-btn" data-tab="timeline">&#9203;</span>
+      <span class="tab-btn" data-tab="changelog">&#128203;</span>
+      <span class="tab-btn" data-tab="researchers">&#128101;</span>
+    </div>
+    <div class="breadcrumbs" id="breadcrumbs">TERMINAL</div>
+    <div class="actions">
+      <button class="btn" id="statsBtn">&#128202; STATS</button>
+      <button class="btn" id="encounterBtn">&#127922; ENCOUNTER</button>
+      <button class="btn" id="compareBtn">&#8660; COMPARE</button>
+      <button class="btn" id="luckyBtn">&#127922; LUCKY</button>
+      <button class="btn" id="refreshBtn">&#8635; SYNC</button>
+      <button class="btn primary" id="addBtn">+ NEW</button>
+    </div>
+  </div>
+  <div class="content-area" id="contentArea"></div>
+</div>
+
+<div class="disclaimer-bar">
+  <span class="disclaimer-dot"></span>
+  THIS PAGE IS MONITORED BY TIHIE ROOMS ARCHIVE — CLASSIFIED: RESTRICTED
+  <span style="margin-left:auto">v3.0</span>
+</div>
+
+<div class="modal" id="viewModal"><div class="modal-content" id="viewContent"></div></div>
+<div class="modal" id="editModal"><div class="modal-content" id="editContent"></div></div>
+<div class="modal" id="settingsModal">
+  <div class="modal-content" style="max-width:440px">
+    <h3 style="color:var(--amber);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:1px;font-size:.72rem">&#9656; GITHUB CONFIG</h3>
+    <div class="form-section">
+      <div class="form-group"><label>Owner</label><input id="settingsOwner" placeholder="username"></div>
+      <div class="form-group"><label>Repository</label><input id="settingsRepo" placeholder="repo-name"></div>
+      <div class="form-group"><label>Token (classic)</label><input type="password" id="settingsToken" placeholder="ghp_..."></div>
+    </div>
+    <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:1rem">
+      <button class="btn" id="closeSettingsBtn">CANCEL</button>
+      <button class="btn primary" id="saveSettingsBtn">SAVE</button>
+    </div>
+  </div>
+</div>
+<div class="modal" id="compareModal">
+  <div class="modal-content" style="max-width:950px">
+    <h3 style="color:var(--amber);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:1px;font-size:.72rem">&#9656; COMPARE RECORDS</h3>
+    <div style="display:flex;gap:.8rem;margin:1rem 0">
+      <select id="compareType" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:.4rem;font-family:var(--font-mono)">
+        <option value="levels">LEVELS</option><option value="entities">ENTITIES</option>
+        <option value="items">OBJECTS</option><option value="foods">SUSTENANCE</option>
+      </select>
+      <select id="compareA" style="flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:.4rem;font-family:var(--font-mono)"></select>
+      <span style="color:var(--amber);font-size:1.2rem">&#8660;</span>
+      <select id="compareB" style="flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:.4rem;font-family:var(--font-mono)"></select>
+    </div>
+    <div class="compare-grid" id="compareResult"></div>
+    <div style="text-align:right;margin-top:1rem"><button class="btn" id="closeCompareBtn">CLOSE</button></div>
+  </div>
+</div>
+<div class="modal" id="encounterModal">
+  <div class="modal-content" style="max-width:480px;text-align:center">
+    <h3 style="color:var(--amber);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:1px;font-size:.72rem">&#9656; ENCOUNTER SIMULATOR</h3>
+    <div id="encounterResult"><p style="color:var(--text-dim);margin:2rem 0">PRESS ROLL TO SIMULATE...</p></div>
+    <div style="display:flex;gap:.5rem;justify-content:center">
+      <button class="btn primary" id="rollEncounterBtn">&#127922; ROLL</button>
+      <button class="btn" id="closeEncounterBtn">CLOSE</button>
+    </div>
+  </div>
+</div>
+<div class="modal" id="statsModal">
+  <div class="modal-content" style="max-width:600px">
+    <h3 style="color:var(--amber);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:1px;font-size:.72rem">&#9656; DATABASE STATISTICS</h3>
+    <div id="statsContent"></div>
+    <div style="text-align:right;margin-top:1rem">
+      <button class="btn" id="closeStatsBtn">CLOSE</button>
+      <button class="btn primary" id="exportStatsBtn">&#128229; EXPORT REPORT</button>
+    </div>
+  </div>
+</div>
+<div class="lightbox" id="lightbox"><img id="lightboxImg" src="" alt=""></div>
+<div class="toast-container" id="toastContainer"></div>
+
+
+<script src="js/utils.js"></script>
+<script src="js/api.js"></script>
+<script src="js/render.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
