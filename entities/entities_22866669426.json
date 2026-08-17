@@ -1,0 +1,21 @@
+{
+  "id": "22866669426",
+  "cls": "0",
+  "tags": [
+    "jinx"
+  ],
+  "stats": {
+    "danger": 1,
+    "frequency": 1,
+    "intelligence": 1,
+    "aggression": 1
+  },
+  "desc": "",
+  "discoveredAt": "2026-08-17",
+  "thumbnail": "https://raw.githubusercontent.com/Geoled/CoolRoomsEnciclopedia/main/images/1786924818719_b4e32065c040986de096380376177679.jpg",
+  "images": [],
+  "name": "Жынкс зе кот",
+  "habitat": "Любой уровень с низким шансом",
+  "behavior": "смотрит иногда ходит потом пропадает",
+  "survival": "ничего не надо делать жынкс доброе"
+}
