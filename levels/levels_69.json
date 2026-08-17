@@ -1,0 +1,36 @@
+{
+  "id": "69",
+  "cls": "0",
+  "tags": [
+    "death",
+    "certainDeath",
+    "warning",
+    "maxDanger"
+  ],
+  "discoveredAt": "2026-08-17",
+  "desc": "",
+  "thumbnail": "https://raw.githubusercontent.com/Geoled/CoolRoomsEnciclopedia/main/images/1786927367876_3f897053e4951e536ece447b955eed6c.jpg",
+  "stats": {
+    "safety": 0,
+    "stability": 0,
+    "entities": 5,
+    "resources": 0,
+    "mental": 0,
+    "navigation": 0
+  },
+  "status": "verified",
+  "images": [],
+  "title": "Ебаткуль",
+  "cluster": "main",
+  "protocol": "если ты сюда попал то просто смирись и отсчитывай свои последние минуты",
+  "in": "",
+  "out": "",
+  "ent": [],
+  "foodIds": [
+    "1",
+    "21"
+  ],
+  "itemIds": [
+    "2"
+  ]
+}
