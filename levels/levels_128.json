@@ -1,0 +1,26 @@
+{
+  "id": "128",
+  "cls": "0",
+  "tags": [],
+  "discoveredAt": "2026-08-17",
+  "desc": "",
+  "thumbnail": "",
+  "stats": {
+    "safety": 3,
+    "stability": 3,
+    "entities": 3,
+    "resources": 3,
+    "mental": 3,
+    "navigation": 3
+  },
+  "status": "draft",
+  "images": [],
+  "title": "Без имени",
+  "cluster": "",
+  "protocol": "",
+  "in": "0",
+  "out": "1",
+  "ent": [],
+  "foodIds": [],
+  "itemIds": []
+}
