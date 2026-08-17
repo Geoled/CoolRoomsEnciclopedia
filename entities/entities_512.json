@@ -1,22 +1,24 @@
 {
   "id": "512",
-  "cls": "0",
+  "cls": "1",
   "tags": [
-    "добри",
-    "silly"
+    "feline",
+    "orange"
   ],
+  "discoveredAt": "2026-08-17",
+  "desc": "дохуя умный оранжевый кошара",
+  "thumbnail": "https://raw.githubusercontent.com/Geoled/CoolRoomsEnciclopedia/main/images/1786927696645_faa3a13c90535b9ac50a80a61c215048.jpg",
   "stats": {
-    "danger": 3,
+    "danger": 2,
     "frequency": 1,
-    "intelligence": 1,
-    "aggression": 3
+    "intelligence": 5,
+    "aggression": 1
   },
-  "desc": "силли доуг ",
-  "discoveredAt": "2026-07-13",
-  "thumbnail": "https://i.pinimg.com/736x/fa/65/3e/fa653e4c4cf57a224f0bbae30572df08.jpg",
+  "status": "draft",
   "images": [],
-  "name": "Доуг",
-  "habitat": "уровень 666",
-  "behavior": "ходит бродит",
-  "survival": "не говорите про доудоу при доуге он его недолюбливает"
+  "name": "ДоуДоу",
+  "habitat": "69",
+  "protocol": "не провоцировать, не вступать в диалоги",
+  "behavior": "ходит, ищет еду высматривает цели в виде людей чтобы с ними поговорить",
+  "survival": "не провоцировать, не вступать в диалоги"
 }
