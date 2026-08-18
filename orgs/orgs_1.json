@@ -1,0 +1,23 @@
+{
+  "id": "1",
+  "acronym": "ORPHEUS",
+  "name": "Organization for Research and Protection of Human Expeditions into Unknown Spaces",
+  "description": "Гуманитарно-исследовательская миссия, ставящая целью не только изучение, но и спасение потерянных.",
+  "personnel": "Спасатели, медики, исследователи-универсалы, переговорщики с местными сущностями.",
+  "gear": "Медицинские комплекты, средства эвакуации, универсальные инструменты, маяки надежды, лёгкая броня.",
+  "status": "draft",
+  "discoveries": {
+    "levels": [
+      "1"
+    ],
+    "entities": [
+      "1"
+    ],
+    "items": [
+      "1"
+    ],
+    "foods": [
+      "27"
+    ]
+  }
+}
